@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('kontak', 20)->unique();
             $table->string('email')->unique()->nullable();
             $table->text('alamat')->nullable();
+            $table->text('catatan')->nullable();
             $table->timestamps();
         });
     }

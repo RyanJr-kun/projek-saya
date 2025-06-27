@@ -16,18 +16,16 @@ return new class extends Migration
             $table->string('sku', 50)->unique();
             $table->string('nama', 255);
             $table->string('slug', 100)->unique();
-
          // membuat Foreign Key
-            $table->foreignId('kategori_id')->constrained('kategori_produk');
-            $table->foreignId('brand_id')->constrained('brand');
-
+            $table->foreignId('kategori_id')->constrained('kategori_produks');
+            $table->foreignId('brand_id')->constrained('brands');
             $table->text('deskripsi');
-            $table->decimal('harga', 15, 2); 
-            $table->unsignedInteger('stok');
-            $table->unsignedInteger('batas_stok');
+            $table->decimal('harga', 15, 2);
+            $table->unsignedInteger('stok_minimum')->default(0);
             $table->json('spesifikasi');
             $table->boolean('nomor_seri');
             $table->unsignedInteger('durasi_garansi');
+            $table->boolean('bisa_dijual')->default(true);
             $table->timestamps();
         });
     }
