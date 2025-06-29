@@ -1,7 +1,0 @@
-.sidebar-arrow {
-    transition: transform 0.3s ease;
-}
-
-a.nav-link[aria-expanded="true"] .sidebar-arrow {
-    transform: rotate(180deg);
-}
