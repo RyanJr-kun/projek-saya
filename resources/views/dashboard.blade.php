@@ -14,7 +14,6 @@
 </head>
 
 <body class="g-sidenav-show   bg-gray-100">
-
   <div class="min-height-300 bg-dark position-absolute w-100"></div>
   <x-aside></x-aside>
   <main class="main-content position-relative border-radius-lg ">
@@ -34,7 +33,7 @@
         {{-- akhir sambutan masuk page --}}
 
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
-          
+
 
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenav">

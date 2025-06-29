@@ -7,7 +7,7 @@
       </a>
     </div>
     <hr class="horizontal dark mt-0">
-    <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+    <div class="w-auto" id="sidenav-collapse-main">
       <ul class="navbar-nav">
         <li class="nav-item">
           <a class="nav-link active" href="/">
@@ -45,6 +45,10 @@
             <span class="nav-link-text ms-1">Pelanggan</span>
           </a>
         </li>
+        <li  class="nav-item mt-3">
+            <hr class="horizontal dark mt-0">
+        </li>
+
         <li class="nav-item mt-3">
           <p class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder">Pembelian</p>
         </li>
@@ -71,6 +75,9 @@
             <span class="nav-link-text ms-1">Pemasok</span>
           </a>
         </li>
+        <li  class="nav-item mt-3">
+            <hr class="horizontal dark mt-0">
+        </li>
         <li class="nav-item mt-3">
           <p class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder">Inventaris</p>
         </li>
@@ -80,6 +87,24 @@
               <i class="ni ni-app text-dark text-sm opacity-10"></i>
             </div>
             <span class="nav-link-text ms-1">Produk</span>
+          </a>
+        </li>
+
+
+        <li class="nav-item">
+        <a class="nav-link " href="../pages/rtl.html">
+            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text ms-1">Stok Rendah</span>
+          </a>
+        </li>
+        <li class="nav-item">
+        <a class="nav-link " href="/pergerakanStok">
+            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text ms-1">Pergerakan Stok</span>
           </a>
         </li>
         <li class="nav-item">
@@ -97,78 +122,103 @@
             </div>
             <span class="nav-link-text ms-1">Brand</span>
           </a>
-          </li>
+        </li>
+        <li class="nav-item">
+        <a class="nav-link " href="../pages/rtl.html">
+            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text ms-1">unit</span>
+          </a>
+        </li>
+        <li class="nav-item">
+        <a class="nav-link " href="../pages/rtl.html">
+            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="ni ni-world-2 text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text ms-1">Garansi</span>
+          </a>
+        </li>
 
+        <li  class="nav-item mt-3">
+            <hr class="horizontal dark mt-0">
+        </li>
         <li class="nav-item mt-3">
           <p class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder">Administrasi</p>
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link " href="/pemasukan">
+        <a class="nav-link" href="#submenu-pengeluaran" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="submenu-pengeluaran">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="ni ni-app text-dark text-sm opacity-10"></i>
+                <i class="ni ni-basket text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text ms-1">Pengeluaran</span>
+            <i class="ni ni-bold-right text-xs ms-auto sidebar-arrow"></i>
+        </a>
+
+        <div class="collapse" id="submenu-pengeluaran">
+            <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link " href="/pengeluaran">
+            <div class="icon icon-shape icon-sm border-radius-md text-center  d-flex align-items-center justify-content-center">
+              <i class="text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text">Pengeluaran</span>
+          </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link " href="/kategoriPengeluaran">
+            <div class="icon icon-shape icon-sm border-radius-md text-center  d-flex align-items-center justify-content-center">
+              <i class="text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text">Kategori Pengeluaran</span>
+          </a>
+            </li>
+            </ul>
+        </div>
+
+         <a class="nav-link" href="#submenu-pemasukan" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="submenu-pemasukan">
+            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="ni ni-basket text-dark text-sm opacity-10"></i>
             </div>
             <span class="nav-link-text ms-1">Pemasukan</span>
-          </a>
-        </li>
-        <li class="nav-item">
-
-  <a class="nav-link" href="#submenu-invoice" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="submenu-invoice">
-    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-      <i class="ni ni-archive-2 text-dark text-sm opacity-10"></i>
-    </div>
-    <span class="nav-link-text ms-1">Pemasukan</span>
-    <i class="ni ni-bold-down text-xs ms-auto"></i>
-  </a>
-
-  <div class="collapse" id="submenu-invoice">
-    <ul class="nav nav-sm flex-column">
-      <li class="nav-item">
-        <a class="nav-link" href="/invoices">
-            <span class="nav-link-text ms-1">Pemasukan</span>
+            <i class="ni ni-bold-down text-xs ms-auto sidebar-arrow"></i>
         </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/invoices/create">
-            <span class="nav-link-text ms-1">Kategori Pemasukan</span>
-        </a>
-      </li>
-    </ul>
-  </div>
-</li>
-        <li class="nav-item">
-          <a class="nav-link " href="/kategoriPengeluaran">
-            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="ni ni-app text-dark text-sm opacity-10"></i>
+
+        <div class="collapse" id="submenu-pemasukan">
+            <ul class="nav flex-column">
+            <li class="nav-item">
+
+                <a class="nav-link " href="/Pemasukan">
+            <div class="icon icon-shape icon-sm border-radius-md text-center  d-flex align-items-center justify-content-center">
+              <i class="text-dark text-sm opacity-10"></i>
             </div>
-            <span class="nav-link-text ms-1">Kategori Pengeluaran</span>
+            <span class="nav-link-text">Pemasukan</span>
           </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link " href="/kategoriPemasukan">
+            <div class="icon icon-shape icon-sm border-radius-md text-center  d-flex align-items-center justify-content-center">
+              <i class="text-dark text-sm opacity-10"></i>
+            </div>
+            <span class="nav-link-text">Kategori Pemasukan</span>
+          </a>
+            </li>
+            </ul>
+        </div>
+
+        <li  class="nav-item mt-3">
+            <hr class="horizontal dark mt-0">
         </li>
         <li class="nav-item mt-3">
           <p class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder">Setting</p>
         </li>
+
         <li class="nav-item">
           <a class="nav-link " href="/profile">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
             </div>
             <span class="nav-link-text ms-1">Profile</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " href="/signin">
-            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i>
-            </div>
-            <span class="nav-link-text ms-1">Sign In</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " href="../signup">
-            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="ni ni-collection text-dark text-sm opacity-10"></i>
-            </div>
-            <span class="nav-link-text ms-1">Sign Up</span>
           </a>
         </li>
         <li class="nav-item">
@@ -181,17 +231,5 @@
         </li>
       </ul>
     </div>
-    {{-- <div class="sidenav-footer mx-3 ">
-      <div class="card card-plain shadow-none" id="sidenavCard">
-        <img class="w-50 mx-auto" src="../assets/img/illustrations/icon-documentation.svg" alt="sidebar_illustration">
-        <div class="card-body text-center p-3 w-100 pt-0">
-          <div class="docs-info">
-            <h6 class="mb-0">Need help?</h6>
-            <p class="text-xs font-weight-bold mb-0">Please check our docs</p>
-          </div>
-        </div>
-      </div>
-      <a href="https://www.creative-tim.com/learning-lab/bootstrap/license/argon-dashboard" target="_blank" class="btn btn-dark btn-sm w-100 mb-3">Documentation</a>
-      <a class="btn btn-primary btn-sm mb-0 w-100" href="https://www.creative-tim.com/product/argon-dashboard-pro?ref=sidebarfree" type="button">Upgrade to pro</a>
-    </div> --}}
+
   </aside>
