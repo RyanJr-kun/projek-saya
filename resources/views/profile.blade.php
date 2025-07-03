@@ -1,6 +1,7 @@
 @extends('layouts.main')
 
 @section('container')
+    <div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto">
     <div class="card shadow-lg mt-4 mx-3">
       <div class="card-body p-3">
         <div class="row gx-4">
@@ -28,7 +29,7 @@
           <div class="card">
             <div class="card-header pb-0">
               <div class="d-flex align-items-center">
-                <p class="mb-0">Edit Profile</p>
+                <p class="mb-0 tw-bold">Edit Profile</p>
                 <button class="btn btn-primary btn-sm ms-auto">Save</button>
               </div>
             </div>
@@ -104,7 +105,7 @@
       </div>
     <x-footer></x-footer>
     </div>
-  </div>
+</div>
 @endsection
 @section('corejs')
   <script>

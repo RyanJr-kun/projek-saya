@@ -30,7 +30,6 @@
     </nav>
     <!-- End Navbar -->
     @yield('container')
-
   </main>
   <x-fixed-navbar></x-fixed-navbar>
   <x-corejs></x-corejs>
