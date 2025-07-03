@@ -133,48 +133,48 @@
                     </tr>
                   </thead>
                   <tbody id="isiTable">
-                    @foreach ($produks as $produk)
+                    @foreach ($produk as $pro)
                     <tr>
                         <td>
-                        <p title="SKU" class="text-xs text-dark fw-bold ms-3 mb-0">{{ $produk["sku"] }}</p>
+                        <p title="SKU" class="text-xs text-dark fw-bold ms-3 mb-0">{{ $pro["sku"] }}</p>
                       </td>
                       <td>
                         <div title="gambar & nama produk" class="d-flex px-2 py-1">
                           <div>
-                            <img src="{{ $produk["img-produk"] }}" class="avatar avatar-sm me-3" alt="produk1">
+                            <img src="{{ $pro["img-produk"] }}" class="avatar avatar-sm me-3" alt="produk1">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">{{ $produk["nama-produk"] }}</h6>
+                            <h6 class="mb-0 text-sm">{{ $pro["nama-produk"] }}</h6>
                           </div>
                         </div>
                       </td>
                       <td>
-                        <p title="kategori" class="text-xs text-dark fw-bold mb-0 ">{{ $produk["kategori"] }}</p>
+                        <p title="kategori" class="text-xs text-dark fw-bold mb-0 ">{{ $pro["kategori"] }}</p>
                       </td>
                       <td>
-                        <p title="brand" class="text-xs text-dark fw-bold mb-0 ">{{ $produk["brand"] }}</p>
+                        <p title="brand" class="text-xs text-dark fw-bold mb-0 ">{{ $pro["brand"] }}</p>
                       </td>
                       <td>
-                        <p title="harga" class="text-xs text-dark fw-bold mb-0">Rp. {{ $produk["harga"] }}</p>
+                        <p title="harga" class="text-xs text-dark fw-bold mb-0">Rp. {{ $pro["harga"] }}</p>
                       </td>
                       <td>
-                        <p title="unit" class="text-xs text-dark fw-bold mb-0">{{ $produk["unit"] }}</p>
+                        <p title="unit" class="text-xs text-dark fw-bold mb-0">{{ $pro["unit"] }}</p>
                       </td>
                       <td>
-                        <span title="qty" class="text-dark text-xs fw-bold ">{{ $produk["qty"] }}</span>
+                        <span title="qty" class="text-dark text-xs fw-bold ">{{ $pro["qty"] }}</span>
                       </td>
                       <td>
                         <div title="gambar & nama produk" class="d-flex px-2 py-1">
                           <div>
-                            <img src="{{ $produk["img"] }}" class="avatar avatar-sm me-3" alt="produk1">
+                            <img src="{{ $pro["img"] }}" class="avatar avatar-sm me-3" alt="produk1">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">{{ $produk["pembuat"] }}</h6>
+                            <h6 class="mb-0 text-sm">{{ $pro["pembuat"] }}</h6>
                           </div>
                         </div>
                       </td>
                       <td class="align-middle pe-3">
-                        <a href="#" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Detail produk">
+                        <a href="/produk/{{ $pro["slug"] }}" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Detail produk">
                             <i class="fa fa-eye text-dark text-sm opacity-10"></i>
                         </a>
                         <a href="#" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Edit produk">

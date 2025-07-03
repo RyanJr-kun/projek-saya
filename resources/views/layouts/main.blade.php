@@ -6,7 +6,7 @@
   <link rel="logo" sizes="100x100" href="../assets/img/logo.svg">
   <link rel="icon" type="image/svg" href="../assets/img/logo.svg">
   <title>
-    Jo Computer {{ $namaPage }}
+    Jo Computer Dashboard
   </title>
   <x-link></x-link>
 </head>
@@ -21,9 +21,9 @@
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
             <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="javascript:;">Pages</a></li>
-            <li class="breadcrumb-item text-sm text-white active" aria-current="page">{{ $namaPage }}</li>
+            <li class="breadcrumb-item text-sm text-white active" aria-current="page">Dashboard</li>
           </ol>
-          <h6 class="font-weight-bolder text-white mb-0">{{ $namaPage }}</h6>
+          <h6 class="font-weight-bolder text-white mb-0">Dashboard</h6>
         </nav>
     <x-navbar></x-navbar>
      </div>

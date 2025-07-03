@@ -12,7 +12,17 @@ class ProdukController extends Controller
      */
     public function index()
     {
-        //
+        return view('produk', [
+        'namaPage'=>'produk',
+        'produk' => Produk::all()
+    ]);
+    }
+
+    public function show ($slug) {
+        return view('produks',[
+        'title' => 'Single Produk',
+        'produk' => Produk::find($slug)
+    ]);
     }
 
     /**
@@ -34,10 +44,10 @@ class ProdukController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(produk $produk)
-    {
-        //
-    }
+    // public function show(produk $produk)
+    // {
+    //     //
+    // }
 
     /**
      * Show the form for editing the specified resource.
