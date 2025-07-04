@@ -14,18 +14,24 @@ return new class extends Migration
         Schema::create('produks', function (Blueprint $table) {
             $table->id();
             $table->string('sku', 50)->unique();
-            $table->string('nama', 255);
+            $table->string('nama_produk', 255);
             $table->string('slug', 100)->unique();
-         // membuat Foreign Key
-            $table->foreignId('kategori_id')->constrained('kategori_produks');
-            $table->foreignId('brand_id')->constrained('brands');
-            $table->text('deskripsi');
+            $table->string('kategori', 255);
+            $table->string('brand', 255);
+            $table->string('unit', 255);
+            $table->string('qty', 255);
+            $table->string('pembuat', 255);
+         // membuat Foreign Key ->constrained('kategori_produks'); ->constrained('brands');
+            // $table->foreignId('kategori_id');
+            // $table->foreignId('brand_id');
+            // $table->text('deskripsi')->nullable();
             $table->decimal('harga', 15, 2);
-            $table->unsignedInteger('stok_minimum')->default(0);
-            $table->json('spesifikasi');
-            $table->boolean('nomor_seri');
-            $table->unsignedInteger('durasi_garansi');
-            $table->boolean('bisa_dijual')->default(true);
+            // $table->unsignedInteger('stok_minimum')->default(0);
+            // $table->json('spesifikasi');
+            // $table->boolean('nomor_seri');
+            // $table->unsignedInteger('durasi_garansi');
+            // $table->boolean('bisa_dijual')->default(true);
+            $table->timestamp('tanggal_dibuat');
             $table->timestamps();
         });
     }

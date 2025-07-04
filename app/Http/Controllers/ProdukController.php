@@ -18,10 +18,10 @@ class ProdukController extends Controller
     ]);
     }
 
-    public function show ($slug) {
+    public function show (produk $produk) {
         return view('produks',[
         'title' => 'Single Produk',
-        'produk' => Produk::find($slug)
+        'produk' => $produk
     ]);
     }
 

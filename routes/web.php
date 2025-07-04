@@ -58,7 +58,7 @@ Route::get('users', function () {
 
 Route::get('produk', [ProdukController::class, 'index']);
 // halaman singgle post produk
-Route::get('produk/{slug}', [ProdukController::class, 'show']);
+Route::get('produk/{produk:slug}', [ProdukController::class, 'show']);
 
 Route::get('kasir', function () {
     return view('kasir', ['namaPage'=>'kasir']);

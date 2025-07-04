@@ -7,7 +7,7 @@
         <div class="col-12 ">
           <div class="card mb-4 ">
             <div class="card-hrader pb-0 p-3 mb-3">
-                <div class="d-lg-flex">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-0">Data Pengguna</h5>
                             <p class="text-sm mb-0">
@@ -104,13 +104,13 @@
 </div>
             <div class="card-body px-0 pt-0 pb-2">
                 <div class="filter-container">
-                    <div class="row g-3 align-items-center">
+                    <div class="row g-3 align-items-center justify-content-between">
                         <!-- Filter Pencarian Nama -->
-                        <div class="col-md-6 mx-3 w-20">
-                            <input type="text" id="searchInput" class="form-control" placeholder="Ketik nama user untuk mencari...">
+                        <div class="col-5 col-lg-3 ms-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="cari pengguna ...">
                         </div>
                         <!-- Filter Dropdown Posisi -->
-                        <div class="col-md-6 ms-md-auto pe-md-3 mx-3 w-10">
+                        <div class="col-5 col-lg-2 me-3">
                             <select id="posisiFilter" class="form-select">
                                 <option value="">Semua Posisi</option>
                             </select>
@@ -135,7 +135,7 @@
                       <td>
                         <div class="d-flex px-2 py-1">
                           <div>
-                            <img src="{{ $user["img"] }}" class="avatar avatar-sm me-3" alt="user1">
+                            <img src="{{ $user["img"] }}" class="avatar avatar-sm me-3">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
                             <h6 class="mb-0 text-sm">{{ $user["nama"] }}</h6>
@@ -180,7 +180,7 @@
 @endsection
 @section('corejs')
 <script>
-
+        // ngambil gambar dan tampilin dia area border
         // Get the necessary elements from the DOM (Document Object Model)
         const uploadInput = document.getElementById('uploadImageInput');
         const previewBox = document.getElementById('imagePreviewBox');
@@ -221,8 +221,8 @@
 
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Ambil elemen-elemen yang dibutuhkan
+    // buat fitur search berdasarkan nama dan filter berdasarkan roles atau posisi
+    document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
     const posisiFilter = document.getElementById('posisiFilter');
     // Menggunakan ID tbody yang Anda berikan: 'isiTable'
