@@ -88,11 +88,10 @@
         <li class="nav-item mt-1">
           <p class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder">Inventaris</p>
         </li>
-
         <li class="nav-item">
           <a class="nav-link " href="/produk">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="ni ni-app text-dark text-sm opacity-10"></i>
+              <i class="fa fa-dice-d6 text-dark text-sm opacity-10"></i>
             </div>
             <span class="nav-link-text ms-1">Produk</span>
           </a>
@@ -251,7 +250,7 @@
         <li class="nav-item">
           <a class="nav-link " href="/profile">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
+              <i class="fa fa-user text-dark text-sm opacity-10"></i>
             </div>
             <span class="nav-link-text ms-1">Profile</span>
           </a>

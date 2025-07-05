@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('kategori_produks', function (Blueprint $table) {
             $table->id();
-            $table->string('nama', 100);
+            $table->string('nama', 100)->unique();
             $table->string('slug', 100)->unique();
             $table->timestamps();
         });

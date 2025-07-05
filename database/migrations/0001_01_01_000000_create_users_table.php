@@ -15,8 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('email')->unique();
+            $table->string('kontak')->unique();
+            $table->string('posisi');
+            $table->string('img_user')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->timestamp('mulai_kerja')->nullable();
+            $table->enum('status',['aktif','tidak']);
             $table->rememberToken();
             $table->timestamps();
         });

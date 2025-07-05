@@ -135,16 +135,16 @@
                       <td>
                         <div class="d-flex px-2 py-1">
                           <div>
-                            <img src="{{ $user["img"] }}" class="avatar avatar-sm me-3">
+                            <img src="{{ $user->img }}" class="avatar avatar-sm me-3">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">{{ $user["nama"] }}</h6>
+                            <h6 class="mb-0 text-sm">{{ $user->nama }}</h6>
                           </div>
                         </div>
                       </td>
                       <td>
                         <p class="text-xs text-dark fw-bold mb-0">{{ $user["kontak"] }}</p>
-                        <p class="text-xs text-dark mb-0">{{ $user["email"] }}</p>
+                        <p class="text-xs text-dark mb-0">{{ $user->email }}</p>
                       </td>
                       <td>
                         <p class="text-xs text-dark fw-bold mb-0">{{ $user["posisi"] }}</p>

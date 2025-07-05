@@ -13,7 +13,7 @@ class ProdukController extends Controller
     public function index()
     {
         return view('produk', [
-        'namaPage'=>'produk',
+        'title'=>'produk',
         'produk' => Produk::all()
     ]);
     }

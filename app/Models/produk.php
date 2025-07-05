@@ -15,4 +15,9 @@ class produk extends model
     {
         return $this->belongsTo(kategori_produk::class);
     }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

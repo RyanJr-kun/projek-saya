@@ -15,11 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('sku', 50)->unique();
             $table->string('nama_produk', 255);
+            $table->string('img_produk', 255);
             $table->string('slug', 100)->unique();
             $table->string('brand', 255);
             $table->string('unit', 255);
             $table->string('qty', 255);
-            $table->string('pembuat', 255);
+            $table->foreignId('img_user_id');
+            $table->foreignId('user_id');
          // membuat Foreign Key ->constrained('kategori_produks'); ->constrained('brands');
             $table->foreignId('kategori_produk_id');
             // $table->foreignId('brand_id');
