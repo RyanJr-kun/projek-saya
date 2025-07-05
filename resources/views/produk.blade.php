@@ -151,7 +151,7 @@
                         </div>
                       </td>
                       <td>
-                        <p title="kategori" class="text-xs text-dark fw-bold mb-0 ">{{ $pro->kategori }}</p>
+                        <p title="kategori" class="text-xs text-dark fw-bold mb-0 ">{{ $pro->kategori_produk->nama }}</p>
                       </td>
                       <td>
                         <p title="brand" class="text-xs text-dark fw-bold mb-0 ">{{ $pro->brand }}</p>
