@@ -1,8 +1,6 @@
 @extends('layouts.main')
 
 @section('container')
-
-
 <div class="card m-4 p-3">
 
   <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">

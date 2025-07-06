@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\User;
+
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -12,8 +13,8 @@ class UserController extends Controller
     public function index()
     {
         return view('users', [
-        'namaPage'=>'users',
-        'users' => User::all()
+        'title'=>'users',
+        'users' => User::latest()->get()
     ]);
     }
 
@@ -36,9 +37,11 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
+    public function show (user $user) {
+        return view('profile',[
+        'title' => 'Single user',
+        'user' => $user
+    ]);
     }
 
     /**

@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // Nama peran, misal: 'admin', 'kasir'. Harus unik.
-            $table->string('description')->nullable(); // Penjelasan singkat tentang peran
+            $table->string('nama')->unique();
+            $table->string('slug')->unique();
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

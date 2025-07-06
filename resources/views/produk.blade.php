@@ -6,24 +6,24 @@
       <div class="row ">
         <div class="col-12 ">
           <div class="card mb-4 ">
-            <div class="card-header pb-0 p-3 mb-3">
+            <div class="card-header pb-0 p-3 mb-3 ">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-0">Data Produk</h5>
                             <p class="text-sm mb-0">
-                            Kelola data Produkmu
+                            Kelola Data Produkmu
                         </p>
                     </div>
             <div class="ms-auto my-auto mt-lg-0 mt-4">
-                <div class="ms-auto my-auto">
+                <div class="ms-auto mb-3">
                     {{-- button export pdf/excel --}}
-                <a href="#Export-Pdf" type="button" class="btn btn-outline-primary me-2 p-2 mb-0" title="Export PDF" >
-                    <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20"></a>
-                        <a href="#Export-Excel" class="btn btn-outline-primary p-2 me-2 export mb-0 " data-type="csv" type="button" title="Export Excel">
-                            <img src="assets/img/xls.png" alt="Download PDF" width="20" height="20"></a>
+                    <a href="#Export-Pdf" type="button" class="btn btn-outline-primary me-2 p-2 mb-0" title="Export PDF" >
+                        <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20"></a>
+                    <a href="#Export-Excel" class="btn btn-outline-primary p-2 me-2 export mb-0 " data-type="csv" type="button" title="Export Excel">
+                        <img src="assets/img/xls.png" alt="Download PDF" width="20" height="20"></a>
 
                     {{-- triger-modal --}}
-                        <button class="btn bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus cursor-pointer pe-2"></i>Add User</button>
+                        <button class="btn bg-gradient-primary mb-0 " data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus cursor-pointer pe-2"></i>Buat produk</button>
 
                         {{-- start-modal-add-user--}}
             <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
@@ -118,7 +118,7 @@
                     </div>
                 </div>
               <div class="table-responsive p-0">
-                <table class="table align-items-center mb-0" id="tableData">
+                <table class="table align-items-center pb-3" id="tableData">
                   <thead>
                     <tr>
                       <th> <input type="checkbox" id="check-all"></th>
@@ -190,6 +190,7 @@
                     @endforeach
                   </tbody>
                 </table>
+                <div class="my-3 ms-3">{{ $produk ->onEachSide(2    )->links() }}</div>
               </div>
             </div>
           </div>

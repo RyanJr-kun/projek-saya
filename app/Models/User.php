@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\Role;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
@@ -18,11 +20,8 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'nama',
-        'email',
-        'password',
-    ];
+    protected $guarded = ['id'];
+    protected $with =['role'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -50,5 +49,9 @@ class User extends Authenticatable
     public function produk(): HasMany
     {
       return $this->hasMany(Produk::class);
+    }
+    public function role(): BelongsTo
+    {
+      return $this->belongsTo(Role::class);
     }
 }

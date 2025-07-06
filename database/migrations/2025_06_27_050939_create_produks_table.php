@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('brand', 255);
             $table->string('unit', 255);
             $table->string('qty', 255);
-            $table->foreignId('img_user_id');
             $table->foreignId('user_id');
          // membuat Foreign Key ->constrained('kategori_produks'); ->constrained('brands');
             $table->foreignId('kategori_produk_id');

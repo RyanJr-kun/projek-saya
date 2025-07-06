@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\produk;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class kategori_produk extends Model
+class KategoriProduk extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];

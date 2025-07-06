@@ -34,17 +34,18 @@
               </div>
             </div>
             <div class="card-body">
+
               <p class="text-uppercase text-sm">User Information</p>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="example-text-input" class="form-control-label">Username</label>
+                    <label for="example-text-input" class="form-control-label">{{ $user->nama }}</label>
                     <input class="form-control" type="text" value="lucky.jesse">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="example-text-input" class="form-control-label">Email address</label>
+                    <label for="example-text-input" class="form-control-label">{{ $user->email }}</label>
                     <input class="form-control" type="email" value="jesse@example.com">
                   </div>
                 </div>

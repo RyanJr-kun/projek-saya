@@ -15,7 +15,7 @@
                         </p>
                     </div>
             <div class="ms-auto my-auto mt-lg-0 mt-4">
-                <div class="ms-auto my-auto">
+                <div class="ms-auto mb-3">
                     {{-- button export pdf/excel --}}
                 <a href="#Export-Pdf" type="button" class="btn btn-outline-primary me-2 p-2 mb-0" title="Export PDF" >
                     <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20"></a>
@@ -23,7 +23,7 @@
                             <img src="assets/img/xls.png" alt="Download PDF" width="20" height="20"></a>
 
                     {{-- triger-modal --}}
-                        <button class="btn bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Add User</button>
+                        <button class="btn bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat User</button>
 
                         {{-- start-modal-add-user--}}
             <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
@@ -59,8 +59,9 @@
                             <label for="roleSelect" class="form-label">Role <span class="text-danger">*</span></label>
                             <select class="form-select" id="roleSelect" required>
                                 <option selected>Choose...</option>
+                                {{-- @foreach ($ as $) --}}
                                 <option value="1">Admin</option>
-                                <option value="2">Kasir</option>
+                                {{-- @endforeach --}}
                             </select>
                         </div>
                         <div class="form-group">
@@ -135,7 +136,7 @@
                       <td>
                         <div class="d-flex px-2 py-1">
                           <div>
-                            <img src="{{ $user->img }}" class="avatar avatar-sm me-3">
+                            <img src="{{ $user->img_user }}" class="avatar avatar-sm me-3">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
                             <h6 class="mb-0 text-sm">{{ $user->nama }}</h6>
@@ -143,22 +144,23 @@
                         </div>
                       </td>
                       <td>
-                        <p class="text-xs text-dark fw-bold mb-0">{{ $user["kontak"] }}</p>
+                        <p class="text-xs text-dark fw-bold mb-0">{{ $user->kontak }}</p>
                         <p class="text-xs text-dark mb-0">{{ $user->email }}</p>
                       </td>
                       <td>
-                        <p class="text-xs text-dark fw-bold mb-0">{{ $user["posisi"] }}</p>
+                        <p class="text-xs text-dark fw-bold mb-0">{{ $user->role->nama }}</p>
                       </td>
                       <td class="align-middle text-center">
-                        <span class="text-dark text-xs fw-bold">{{ $user["mulai_kerja"] }}</span>
+                        <span class="text-dark text-xs fw-bold">{{ $user->mulai_kerja }}</span>
                       </td>
                       <td class="align-middle text-center text-sm">
-                        <span class="badge badge-sm rounded-1 {{ strtolower($user['status']) == 'aktif' ? 'bg-success' : 'bg-danger' }}">{{ $user["status"] }} </span>
+                        <span class="badge {{ strtolower($user['status']) == 'aktif' ? 'bg-gradient-success' : 'bg-gradient-danger' }}">{{ $user->status }} </span>
                       </td>
                       <td class="align-middle">
-                        <a href="#" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Detail user">
+                        {{-- <a href="/profile/{{ $user->username }}" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip"
+                            data-original-title="Detail user">
                             <i class="fa fa-eye text-dark text-sm opacity-10"></i>
-                        </a>
+                        </a> --}}
                         <a href="#" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Edit user">
                             <i class="fa fa-pen-to-square text-dark text-sm opacity-10"></i>
                         </a>

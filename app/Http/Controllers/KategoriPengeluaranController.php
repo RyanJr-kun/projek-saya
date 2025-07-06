@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\kategori_pengeluaran;
+use App\Models\kategori_produk;
 use Illuminate\Http\Request;
 
 class KategoriPengeluaranController extends Controller
