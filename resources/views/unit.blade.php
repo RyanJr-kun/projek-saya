@@ -6,31 +6,31 @@
       <div class="row ">
         <div class="col-12 ">
           <div class="card mb-4 ">
-            <div class="card-header pb-0 p-3 mb-3 ">
+            <div class="card-hrader pb-0 p-3 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="mb-0">Data Produk</h5>
+                        <h5 class="mb-0">Data Unit</h5>
                             <p class="text-sm mb-0">
-                            Kelola Data Produkmu
+                            Kelola Data Unit Produkmu
                         </p>
                     </div>
             <div class="ms-auto my-auto mt-lg-0 mt-4">
                 <div class="ms-auto mb-3">
                     {{-- button export pdf/excel --}}
-                    <a href="#Export-Pdf" type="button" class="btn btn-outline-primary me-2 p-2 mb-0" title="Export PDF" >
-                        <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20"></a>
-                    <a href="#Export-Excel" class="btn btn-outline-primary p-2 me-2 export mb-0 " data-type="csv" type="button" title="Export Excel">
-                        <img src="assets/img/xls.png" alt="Download PDF" width="20" height="20"></a>
+                <a href="#Export-Pdf" type="button" class="btn btn-outline-primary me-2 p-2 mb-0" title="Export PDF" >
+                    <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20"></a>
+                        <a href="#Export-Excel" class="btn btn-outline-primary p-2 me-2 export mb-0 " data-type="csv" type="button" title="Export Excel">
+                            <img src="assets/img/xls.png" alt="Download PDF" width="20" height="20"></a>
 
                     {{-- triger-modal --}}
-                        <button class="btn bg-gradient-primary mb-0 " data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus cursor-pointer pe-2"></i>Buat produk</button>
+                        <button class="btn bg-gradient-primary mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Unit</button>
 
                         {{-- start-modal-add-user--}}
             <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog mt-lg-10">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="ModalLabel">Buat Pengguna Baru</h5>
+                            <h5 class="modal-title" id="ModalLabel">Buat Unit Baru</h5>
                             <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
         <div class="modal-body">
@@ -59,8 +59,9 @@
                             <label for="roleSelect" class="form-label">Role <span class="text-danger">*</span></label>
                             <select class="form-select" id="roleSelect" required>
                                 <option selected>Choose...</option>
+                                {{-- @foreach ($ as $) --}}
                                 <option value="1">Admin</option>
-                                <option value="2">Kasir</option>
+                                {{-- @endforeach --}}
                             </select>
                         </div>
                         <div class="form-group">
@@ -103,86 +104,65 @@
   </div>
 </div>
             <div class="card-body px-0 pt-0 pb-2">
-                <div class="filter-container mb-3">
+                <div class="filter-container">
                     <div class="row g-3 align-items-center justify-content-between">
                         <!-- Filter Pencarian Nama -->
                         <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari produk ...">
+                            <input type="text" id="searchInput" class="form-control" placeholder="cari pengguna ...">
                         </div>
                         <!-- Filter Dropdown Posisi -->
                         <div class="col-5 col-lg-2 me-3">
                             <select id="posisiFilter" class="form-select">
-                                <option value="">Semua kategori</option>
+                                <option value="">Semua Posisi</option>
                             </select>
                         </div>
                     </div>
                 </div>
-              <div class="table-responsive p-0">
-                <table class="table align-items-center pb-3" id="tableData">
+              <div class="table-responsive p-0 mt-4">
+                <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
                   <thead>
-                    <tr>
-                      <th> <input type="checkbox" id="check-all"></th>
-                      <th class="text-uppercase text-dark text-xs font-weight-bolder">SKU</th>
-                      <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama Produk</th>
-                      <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kategori</th>
-                      <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Brand</th>
-                      <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Harga</th>
-                      <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Unit</th>
-                      <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Qty</th>
-                      <th class="text-uppercase text-dark text-xs font-weight-bolder">Pembuat</th>
+                    <tr class="table-secondary">
+                      <th class="text-uppercase text-dark text-xs font-weight-bolder">
+                      <input type="checkbox" id="check-all" class="me-4">Nama</th>
+                      <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Singkatan</th>
+                      <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah Produk</th>
+                      <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Dibuat Tanggal</th>
+                      <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
                       <th class="text-dark"></th>
                     </tr>
                   </thead>
                   <tbody id="isiTable">
-                    @foreach ($produk as $produks)
-                    <tr>
-                        <td ><input type="checkbox" class="check-item ms-3 dark mb-0"></td>
-                        <td>
-                        <p title="SKU" class="text-xs text-dark fw-bold ms-3 mb-0">{{ $produks->sku }}</p>
+                    @foreach ($units as $unit)
+                    <tr class="">
+                      <td cl>
+                    <div class="d-flex ms-2 px-2 py-1 align-items-center">
+                         <input type="checkbox" class="check-item me-4 dark mb-0">
+                         <h6 class="mb-0 text-sm">{{ $unit->nama }}</h6>
+                     </div>
+                    </td>
+                      <td>
+                        <p class="text-xs text-dark fw-bold mb-0">{{ $unit->slug }}</p>
                       </td>
                       <td>
-                        <div title="gambar & nama produk" class="d-flex px-2 py-1">
-                          <div>
-                            <img src="{{ $produks->user->img_user }}" class="avatar avatar-sm me-3" alt="produk1">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">{{ $produks->nama_produk }}</h6>
-                          </div>
-                        </div>
+                        <p class="text-xs text-dark fw-bold mb-0">{{ $unit->produks_count }}</p>
                       </td>
                       <td>
-                        <p title="kategori" class="text-xs text-dark fw-bold mb-0 ">{{ $produks->kategori_produk->nama }}</p>
+                        <p class="text-xs text-dark fw-bold mb-0">{{ $unit->created_at->translatedFormat('d M Y') }}</p>
                       </td>
-                      <td>
-                        <p title="brand" class="text-xs text-dark fw-bold mb-0 ">{{ $produks->brand->nama }}</p>
+
+                      <td class="align-middle text-center text-sm">
+                        <span class="badge {{ strtolower($unit['status']) == 'aktif' ? 'bg-gradient-success' : 'bg-gradient-secondary' }}">{{ $unit->status }} </span>
                       </td>
-                      <td>
-                        <p title="harga" class="text-xs text-dark fw-bold mb-0">{{ $produks->harga_formatted }}</p>
-                      </td>
-                      <td>
-                        <p title="unit" class="text-xs text-dark fw-bold mb-0">{{ $produks->unit->nama }}</p>
-                      </td>
-                      <td>
-                        <span title="qty" class="text-dark text-xs fw-bold ">{{ $produks->qty }}</span>
-                      </td>
-                      <td>
-                        <div title="gambar & nama produk" class="d-flex px-2 py-1">
-                          <div>
-                            <img src="{{ $produks->user->img_user }}" class="avatar avatar-sm me-3" alt="produk1">
-                          </div>
-                          <div class="d-flex flex-column justify-content-center">
-                            <h6 class="mb-0 text-sm">{{ $produks->user->nama }}</h6>
-                          </div>
-                        </div>
-                      </td>
-                      <td class="align-middle pe-3">
-                        <a href="/produk/{{ $produks->slug }}" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Detail produk">
+
+                      <td class="align-middle">
+                        <a href="/#" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip"
+                            data-original-title="Detail user">
                             <i class="fa fa-eye text-dark text-sm opacity-10"></i>
                         </a>
-                        <a href="#" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Edit produk">
+                        <a href="/#" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Edit user">
                             <i class="fa fa-pen-to-square text-dark text-sm opacity-10"></i>
                         </a>
-                        <a href="#" class="text-dark fw-bold text-xs" data-toggle="tooltip" data-original-title="Delete produk">
+                        <a href="/#" class="text-dark fw-bold text-xs" data-toggle="tooltip" data-original-title="Delete user">
                             <i class="fa fa-trash text-dark text-sm opacity-10"></i>
                         </a>
                       </td>
@@ -190,7 +170,6 @@
                     @endforeach
                   </tbody>
                 </table>
-                <div class="my-3 ms-3">{{ $produk ->onEachSide(2)->links() }}</div>
               </div>
             </div>
           </div>

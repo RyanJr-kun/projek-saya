@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Brand;
 use App\Models\KategoriProduk;
+use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -26,12 +28,11 @@ class ProdukFactory extends Factory
             'nama_produk' => $namaProduk,
             'slug' => Str::slug($namaProduk),
             'kategori_produk_id' => KategoriProduk::inRandomOrder()->first()->id ?? KategoriProduk::factory(),
-            'brand' => $this->faker->randomElement(['Razer', 'Logitech', 'Corsair', 'Steelseries']),
-            'unit' => 'Unit',
+            'unit_id' => Unit::inRandomOrder()->first()->id ?? Unit::factory(),
             'qty' => $this->faker->numberBetween(10, 100),
             'user_id' => User::inRandomOrder()->first()->id ?? User::factory(),
+            'brand_id' => Brand::inRandomOrder()->first()->id ?? Brand::factory(),
             'harga' => $this->faker->numberBetween(100, 2000) * 1000,
-            'tanggal_dibuat' => now(),
         ];
     }
 }

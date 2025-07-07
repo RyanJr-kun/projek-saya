@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
-use App\Models\Pengeluaran;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class KategoriPengeluaran extends Model
+class KategoriPemasukan extends Model
 {
     use HasFactory;
-    public function pengeluaran(): HasMany
+    public function pemasukan(): HasMany
     {
-      return $this->hasMany(Pengeluaran::class);
+      return $this->hasMany(Pemasukan::class);
     }
 }

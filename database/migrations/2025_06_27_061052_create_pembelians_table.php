@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('pemasok_id')->constrained('pemasoks');
             $table->date('tanggal_pembelian');
+            $table->foreignId('item_pembelian_id');
             $table->decimal('jumlah_total', 15, 2);
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();

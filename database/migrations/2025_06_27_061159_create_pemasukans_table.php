@@ -16,8 +16,9 @@ return new class extends Migration
             $table->date('tanggal_pemasukan');
             $table->text('deskripsi');
             $table->decimal('jumlah', 15, 2);
-            $table->foreignId('id_pelanggan')->nullable()->constrained('pelanggans');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('pelanggan_id')->nullable();
+            $table->foreignId('user_id');
+            $table->foreignId('kategori_pemasukan_id');
             $table->timestamps();
         });
     }

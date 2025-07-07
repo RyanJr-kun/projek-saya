@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nama')->unique();
             $table->string('slug')->unique();
             $table->string('description')->nullable();
+            $table->enum('status', ['aktif','tidak']);
             $table->timestamps();
         });
     }

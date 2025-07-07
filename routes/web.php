@@ -1,35 +1,52 @@
 <?php
 
-use App\Http\Controllers\KategoriProduk;
+use App\Http\Controllers\KategoriProdukController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\UnitController;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
-//rute untuk masuk dashboard
 Route::get('/', function () {
-    return view('dashboard', ['namaPage'=>'Dashboard'], ['namaUser'=>'Ryan Junior'] );
+    return view('dashboard', ['title'=>'Dashboard']);
 });
 
-//rute ke menu CRUD users
-Route::get('/users', [UserController::class, 'index']);
-//rute untuk masuk profile user
-// Route::get('/users/{users:nama}',[UserController::class, 'show']);
+Route::get('users', [UserController::class, 'index']);
 
-
-//rute ke menu CRUD produks
 Route::get('produk', [ProdukController::class, 'index']);
+
 // halaman singgle post produk
 Route::get('produk/{produk:slug}', [ProdukController::class, 'show']);
-//rute buat filter produk dari kategori
 
-//rute ke menu CRUD kategori produk
-Route::get('ketegori_produk', [KategoriProduk::class,'index'] );
+Route::get('ketegoriproduk', [KategoriProdukController::class,'index'] );
 
-
-
-Route::get('kasir', function () {
-    return view('kasir', ['namaPage'=>'kasir']);
+Route::get('pemasok', function () {
+    return view('pemasok', ['title'=>'pemasok']);
 });
-Route::get('signup', function () {
-    return view('signup', ['namaPage'=>'signup']);
+
+Route::get('pelanggan', function () {
+    return view('pelanggan', ['title'=>'pelanggan']);
 });
+
+Route::get('kategoripengeluaran', function () {
+    return view('kategoripengeluaran', ['title'=>'kategoripengeluaran']);
+});
+
+Route::get('kategoripemasukan', function () {
+    return view('pemasok', ['title'=>'pemasok']);
+});
+
+Route::get('login', function () {
+    return view('login', ['title'=>'login']);
+});
+
+Route::get('garansi', function () {
+    return view('garansi', ['title'=>'garansi']);
+});
+
+Route::get('unit', [UnitController::class, 'index'] );
+Route::get('brand', function () {
+    return view('brand', ['title'=>'brand']);
+});
+
+

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class pemasukan extends Model
+class Pemasukan extends Model
 {
     //
 }

@@ -2,11 +2,16 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Role;
+use App\Models\Unit;
+use App\Models\User;
+use App\Models\Brand;
 use App\Models\Produk;
+use App\Models\Garansi;
 use App\Models\KategoriProduk;
 use Illuminate\Database\Seeder;
+use App\Models\KategoriPemasukan;
+use App\Models\KategoriPengeluaran;
 
 
 class DatabaseSeeder extends Seeder
@@ -16,10 +21,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
         Role::factory()->create(['nama' => 'Admin', 'slug' => 'admin']);
         Role::factory()->create(['nama' => 'Manager', 'slug' => 'manager']);
         Role::factory()->create(['nama' => 'Kasir', 'slug' => 'kasir']);
         KategoriProduk::factory(5)->create();
+        Brand::factory()->count(8)->create();
+        Unit::factory()->count(7)->create();
+        Garansi::factory()->count(6)->create();
+        KategoriPengeluaran::factory()->count(6)->create();
+        KategoriPemasukan::factory()->count(5)->create();
         User::factory(10)->create();
         Produk::factory(20)->create();
 

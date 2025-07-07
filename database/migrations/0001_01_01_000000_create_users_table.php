@@ -18,9 +18,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
+            $table->foreignId('role_id');
             $table->string('img_user')->nullable();
             $table->string('kontak')->unique()->nullable();
-            $table->foreignId('role_id');
             $table->string('username', 100)->unique()->nullable();
             $table->timestamp('mulai_kerja')->nullable();
             $table->enum('status',['aktif','tidak'])->default('aktif');

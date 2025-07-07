@@ -42,7 +42,7 @@
                 </a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link " href="#Pelanggan">
+                <a class="nav-link " href="/pelanggan">
                   <span class="sidenav-mini-icon"> P </span>
                   <span class="sidenav-normal"> Pelanggan </span>
                 </a>
@@ -72,7 +72,7 @@
                 </a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link " href="#Pelanggan">
+                <a class="nav-link " href="/pemasok">
                   <span class="sidenav-mini-icon"> P </span>
                   <span class="sidenav-normal"> Pemasok </span>
                 </a>
@@ -113,7 +113,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link " href="#">
+          <a class="nav-link " href="/kategoriproduk">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa fa-list text-dark text-sm opacity-10"></i>
             </div>
@@ -121,7 +121,7 @@
           </a>
         </li>
         <li class="nav-item">
-        <a class="nav-link " href="#">
+        <a class="nav-link " href="/brand">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa fa-shop text-dark text-sm opacity-10"></i>
             </div>
@@ -129,7 +129,7 @@
           </a>
         </li>
         <li class="nav-item">
-        <a class="nav-link " href="#">
+        <a class="nav-link " href="/unit">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa fa-circle-info text-dark text-sm opacity-10"></i>
             </div>
@@ -137,7 +137,7 @@
           </a>
         </li>
         <li class="nav-item">
-        <a class="nav-link " href="#">
+        <a class="nav-link " href="/garansi">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa fa-award text-dark text-sm opacity-10"></i>
             </div>
@@ -164,13 +164,13 @@
           <div class="collapse " id="Pemasukan">
             <ul class="nav ms-4">
               <li class="nav-item ">
-                <a class="nav-link " href="#Pemasukan">
+                <a class="nav-link " href="/pemasukan">
                   <span class="sidenav-mini-icon"> p </span>
                   <span class="sidenav-normal"> Pemasukan </span>
                 </a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link " href="#kategori-pemasukan">
+                <a class="nav-link " href="/kategoripemasukan">
                   <span class="sidenav-mini-icon"> k </span>
                   <span class="sidenav-normal"> kategori pemasukan </span>
                 </a>
@@ -188,13 +188,13 @@
           <div class="collapse " id="pengeluaran">
             <ul class="nav ms-4">
               <li class="nav-item ">
-                <a class="nav-link " href="#kasir">
+                <a class="nav-link " href="/pengeluaran">
                   <span class="sidenav-mini-icon"> P </span>
                   <span class="sidenav-normal"> Pengeluaran </span>
                 </a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link " href="#invoice">
+                <a class="nav-link " href="/kategoripengeluaran">
                   <span class="sidenav-mini-icon"> K </span>
                   <span class="sidenav-normal"> Kategori Pengeluaran </span>
                 </a>
@@ -264,7 +264,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link " href="#Roles&Permission">
+          <a class="nav-link " href="#role">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa fa-user-shield text-dark text-sm opacity-10"></i>
             </div>

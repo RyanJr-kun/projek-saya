@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
-use App\Models\Pengeluaran;
+use App\Models\Produk;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class KategoriPengeluaran extends Model
+class Unit extends Model
 {
     use HasFactory;
-    public function pengeluaran(): HasMany
+    protected $guarded = ['id'];
+
+    public function produks(): HasMany
     {
-      return $this->hasMany(Pengeluaran::class);
+      return $this->hasMany(Produk::class);
     }
 }

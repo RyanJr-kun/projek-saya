@@ -12,7 +12,10 @@ class BrandController extends Controller
      */
     public function index()
     {
-        //
+        return view('brand',[
+            'title' => 'Data Brand Produk',
+            'brand' => brand::latest()->get()
+        ]);
     }
 
     /**

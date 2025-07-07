@@ -16,7 +16,8 @@ return new class extends Migration
             $table->date('tanggal_pengeluaran');
             $table->text('deskripsi');
             $table->decimal('jumlah', 15, 2);
-            $table->foreignId('id_kategori_pengeluaran')->constrained('kategori_pengeluarans')->onDelete('restrict');
+            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('kategori_pengeluaran_id')->constrained('kategori_pengeluarans')->onDelete('restrict');
             $table->timestamps();
         });
     }

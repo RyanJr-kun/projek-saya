@@ -2,27 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\produk;
+use App\Models\Garansi;
 use Illuminate\Http\Request;
 
-class ProdukController extends Controller
+class GaransiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('produk', [
-        'title'=>'Tampilan semua data produk',
-        'produk' => Produk::latest()->paginate(10)
-    ]);
-    }
-
-    public function show (Produk $produk) {
-        return view('produksingle',[
-        'title' => 'Single Produk',
-        'produk' => $produk
-    ]);
+        //
     }
 
     /**
@@ -44,15 +34,15 @@ class ProdukController extends Controller
     /**
      * Display the specified resource.
      */
-    // public function show(produk $produk)
-    // {
-    //     //
-    // }
+    public function show(Garansi $garansi)
+    {
+        //
+    }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(produk $produk)
+    public function edit(Garansi $garansi)
     {
         //
     }
@@ -60,7 +50,7 @@ class ProdukController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, produk $produk)
+    public function update(Request $request, Garansi $garansi)
     {
         //
     }
@@ -68,7 +58,7 @@ class ProdukController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(produk $produk)
+    public function destroy(Garansi $garansi)
     {
         //
     }
