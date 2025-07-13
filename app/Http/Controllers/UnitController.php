@@ -16,10 +16,9 @@ class UnitController extends Controller
     // Sekarang setiap unit akan punya properti baru bernama 'produks_count'
     public function index()
     {
-        return view('unit', [
-            'title'=>'unit',
-            // 'units' =>Unit::latest()->get()
-             'units' => Unit::withCount('produks')->get()
+        return view('inventaris.unit', [
+            'title'=>'Units',
+            'units' => Unit::withCount('produks')->get()
         ]);
     }
 

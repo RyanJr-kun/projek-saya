@@ -1,8 +1,6 @@
-@extends('layouts.main')
-
-@section('container')
-
-<div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto ">
+<x-layout>
+    <x-slot:title>{{ $title }}</x-slot:title>
+    <div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto ">
       <div class="row ">
         <div class="col-12 ">
           <div class="card mb-4 ">
@@ -75,12 +73,12 @@
                   </div>
                   <div class="row mb-3">
                         <div class="col-12 col-sm-6">
-                          <label>Password <span class="text-danger">*</span></label>
-                          <input class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
+                          <label for="passwordInput" >Password <span class="text-danger">*</span></label>
+                          <input id="passwordInput" class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
                         </div>
                         <div class="col-12 col-sm-6">
-                          <label>Repeat Password <span class="text-danger">*</span></label>
-                          <input class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
+                          <label for="passwordRepeat">Repeat Password <span class="text-danger">*</span></label>
+                          <input id="passwordRepeat" class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
                         </div>
                       </div>
                             <div class="justify-content-end mt-4 form-check form-switch form-check-reverse">
@@ -117,12 +115,12 @@
                         </div>
                     </div>
                 </div>
-              <div class="table-responsive p-0">
-                <table class="table align-items-center pb-3" id="tableData">
+              <div class="table-responsive p-0 mt-4">
+                <table class="table table-hover align-items-center pb-3" id="tableData">
                   <thead>
-                    <tr>
-                      <th> <input type="checkbox" id="check-all"></th>
-                      <th class="text-uppercase text-dark text-xs font-weight-bolder">SKU</th>
+                    <tr class="table-secondary">
+                      <th class="text-uppercase text-dark text-xs font-weight-bolder">
+                      <input type="checkbox" id="check-all" class="me-4">SKU</th>
                       <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama Produk</th>
                       <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kategori</th>
                       <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Brand</th>
@@ -136,9 +134,11 @@
                   <tbody id="isiTable">
                     @foreach ($produk as $produks)
                     <tr>
-                        <td ><input type="checkbox" class="check-item ms-3 dark mb-0"></td>
                         <td>
-                        <p title="SKU" class="text-xs text-dark fw-bold ms-3 mb-0">{{ $produks->sku }}</p>
+                            <div class="d-flex ms-2 px-2 py-1 align-items-center">
+                                <input name="checkboxSKU" type="checkbox" class="check-item me-4 dark mb-0">
+                                <p title="SKU" class="text-xs text-dark fw-bold mb-0 text-sm">{{ $produks->sku }}</p>
+                            </div>
                       </td>
                       <td>
                         <div title="gambar & nama produk" class="d-flex px-2 py-1">
@@ -190,7 +190,7 @@
                     @endforeach
                   </tbody>
                 </table>
-                <div class="my-3 ms-3">{{ $produk ->onEachSide(2)->links() }}</div>
+                <div class="my-3 ms-3">{{ $produk ->onEachSide(1)->links() }}</div>
               </div>
             </div>
           </div>
@@ -198,7 +198,7 @@
       </div>
       <x-footer></x-footer>
     </div>
-@endsection
+
 @section('corejs')
 {{-- untuk cheklist --}}
 <script>
@@ -556,3 +556,4 @@
     }
 </style>
 @endsection
+</x-layout>

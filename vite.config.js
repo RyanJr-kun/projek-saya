@@ -6,10 +6,10 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                "resources/css/app.css",
                 "resources/js/app.js",
-                "resources/css/argon-dashboard.min.css",
-                "resources/js/argon-dashboard.min.js",
+                "resources/scss/app.scss",
+                // "resources/css/argon-dashboard.min.css",
+                // "resources/js/argon-dashboard.min.js",
             ],
             refresh: true,
         }),

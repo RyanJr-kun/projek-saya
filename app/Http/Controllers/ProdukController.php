@@ -12,14 +12,14 @@ class ProdukController extends Controller
      */
     public function index()
     {
-        return view('produk', [
-        'title'=>'Tampilan semua data produk',
+        return view('inventaris.produk', [
+        'title'=>'Produk',
         'produk' => Produk::latest()->paginate(10)
     ]);
     }
 
     public function show (Produk $produk) {
-        return view('produksingle',[
+        return view('inventaris.produksingle',[
         'title' => 'Single Produk',
         'produk' => $produk
     ]);

@@ -1,6 +1,5 @@
-@extends('layouts.main')
-
-@section('container')
+<x-layout>
+    <x-slot:title>{{ $title }}</x-slot:title>
 
 <div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto ">
       <div class="row ">
@@ -76,12 +75,12 @@
                   </div>
                   <div class="row mb-3">
                         <div class="col-12 col-sm-6">
-                          <label>Password <span class="text-danger">*</span></label>
-                          <input class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
+                          <label for="passwordInput">Password <span class="text-danger">*</span></label>
+                          <input id="passwordInput" class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
                         </div>
                         <div class="col-12 col-sm-6">
-                          <label>Repeat Password <span class="text-danger">*</span></label>
-                          <input class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
+                          <label for="passwordRepeat">Repeat Password <span class="text-danger">*</span></label>
+                          <input id="passwordRepeat" class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
                         </div>
                       </div>
                             <div class="justify-content-end mt-4 form-check form-switch form-check-reverse">
@@ -133,13 +132,13 @@
                   </thead>
                   <tbody id="isiTable">
                     @foreach ($units as $unit)
-                    <tr class="">
-                      <td cl>
-                    <div class="d-flex ms-2 px-2 py-1 align-items-center">
-                         <input type="checkbox" class="check-item me-4 dark mb-0">
-                         <h6 class="mb-0 text-sm">{{ $unit->nama }}</h6>
-                     </div>
-                    </td>
+                    <tr>
+                      <td>
+                         <div class="d-flex ms-2 px-2 py-1 align-items-center">
+                            <input name="checkboxNama" type="checkbox" class="check-item me-4 dark mb-0">
+                            <h6 class="mb-0 text-sm">{{ $unit->nama }}</h6>
+                        </div>
+                     </td>
                       <td>
                         <p class="text-xs text-dark fw-bold mb-0">{{ $unit->slug }}</p>
                       </td>
@@ -177,8 +176,7 @@
       </div>
       <x-footer></x-footer>
     </div>
-@endsection
-@section('corejs')
+
 {{-- untuk cheklist --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -281,10 +279,10 @@
         const posisiSet = new Set();
         for (let row of rows) {
             // Kolom ke-3 (indeks 2) adalah Posisi
-            const posisiCell = row.getElementsByTagName('td')[3];
+            const posisiCell = row.getElementsByTagName('td')[4];
             if (posisiCell) {
                 // Mengambil teks dari dalam <p>
-                const posisiText = posisiCell.querySelector('p').textContent.trim();
+                const posisiText = posisiCell.querySelector('span').textContent.trim();
                 posisiSet.add(posisiText);
             }
         }
@@ -305,14 +303,14 @@
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
             // Kolom pertama (indeks 0) adalah Nama
-            const namaCell = row.getElementsByTagName('td')[2];
+            const namaCell = row.getElementsByTagName('td')[0];
             // Kolom ketiga (indeks 2) adalah Posisi
-            const posisiCell = row.getElementsByTagName('td')[3];
+            const posisiCell = row.getElementsByTagName('td')[4];
 
             if (namaCell && posisiCell) {
                 // **PERUBAHAN PENTING**: Mengambil teks dari dalam tag <h6>
                 const namaElement = namaCell.querySelector('h6');
-                const posisiElement = posisiCell.querySelector('p');
+                const posisiElement = posisiCell.querySelector('span');
 
                 if(namaElement && posisiElement){
                     const namaText = namaElement.textContent.toLowerCase();
@@ -534,4 +532,5 @@
         }
     }
 </style>
-@endsection
+</x-layout>
+

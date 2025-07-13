@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 class KategoriProdukController extends Controller
 {
    public function index() {
-    return view('kategoriproduk', [
+    return view('inventaris.kategoriproduk', [
         'title' => 'Data Kategori Produk',
         'kategori_produk'=>KategoriProduk::latest()->get(),
     ]);
