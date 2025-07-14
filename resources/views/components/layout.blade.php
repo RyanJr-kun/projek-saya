@@ -12,7 +12,6 @@
         'resources/js/core/popper.min.js',
         'resources/js/core/bootstrap.min.js',
         'resources/js/plugins/perfect-scrollbar.min.js',
-        // 'resources/js/plugins/smooth-scrollbar.min.js',
         'resources/js/argon-dashboard.min.js'
     ])
   <!--     Fonts and icons     -->
@@ -84,10 +83,14 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item d-flex mx-2 align-items-center">
-                            <a href="javascript:;" class="nav-link active text-white font-weight-bold px-0">
-                                <i class="fa fa-right-from-bracket me-sm-1"></i><span class="d-sm-inline d-none">Log Out</span>
-                            </a>
+                        <li class="nav-item d-flex mx-2 mb-n1 align-items-center">
+                            <form action="/logout" method="post">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-white w-100 mb-2"><i class="fa fa-right-from-bracket me-2"></i>Log Out</button>
+                            </form>
+                                {{-- <a href="javascript:;" class="nav-link active text-white font-weight-bold px-0">
+                                    <i class="fa fa-right-from-bracket me-sm-1"></i><span class="d-sm-inline d-none">Log Out</span>
+                                </a> --}}
                         </li>
                     </ul>
                 </div>

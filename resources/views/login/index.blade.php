@@ -15,7 +15,7 @@
                     'resources/js/core/bootstrap.min.js',
                     'resources/js/plugins/perfect-scrollbar.min.js',
                     // 'resources/js/plugins/smooth-scrollbar.min.js',
-                    'resources/js/argon-dashboard.min.js'
+                    // 'resources/js/argon-dashboard.min.js'
                 ])
             <!--     Fonts and icons     -->
             <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -95,7 +95,7 @@
                         <form role="form" action="/login" method="post">
                             @csrf
                             <div class="mb-3">
-                            <input name="email" id="email" type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Email" aria-label="Email" autofocus required>
+                            <input autocomplete="email" name="email" id="email" type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Email" aria-label="Email" autofocus required>
                             @error('email')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

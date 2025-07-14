@@ -8,34 +8,39 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\UnitController;
 
 // Web-Market
-
-
-//dashboard
 Route::get('/', function () {
-    return view('dashboard', [
-        'title'=>'Dashboard',
+    return view('Market.beranda', [
+        'title' => 'Beranda'
     ]);
 });
 
+//dashboard
+Route::get('/dashboard', function () {
+    return view('dashboard', [
+        'title'=>'Dashboard',
+    ]);
+})->middleware('auth');
+
 // authentication dan middleware users
-Route::get('login', [LoginController::class, 'index'])->middleware('guest'); //'guest' hanya nerima tamu. yang udah login gk boleh masuk.
+Route::get('login', [LoginController::class, 'index'])->name('login')->middleware('guest'); //'guest' hanya nerima tamu. yang udah login gk boleh masuk.
 Route::post('login', [LoginController::class, 'authenticate']); //untuk validasi login (success or fail)
-Route::get('users', [UserController::class, 'index']); //table data user, opsi buat CRUD.
+Route::post('logout',[LoginController::class, 'logout']);
+Route::get('users', [UserController::class, 'index'])->middleware('auth'); //table data user, opsi buat CRUD.
 Route::post('users', [UserController::class, 'store']); //create user baru
 
 
 //Manajemen Inventaris
-Route::get('produk', [ProdukController::class, 'index']); //table data produk, opsi buat CRUD, generate pdf or cvs
-Route::get('produk/{produk:slug}', [ProdukController::class, 'show']); //halaman singgle post produk
+Route::get('produk', [ProdukController::class, 'index'])->middleware('auth'); //table data produk, opsi buat CRUD, generate pdf or cvs
+Route::get('produk/{produk:slug}', [ProdukController::class, 'show'])->middleware('auth'); //halaman singgle post produk
 
-Route::get('ketegoriproduk', [KategoriProdukController::class,'index'] ); //table data kategori produk, opsi buat CRUD.
+Route::get('ketegoriproduk', [KategoriProdukController::class,'index'])->middleware('auth'); //table data kategori produk, opsi buat CRUD.
 Route::get('garansi', function () {
     return view('inventaris.garansi', ['title'=>'garansi']);
-});
+})->middleware('auth');
 Route::get('unit', [UnitController::class, 'index'] );
 Route::get('brand', function () {
     return view('inventaris.brand', ['title'=>'brand']);
-});
+})->middleware('auth');
 
 
 //Transaksi Pembelian

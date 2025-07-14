@@ -3,9 +3,9 @@
     {{-- kalau mau sidebar bulet border-0 border-radius-xl --}}
     <div class="absolut sidenav-header my-2 ms-4">
       <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-      <a class="navbar-brand m-0" href="/">
-        <img src="../assets/img/logo.svg" width="33px" height="33px" class="navbar-brand-img h-100" alt="main_logo">
-        <span class="ms-1 font-weight-bold">JO Computer</span>
+      <a class="navbar-brand m-0" href="/dashboard">
+        <img src="../assets/img/logo.svg" width="40px" height="40px" class="navbar-brand-img h-100" alt="main_logo">
+        <span class="ms-1 fw-bold fs-16px">Computer</span>
       </a>
     </div>
         <hr class="horizontal dark mt-0">
@@ -15,7 +15,7 @@
       <ul class="navbar-nav">
         <li class="nav-item">
             {{-- setting 'active' untuk acuan page --}}
-          <a class="nav-link hover {{ request()->is('/') ? 'active' : '' }} " href="/">
+          <a class="nav-link hover {{ request()->is('/dashboard') ? 'active' : '' }} " href="/dashboard">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa fa-tv text-dark text-sm opacity-10"></i>
             </div>
@@ -246,19 +246,12 @@
             <hr class="horizontal dark mt-0">
         </li>
         <li class="nav-item mt-3">
-          <p class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder">Setting</p>
+          <p class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder">Autentikasi</p>
         </li>
 
+
         <li class="nav-item">
-          <a class="nav-link {{ request()->is('profile*') ? 'active' : '' }}" href="/profile">
-            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="fa fa-user text-dark text-sm opacity-10"></i>
-            </div>
-            <span class="nav-link-text ms-1">Profile</span>
-          </a>
-        </li>
-        <li class="nav-item">
-            {{--  --}}
+            {{-- user --}}
           <a class="nav-link {{ request()->is('users') ? 'active' : '' }} " href="/users">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa fa-users text-dark text-sm opacity-10"></i>
@@ -272,14 +265,6 @@
               <i class="fa fa-user-shield text-dark text-sm opacity-10"></i>
             </div>
             <span class="nav-link-text ms-1">Roles & Permission</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link " href="../signup">
-            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="fa fa-right-from-bracket text-dark text-sm opacity-10"></i>
-            </div>
-            <span class="nav-link-text ms-1">Logout</span>
           </a>
         </li>
       </ul>

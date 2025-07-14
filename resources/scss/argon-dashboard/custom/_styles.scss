@@ -1,12 +1,15 @@
-// Definisikan variabel warna untuk kemudahan kustomisasi
-$light-blue: #4a90e2; // Biru muda yang tidak terlalu terang
-$dark-blue: #002d62; // Biru tua (navy)
-$solid-blue: #0d6efd;
 
-// Kelas utilitas untuk background gradient
+$light-blue: #4a90e2;
+$dark-blue: #002d62;
+$solid-blue: #0d6efd;
+$black: #0b0b0b;
+
 .bg-gradient-blue {
     background-color: $light-blue; /* Fallback untuk browser lama */
     background-image: linear-gradient(90deg, $light-blue, $dark-blue);
+}
+.bg-blue {
+    background-color: $solid-blue;
 }
 
 .text-blue {
@@ -14,14 +17,38 @@ $solid-blue: #0d6efd;
 }
 
 .text-gradient-blue {
-  // Atur background menjadi gradasi warna
   background: linear-gradient(135deg, $light-blue, $dark-blue);
-
-
-// Terapkan background hanya pada teks
   -webkit-background-clip: text;
   background-clip: text;
-
-  // Jadikan warna teks asli menjadi transparan
   color: transparent;
+}
+
+// $custom-font-sizes: (
+//   "8": 8px,
+//   "10": 10px,
+//   "12": 12px
+//   // Tambahkan ukuran lain di sini jika perlu, contoh: "14": 14px
+// );
+
+// // 2. Gunakan loop @each untuk membuat kelas secara otomatis.
+// @each $name, $size in $custom-font-sizes {
+//   .fs-#{$name}px {
+//     font-size: $size !important;
+//   }
+// }
+
+.fs-12px {
+  font-size: 12px !important;
+}
+
+.fs-14px {
+  font-size: 14px !important;
+}
+
+.fs-16px {
+  font-size: 16px !important;
+}
+
+.text-black {
+    color: $black;
 }

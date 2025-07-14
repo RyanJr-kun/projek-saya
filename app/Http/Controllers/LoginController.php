@@ -28,11 +28,18 @@ class LoginController extends Controller
         if(Auth::attempt($credentials)){
             $request->session()->regenerate();
 
-            return redirect()->intended('/'); //kalo berhasil masuk ke dashboard
+            return redirect()->intended('/dashboard'); //kalo berhasil masuk ke dashboard
         }
 
         return back()->with('loginError', 'Login Gagal!!');
 
+    }
+
+    public function logout(Request $request) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/  ');
     }
 
     /**
