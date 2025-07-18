@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\kategori_pengeluaran;
-use App\Models\kategori_produk;
+use App\Models\KategoriPengeluaran;
 use Illuminate\Http\Request;
 
 class KategoriPengeluaranController extends Controller
@@ -13,7 +12,10 @@ class KategoriPengeluaranController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.pengeluaran.kategori',[
+            'title' => 'Kategori Pengeluaran',
+            'kategoriPengeluaran' => KategoriPengeluaran::latest()->get()
+        ]);
     }
 
     /**
@@ -35,7 +37,7 @@ class KategoriPengeluaranController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(kategori_pengeluaran $kategori_pengeluaran)
+    public function show(KategoriPengeluaran $kategoripengeluaran)
     {
         //
     }
@@ -43,7 +45,7 @@ class KategoriPengeluaranController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(kategori_pengeluaran $kategori_pengeluaran)
+    public function edit(KategoriPengeluaran $kategoripengeluaran)
     {
         //
     }
@@ -51,7 +53,7 @@ class KategoriPengeluaranController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, kategori_pengeluaran $kategori_pengeluaran)
+    public function update(Request $request, KategoriPengeluaran $kategoripengeluaran)
     {
         //
     }
@@ -59,7 +61,7 @@ class KategoriPengeluaranController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(kategori_pengeluaran $kategori_pengeluaran)
+    public function destroy(KategoriPengeluaran $kategoripengeluaran)
     {
         //
     }

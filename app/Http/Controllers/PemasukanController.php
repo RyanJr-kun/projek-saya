@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\pemasukan;
+use App\Models\Pemasukan;
 use Illuminate\Http\Request;
 
 class PemasukanController extends Controller
@@ -12,7 +12,10 @@ class PemasukanController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.pemasukan.index', [
+        'title' => 'Pemasukan',
+        'pemasukan' => Pemasukan::latest()->get()
+        ]);
     }
 
     /**
@@ -34,7 +37,7 @@ class PemasukanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(pemasukan $pemasukan)
+    public function show(Pemasukan $pemasukan)
     {
         //
     }
@@ -42,7 +45,7 @@ class PemasukanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(pemasukan $pemasukan)
+    public function edit(Pemasukan $pemasukan)
     {
         //
     }
@@ -50,7 +53,7 @@ class PemasukanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, pemasukan $pemasukan)
+    public function update(Request $request, Pemasukan $pemasukan)
     {
         //
     }
@@ -58,7 +61,7 @@ class PemasukanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(pemasukan $pemasukan)
+    public function destroy(Pemasukan $pemasukan)
     {
         //
     }

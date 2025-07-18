@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\pemasok;
+use App\Models\Pemasok;
 use Illuminate\Http\Request;
 
 class PemasokController extends Controller
@@ -12,7 +12,10 @@ class PemasokController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.pembelian.pemasok',[
+            'title' => 'Pemasok',
+            'pemasok' => Pemasok::latest()->get()
+        ]);
     }
 
     /**
@@ -34,7 +37,7 @@ class PemasokController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(pemasok $pemasok)
+    public function show(Pemasok $pemasok)
     {
         //
     }
@@ -42,7 +45,7 @@ class PemasokController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(pemasok $pemasok)
+    public function edit(Pemasok $pemasok)
     {
         //
     }
@@ -50,7 +53,7 @@ class PemasokController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, pemasok $pemasok)
+    public function update(Request $request, Pemasok $pemasok)
     {
         //
     }
@@ -58,7 +61,7 @@ class PemasokController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(pemasok $pemasok)
+    public function destroy(Pemasok $pemasok)
     {
         //
     }

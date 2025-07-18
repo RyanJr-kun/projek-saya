@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\pelanggan;
+use App\Models\Pelanggan;
 use Illuminate\Http\Request;
 
 class PelangganController extends Controller
@@ -12,7 +12,10 @@ class PelangganController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.penjualan.pelanggan',[
+            'title' => 'Pelanggan',
+            'pelanggan' => Pelanggan::latest()->get()
+        ]);
     }
 
     /**
@@ -34,7 +37,7 @@ class PelangganController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(pelanggan $pelanggan)
+    public function show(Pelanggan $pelanggan)
     {
         //
     }
@@ -42,7 +45,7 @@ class PelangganController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(pelanggan $pelanggan)
+    public function edit(Pelanggan $pelanggan)
     {
         //
     }
@@ -50,7 +53,7 @@ class PelangganController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, pelanggan $pelanggan)
+    public function update(Request $request, Pelanggan $pelanggan)
     {
         //
     }
@@ -58,7 +61,7 @@ class PelangganController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(pelanggan $pelanggan)
+    public function destroy(Pelanggan $pelanggan)
     {
         //
     }

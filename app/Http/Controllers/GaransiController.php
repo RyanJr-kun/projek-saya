@@ -12,7 +12,10 @@ class GaransiController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.inventaris.garansi',[
+        'title' => 'garansi',
+        'garansi' => Garansi::latest()->get()
+    ]);
     }
 
     /**

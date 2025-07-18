@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\pembelian;
+use App\Models\Pembelian;
 use Illuminate\Http\Request;
 
 class PembelianController extends Controller
@@ -12,7 +12,10 @@ class PembelianController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.pembelian.index', [
+            'title' => 'Pembelian',
+            'pembelian' => Pembelian::latest()->get()
+        ]);
     }
 
     /**
@@ -34,7 +37,7 @@ class PembelianController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(pembelian $pembelian)
+    public function show(Pembelian $pembelian)
     {
         //
     }
@@ -42,7 +45,7 @@ class PembelianController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(pembelian $pembelian)
+    public function edit(Pembelian $pembelian)
     {
         //
     }
@@ -50,7 +53,7 @@ class PembelianController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, pembelian $pembelian)
+    public function update(Request $request, Pembelian $pembelian)
     {
         //
     }
@@ -58,7 +61,7 @@ class PembelianController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(pembelian $pembelian)
+    public function destroy(Pembelian $pembelian)
     {
         //
     }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\brand;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 
 class BrandController extends Controller
@@ -12,9 +12,9 @@ class BrandController extends Controller
      */
     public function index()
     {
-        return view('brand',[
+        return view('dashboard.inventaris.brand',[
             'title' => 'Data Brand Produk',
-            'brand' => brand::latest()->get()
+            'brand' => Brand::latest()->get()
         ]);
     }
 
@@ -37,7 +37,7 @@ class BrandController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(brand $brand)
+    public function show(Brand $brand)
     {
         //
     }
@@ -45,7 +45,7 @@ class BrandController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(brand $brand)
+    public function edit(Brand $brand)
     {
         //
     }
@@ -53,7 +53,7 @@ class BrandController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, brand $brand)
+    public function update(Request $request, Brand $brand)
     {
         //
     }
@@ -61,7 +61,7 @@ class BrandController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(brand $brand)
+    public function destroy(Brand $brand)
     {
         //
     }

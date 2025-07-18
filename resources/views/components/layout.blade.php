@@ -11,6 +11,7 @@
         'resources/js/app.js',
         'resources/js/core/popper.min.js',
         'resources/js/core/bootstrap.min.js',
+        'resources/js/plugins/smooth-scrollbar.min.js',
         'resources/js/plugins/perfect-scrollbar.min.js',
         'resources/js/argon-dashboard.min.js'
     ])
@@ -23,7 +24,7 @@
     <div class="min-height-300 bg-gradient-blue position-absolute w-100"></div>
     <x-aside></x-aside>
     <main class="main-content position-relative border-radius-lg ">
-        <nav class="navbar navbar-main navbar-expand-lg px-0 mx-3 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
+        <nav class="navbar navbar-main navbar-expand-lg px-0 px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
             <div class="container-fluid py-3 px-3">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb bg-transparent mb-0 pb-0 py-1 px-0 me-sm-6 me-5">
@@ -76,14 +77,14 @@
                                             <div class="my-auto"><img src="../assets/img/small-logos/logo-spotify.svg" class="avatar avatar-sm bg-gradient-dark  me-3 "></div>
                                             <div class="d-flex flex-column justify-content-center">
                                                 <h6 class="text-sm font-weight-normal mb-1"><span class="font-weight-bold">New album</span> by Travis Scott</h6>
-                                                <p class="text-xs text-secondary mb-0"><i class="fa fa-clock me-1"></i>1 day</p>
+                                                <p class="text-xs text-secondary mb-0"><i class="fa fa-clock me-1" info="Notifikasi"></i>1 day</p>
                                             </div>
                                         </div>
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item d-flex mx-2 mb-n1 align-items-center">
+                        <li class="nav-item d-flex ms-2 mb-n1 align-items-center">
                             <form action="/logout" method="post">
                                 @csrf
                                 <button type="submit" class="btn btn-outline-white w-100 mb-2"><i class="fa fa-right-from-bracket me-2"></i>Log Out</button>
@@ -98,6 +99,4 @@
         </nav>
         {{ $slot }}
     </main>
-    <x-fixed-navbar></x-fixed-navbar>
-</body>
 </html>

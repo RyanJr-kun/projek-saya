@@ -15,7 +15,7 @@
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                @endif
+                    @endif
                     <div class="card-hrader pb-0 p-3 mb-3">
                         <div  iv class="d-flex justify-content-between align-items-center">
                             <div>
@@ -83,17 +83,18 @@
                                                                 </div>
 
                                                                 <div class="form-group">
-                                                                    <label for="role" class="form-label">Posisi <span class="text-danger">*</span></label>
-                                                                    <select class="form-select @error('role_id') is-invalid @enderror" id="role" name="role_id" required>
-                                                                        {{-- Beri nilai kosong agar validasi 'required' berfungsi dengan baik --}}
-                                                                        <option value="" disabled {{ old('role_id') ? '' : 'selected' }}>Pilih Posisi</option>
-                                                                        <option value="1" {{ old('role_id') == '1' ? 'selected' : '' }}>Admin</option>
-                                                                        <option value="2" {{ old('role_id') == '2' ? 'selected' : '' }}>Kasir</option>
+                                                                    <label for="role_id" class="form-label">Posisi <span class="text-danger">*</span></label>
+                                                                    <select class="form-select" id="role_id" name="role_id" required>
+                                                                        <option value="" disabled selected>Pilih Role...</option>
+                                                                        @foreach ($roles as $role)
+                                                                            <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}> {{ $role->nama }} </option>
+                                                                        @endforeach
                                                                     </select>
                                                                     @error('role_id')
                                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                                     @enderror
                                                                 </div>
+
                                                                 <div class="form-group">
                                                                     <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                                                                     <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="example@gmail.com" value="{{ old('email') }}" required>
@@ -101,10 +102,17 @@
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                     @enderror
                                                                 </div>
+
                                                                 <div class="form-group">
-                                                                    <label for="kontak" class="form-label" value="{{ old('kontak') }}">Kontak</label>
-                                                                    <input type="tel" class="form-control" id="kontak" name="kontak">
+                                                                    <label for="kontak" class="form-label">Kontak</label>
+                                                                    <input type="tel" class="form-control" value="{{ old('kontak') }}" id="kontak" name="kontak">
                                                                 </div>
+
+                                                                <div class="form-group">
+                                                                    <label for="mulai_kerja" class="form-label">Mulai Bekerja</label>
+                                                                    <input id="mulai_kerja" name="mulai_kerja" class="form-control datepicker" value="{{ old('mulai_kerja') }}" placeholder="Please select date" type="date" required>
+                                                                </div>
+
                                                                 <div class="form-group">
                                                                     <label for="password">Password <span class="text-danger">*</span></label>
                                                                     <input name="password" id="password" class="form-control @error('password') is-invalid @enderror" type="password" placeholder="*****" required>
@@ -112,11 +120,11 @@
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                     @enderror
                                                                 </div>
-                                                                <div class="justify-content-end my-4 form-check form-switch form-check-reverse">
-                                                                    <label class="me-auto form-check-label" for="status">Status</label>
-                                                                    <input class="form-check-input text-success" type="checkbox" role="switch" id="status" name="status" value="{{ old('status') }}">
+                                                                <div class="justify-content-end mt-4 form-check form-switch form-check-reverse">
+                                                                    <label class="me-auto form-check-label" for="status_toggle">Status</label>
+                                                                    <input type="hidden" name="status" value="tidak">
+                                                                    <input class="form-check-input" type="checkbox" role="switch" id="status_toggle" name="status" value="aktif" checked >
                                                                 </div>
-
                                                             </div>
                                                         </div>
 
@@ -198,11 +206,11 @@
                                         </td>
 
                                         <td class="align-middle text-center">
-                                            <span class="text-dark text-xs fw-bold">{{ $user->mulai_kerja }}</span>
+                                            <span class="text-dark text-xs fw-bold">{{ $user->mulai_kerja?->translatedFormat('d M Y')}}</span>
                                         </td>
 
                                         <td class="align-middle text-center text-sm">
-                                            <span class="badge {{ strtolower($user['status']) == 'aktif' ? 'bg-gradient-success' : 'bg-gradient-secondary' }}">{{ $user->status }} </span>
+                                            <span class="badge {{ strtolower($user['status']) == 'aktif' ? 'badge-success' : 'badge-secondary' }}">{{ $user->status }} </span>
                                         </td>
 
                                         <td class="align-middle">
@@ -224,6 +232,7 @@
         </div>
         <x-footer></x-footer>
     </div>
+
 <script>
         // ngambil gambar dan tampilin dia area border
         // Get the necessary elements from the DOM (Document Object Model)

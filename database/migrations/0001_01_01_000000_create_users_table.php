@@ -23,8 +23,8 @@ return new class extends Migration
             $table->string('img_user')->nullable();
             $table->string('kontak')->unique()->nullable();
 
-            $table->timestamp('mulai_kerja')->nullable(); //bar iki dihapus wae rapenting
-            $table->enum('status',['aktif','tidak'])->default('aktif');
+            $table->date('mulai_kerja')->nullable(); //bar iki dihapus wae rapenting
+            $table->string('status');
 
             $table->rememberToken();
             $table->timestamps();

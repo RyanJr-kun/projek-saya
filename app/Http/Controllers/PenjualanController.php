@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\penjualan;
+use App\Models\Penjualan;
 use Illuminate\Http\Request;
 
 class PenjualanController extends Controller
@@ -12,7 +12,10 @@ class PenjualanController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.penjualan.index',[
+            'title' => 'Penjualan',
+            'penjualan' => Penjualan::latest()->get()
+        ]);
     }
 
     /**
@@ -34,7 +37,7 @@ class PenjualanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(penjualan $penjualan)
+    public function show(Penjualan $penjualan)
     {
         //
     }
@@ -42,7 +45,7 @@ class PenjualanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(penjualan $penjualan)
+    public function edit(Penjualan $penjualan)
     {
         //
     }
@@ -50,7 +53,7 @@ class PenjualanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, penjualan $penjualan)
+    public function update(Request $request, Penjualan $penjualan)
     {
         //
     }
@@ -58,7 +61,7 @@ class PenjualanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(penjualan $penjualan)
+    public function destroy(Penjualan $penjualan)
     {
         //
     }

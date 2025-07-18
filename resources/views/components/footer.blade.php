@@ -1,8 +1,8 @@
-  <footer class="footer ms-3 mt-auto mb-3">
+  <footer class="footer ms-0 ms-sm-0 mt-auto mb-3">
         <div class="mt-auto container-fluid ">
-          <div class="row align-items-center justify-content-lg-between">
-            <div class="col-lg-6 mb-lg-0 mb-4">
-              <div class="copyright text-center text-sm text-muted text-lg-start">
+          <div class="row align-items-start justify-content-lg-between">
+            <div class="col-lg-6 mb-lg-0">
+              <div class="copyright text-start text-sm text-muted text-lg-start">
                 © <script>
                   document.write(new Date().getFullYear())
                 </script>,

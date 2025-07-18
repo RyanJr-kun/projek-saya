@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -11,18 +13,19 @@ class UserController extends Controller
      */
     public function index()
     {
-        return view('users', [
+        return view('dashboard.users', [
         'title'=>'users',
-        'users' => User::latest()->get()
+        'users' => User::latest()->get(),
+        'roles' => Role::all()
     ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+
     }
 
     /**
@@ -35,13 +38,16 @@ class UserController extends Controller
             'username' => 'required|min:3|max:255|unique:users',
             'email' => 'required|email:dns|unique:users',
             'password' => 'required|min:5|max:255',
-            'role_id' => 'required|in:1,2',
+            'role_id' => ['required', Rule::exists('roles', 'id')],
             'kontak' => 'nullable|min:9|max:14|unique:users',
-
+            'mulai_kerja' => 'required|date',
+            'status' => 'required|string|in:aktif,tidak',
         ]);
+
         $validatedData['password'] = bcrypt($validatedData['password']);
+
         User::create($validatedData);
-        // $request->session()->flash('success', 'Pembuatan User Baru Berhasil!!' );
+
         return redirect('/users')->with('success', 'Pembuatan User Baru Berhasil!!');
     }
 

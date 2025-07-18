@@ -12,7 +12,10 @@ class PengeluaranController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.pengeluaran.index',[
+            'title' => 'Pengeluaran',
+            'pengeluaran' => Pengeluaran::latest()->get()
+        ]);
     }
 
     /**
@@ -34,7 +37,7 @@ class PengeluaranController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(pengeluaran $pengeluaran)
+    public function show(Pengeluaran $pengeluaran)
     {
         //
     }
@@ -42,7 +45,7 @@ class PengeluaranController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(pengeluaran $pengeluaran)
+    public function edit(Pengeluaran $pengeluaran)
     {
         //
     }
@@ -50,7 +53,7 @@ class PengeluaranController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, pengeluaran $pengeluaran)
+    public function update(Request $request, Pengeluaran $pengeluaran)
     {
         //
     }
@@ -58,7 +61,7 @@ class PengeluaranController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(pengeluaran $pengeluaran)
+    public function destroy(Pengeluaran $pengeluaran)
     {
         //
     }

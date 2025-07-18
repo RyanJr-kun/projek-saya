@@ -11,12 +11,10 @@ class UnitController extends Controller
      * Display a listing of the resource.
      */
     // Di dalam Controller Anda, saat mengambil semua unit
-
-
-    // Sekarang setiap unit akan punya properti baru bernama 'produks_count'
+    // withCount() = unit akan punya properti baru bernama 'produks_count'
     public function index()
     {
-        return view('inventaris.unit', [
+        return view('dashboard.inventaris.unit', [
             'title'=>'Units',
             'units' => Unit::withCount('produks')->get()
         ]);
@@ -35,7 +33,15 @@ class UnitController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required|max:255',
+            'slug' => 'required|max:255|unique:units',
+            'deskripsi'=>'text|nullable',
+            'status' => 'required|string|in:aktif,tidak'
+        ]);
+
+        Unit::create($validatedData);
+        return redirect('/unit')->with('success', 'Data Berhasil Ditambahkan');
     }
 
     /**

@@ -12,7 +12,10 @@ class KategoriPemasukanController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.pemasukan.kategori', [
+            'title' => 'Kategori Pemasukan',
+            'kategoriPemasukan' => KategoriPemasukan::latest()->get()
+        ]);
     }
 
     /**
@@ -34,7 +37,7 @@ class KategoriPemasukanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(KategoriPemasukan $kategoriPemasukan)
+    public function show(KategoriPemasukan $kategoripemasukan)
     {
         //
     }
@@ -42,7 +45,7 @@ class KategoriPemasukanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(KategoriPemasukan $kategoriPemasukan)
+    public function edit(KategoriPemasukan $kategoripemasukan)
     {
         //
     }
@@ -50,7 +53,7 @@ class KategoriPemasukanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, KategoriPemasukan $kategoriPemasukan)
+    public function update(Request $request, KategoriPemasukan $kategoripemasukan)
     {
         //
     }
@@ -58,7 +61,7 @@ class KategoriPemasukanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(KategoriPemasukan $kategoriPemasukan)
+    public function destroy(KategoriPemasukan $kategoripemasukan)
     {
         //
     }
