@@ -6,13 +6,14 @@
   <link rel="logo" sizes="100x100" href="../assets/img/logo.svg">
   <link rel="icon" type="image/svg" href="../assets/img/logo.svg">
   <title>Jo Computer Dashboard</title>
-  @vite(['resources/scss/app.scss', 'resources/js/app.js'])
-  <script src="{{ asset('js/argon-dashboard.min.js') }}"></script>
+
+  @vite(['resources/scss/app.scss', 'resources/js/app.js','resources/js/argon-dashboard.min.js' ])
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
   <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
   <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
+
 <body class="g-sidenav-show bg-gray-100">
     <div class="min-height-300 bg-gradient-blue position-absolute w-100"></div>
     <x-aside></x-aside>
@@ -39,7 +40,7 @@
                             </a>
                         </li>
                         <li class="nav-item dropdown d-flex align-items-center me-lg-2">
-                            <a href="#notif" class="nav-link text-white" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a href="#notif" class="nav-link text-white me-n2 me-lg-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fa fa-bell cursor-pointer"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end px-2 py-3" aria-labelledby="dropdownMenuButton">
@@ -97,14 +98,14 @@
                                     <hr class="horizontal dark mt-2 mb-2">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item border-radius-md" href="{{ route('dashboard') }}">
-                                        <i class="fa fa-tv me-2"></i> Dashboard
+                                    <a class="dropdown-item border-radius-md" href="/">
+                                        <i class="fa fa-store me-2"></i> Web Market
                                     </a>
                                 </li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="post">
                                         @csrf
-                                        <button type="submit" class="dropdown-item border-radius-md w-100" style="text-align: left;">
+                                        <button type="submit" class="dropdown-item border-radius-md w-100 text-danger" style="text-align: left;">
                                             <i class="fa fa-right-from-bracket me-2"></i>Log Out
                                         </button>
                                     </form>
@@ -118,4 +119,6 @@
         </nav>
         {{ $slot }}
     </main>
+    @stack('scripts')
+</body>
 </html>

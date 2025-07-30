@@ -8,10 +8,6 @@
     @vite([
         'resources/scss/app.scss',
         'resources/js/app.js',
-        'resources/js/core/popper.min.js',
-        'resources/js/core/bootstrap.min.js',
-        'resources/js/plugins/perfect-scrollbar.min.js',
-        // 'resources/js/plugins/smooth-scrollbar.min.js',
         'resources/js/argon-dashboard.min.js'
     ])
     <!--     Fonts and icons     -->
