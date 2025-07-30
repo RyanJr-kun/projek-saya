@@ -6,15 +6,8 @@
   <link rel="logo" sizes="100x100" href="../assets/img/logo.svg">
   <link rel="icon" type="image/svg" href="../assets/img/logo.svg">
   <title>Jo Computer Dashboard</title>
-  @vite([
-        'resources/scss/app.scss',
-        'resources/js/app.js',
-        'resources/js/core/popper.min.js',
-        'resources/js/core/bootstrap.min.js',
-        'resources/js/plugins/smooth-scrollbar.min.js',
-        'resources/js/plugins/perfect-scrollbar.min.js',
-        'resources/js/argon-dashboard.min.js'
-    ])
+  @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+  <script src="{{ asset('js/argon-dashboard.min.js') }}"></script>
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
   <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
@@ -33,10 +26,10 @@
                     </ol>
                     <h6 class="font-weight-bolder text-white mb-0">{{ $title }}</h6>
                 </nav>
-                <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+                <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-4" id="navbar">
                     <div class="ms-md-auto pe-md-3 d-flex align-items-center"></div>
-                    <ul class="navbar-nav  justify-content-end">
-                        <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+                    <ul class="navbar-nav justify-content-end">
+                        <li class="nav-item d-xl-none me-2 d-flex align-items-center">
                             <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenav">
                                 <div class="sidenav-toggler-inner">
                                     <i class="sidenav-toggler-line bg-white"></i>
@@ -45,54 +38,80 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="nav-item px-3 d-flex align-items-center">
-                            <a href="javascript:;" class="nav-link text-white p-0">
-                                <i class="fa fa-cog fixed-plugin-button-nav cursor-pointer"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown pe-2 d-flex align-items-center">
-                            <a href="javascript:;" class="nav-link text-white p-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <li class="nav-item dropdown d-flex align-items-center me-lg-2">
+                            <a href="#notif" class="nav-link text-white" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fa fa-bell cursor-pointer"></i>
                             </a>
-                            <ul class="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton">
-                                <li class="mb-2">
-                                    <a class="dropdown-item border-radius-md" href="javascript:;">
+                            <ul class="dropdown-menu dropdown-menu-end px-2 py-3" aria-labelledby="dropdownMenuButton">
+                                <li>
+                                    <a class="dropdown-item border-radius-md" href="#notif">
                                         <div class="d-flex py-1">
-                                            <div class="my-auto"><img src="../assets/img/team-2.jpg" class="avatar avatar-sm  me-3 "></div>
+                                            <div class="my-auto"><img src="../assets/img/team-2.jpg" class="avatar avatar-sm me-3"></div>
                                             <div class="d-flex flex-column justify-content-center">
                                                 <h6 class="text-sm font-weight-normal mb-1">
-                                                <span class="font-weight-bold">New message</span> from Laur
+                                                    <span class="font-weight-bold">New message</span> from Laur
                                                 </h6>
-                                                <p class="text-xs text-secondary mb-0">
-                                                <i class="fa fa-clock me-1"></i>
-                                                13 minutes ago
-                                                </p>
+                                                <p class="text-xs text-secondary mb-0"><i class="fa fa-clock me-1"></i> 13 minutes ago</p>
                                             </div>
                                         </div>
                                     </a>
                                 </li>
-                                <li class="mb-2">
-                                    <a class="dropdown-item border-radius-md" href="javascript:;">
+                                <li>
+                                    <a class="dropdown-item border-radius-md" href="#">
                                         <div class="d-flex py-1">
-                                            <div class="my-auto"><img src="../assets/img/small-logos/logo-spotify.svg" class="avatar avatar-sm bg-gradient-dark  me-3 "></div>
+                                            <div class="my-auto"><img src="../assets/img/team-2.jpg" class="avatar avatar-sm me-3"></div>
                                             <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="text-sm font-weight-normal mb-1"><span class="font-weight-bold">New album</span> by Travis Scott</h6>
-                                                <p class="text-xs text-secondary mb-0"><i class="fa fa-clock me-1" info="Notifikasi"></i>1 day</p>
+                                                <h6 class="text-sm font-weight-normal mb-1">
+                                                    <span class="font-weight-bold">New message</span> from Laur
+                                                </h6>
+                                                <p class="text-xs text-secondary mb-0"><i class="fa fa-clock me-1"></i> 13 minutes ago</p>
                                             </div>
                                         </div>
+                                    </a>
+                                    <hr class="horizontal dark mt-2 mb-2">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item border-radius-md" href="/notifikasi">
+                                        <h6 class="text-sm font-weight-normal mb-0">
+                                            <span class="font-weight-bold">Notifikasi</span> Lainya
+                                            <i class="fa fa-angle-right ms-1"></i>
+                                        </h6>
+
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item d-flex ms-2 mb-n1 align-items-center">
-                            <form action="/logout" method="post">
-                                @csrf
-                                <button type="submit" class="btn btn-outline-white w-100 mb-2"><i class="fa fa-right-from-bracket me-2"></i>Log Out</button>
-                            </form>
-                                {{-- <a href="javascript:;" class="nav-link active text-white font-weight-bold px-0">
-                                    <i class="fa fa-right-from-bracket me-sm-1"></i><span class="d-sm-inline d-none">Log Out</span>
-                                </a> --}}
+                        @auth
+                        <li class="nav-item dropdown d-flex align-items-center">
+                            <a href="#" class="nav-link text-white" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                @if (auth()->user()->img_user)
+                                    <img src="{{ asset('storage/' . auth()->user()->img_user) }}" alt="Profile" class="avatar avatar-sm rounded-circle cursor-pointer">
+                                @else
+                                    <i class="fa fa-user cursor-pointer fs-5"></i>
+                                @endif
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="userDropdown">
+                                <li class="text-center px-2">
+                                    <h6 class="mb-0">Selamat Datang,</h6>
+                                    <p class="text-sm text-secondary">{{ auth()->user()->nama }}</p>
+                                    <hr class="horizontal dark mt-2 mb-2">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item border-radius-md" href="{{ route('dashboard') }}">
+                                        <i class="fa fa-tv me-2"></i> Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="post">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item border-radius-md w-100" style="text-align: left;">
+                                            <i class="fa fa-right-from-bracket me-2"></i>Log Out
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
                         </li>
+                        @endauth
                     </ul>
                 </div>
             </div>

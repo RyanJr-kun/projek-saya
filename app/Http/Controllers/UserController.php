@@ -55,10 +55,7 @@ class UserController extends Controller
      * Display the specified resource. iki durung kangge bjir
      */
     public function show (user $user) {
-        return view('profile',[
-        'title' => 'Single user',
-        'user' => $user
-    ]);
+        //
     }
 
     /**

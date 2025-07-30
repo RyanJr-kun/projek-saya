@@ -14,18 +14,42 @@
                     </div>
             <div class="ms-auto my-auto mt-lg-0 mt-4">
                 <div class="ms-auto mb-3">
-                    {{-- button export pdf/excel --}}
-                    <a href="#Export-Pdf" type="button" class="btn btn-outline-primary me-2 p-2 mb-0" title="Export PDF" >
-                        <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20"></a>
-                    <a href="#Export-Excel" class="btn btn-outline-primary p-2 me-2 export mb-0 " data-type="csv" type="button" title="Export Excel">
-                        <img src="assets/img/xls.png" alt="Download PDF" width="20" height="20"></a>
-
-                    {{-- triger-modal --}}
-                        <button class="btn bg-gradient-primary mb-0 " data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus cursor-pointer pe-2"></i>Buat produk</button>
+                    <div class="d-none d-md-block">
+                        <a href="#Export-Pdf" type="button" class="btn btn-outline-primary me-2 p-2 mb-0" title="Export PDF">
+                            <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20">
+                        </a>
+                        <a href="#Export-Excel" class="btn btn-outline-primary p-2 me-2 export mb-0" data-type="csv" type="button" title="Export Excel">
+                            <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20">
+                        </a>
+                        <button class="btn bg-gradient-blue text-white mb-0" data-bs-toggle="modal" data-bs-target="#import">
+                            <i class="fa fa-plus cursor-pointer pe-2"></i>Buat produk
+                        </button>
+                    </div>
+                    <div class="dropdown d-block d-md-none">
+                        <button class="btn bg-gradient-blue text-white dropdown-toggle mb-0" type="button" id="aksiMobile" data-bs-toggle="dropdown" aria-expanded="false">Pilih Aksi</button>
+                        <ul class="dropdown-menu" aria-labelledby="aksiMobile">
+                            <li>
+                                <a class="dropdown-item" href="#Export-Pdf">
+                                    <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20" class="me-2">Export PDF
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item export" href="#Export-Excel" data-type="csv">
+                                    <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20" class="me-2">Export Excel
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#import">
+                                    <i class="fa fa-plus cursor-pointer pe-2"></i>Buat produk
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
                         {{-- start-modal-add-user--}}
             <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog mt-lg-10">
+                <div class="modal-dialog mt-lg-4">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="ModalLabel">Buat Pengguna Baru</h5>

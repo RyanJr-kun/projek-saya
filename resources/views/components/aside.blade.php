@@ -15,7 +15,7 @@
       <ul class="navbar-nav">
         <li class="nav-item">
             {{-- setting 'active' untuk acuan page --}}
-          <a class="nav-link hover {{ request()->is('/dashboard') ? 'active' : '' }} " href="/dashboard">
+          <a class="nav-link hover {{ request()->is('dashboard') ? 'active' : '' }} " href="/dashboard">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa fa-tv text-dark text-sm opacity-10"></i>
             </div>
