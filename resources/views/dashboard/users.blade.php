@@ -1,16 +1,27 @@
 <x-layout>
     <x-slot:title>{{ $title }}</x-slot:title>
 
-    @if (session()->has('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <span class="alert-icon"><i class="ni ni-like-2"></i></span>
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+   @if (session()->has('success'))
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                <div class="toast-body">
+                    <span class="alert-icon"><i class="ni ni-like-2 me-2"></i></span>
+                    {{ session('success') }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
         </div>
     @endif
-
+    <div class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="d-flex">
+    <div class="toast-body">
+      Hello, world! This is a toast message.
+    </div>
+    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+</div>
     <div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto ">
         <div class="row ">
             <div class="col-12 ">
@@ -228,7 +239,7 @@
         </div>
         <x-footer></x-footer>
     </div>
-
+@push('scripts')
 <script>
         // ngambil gambar dan tampilin dia area border
         // Get the necessary elements from the DOM (Document Object Model)
@@ -353,4 +364,18 @@
       Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
     }
 </script>
+<script>
+  // Wait for the document to be fully loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Select the toast element by its ID
+    var toastEl = document.getElementById('successToast');
+
+    // If the toast element exists, create a new Bootstrap toast instance and show it
+    if (toastEl) {
+      var toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+  });
+</script>
+@endpush
 </x-layout>
