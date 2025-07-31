@@ -15,7 +15,7 @@
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
-    <div class="min-height-300 bg-gradient-blue position-absolute w-100"></div>
+    <div class="min-height-100 bg-gradient-blue position-absolute w-100"></div>
     <x-aside></x-aside>
     <main class="main-content position-relative border-radius-lg ">
         <nav class="navbar navbar-main navbar-expand-lg px-0 px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">

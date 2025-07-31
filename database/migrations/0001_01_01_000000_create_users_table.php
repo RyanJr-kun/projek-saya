@@ -18,14 +18,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-
             $table->foreignId('role_id');
             $table->string('img_user')->nullable();
             $table->string('kontak')->unique()->nullable();
-
             $table->date('mulai_kerja')->nullable(); //bar iki dihapus wae rapenting
-            $table->string('status');
-
+            $table->boolean('status')->default(true);
             $table->rememberToken();
             $table->timestamps();
         });

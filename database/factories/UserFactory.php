@@ -34,7 +34,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => Hash::make('12345'), // password default
             'mulai_kerja' => now(),
-            'status' => $this->faker->randomElement(['aktif', 'tidak']),
+            'status' => $this->faker->boolean(),
             'remember_token' => Str::random(10),
         ];
     }

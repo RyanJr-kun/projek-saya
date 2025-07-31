@@ -175,24 +175,24 @@
                         </div>
                       </td>
                       <td>
-                        <p title="kategori" class="text-xs text-dark fw-bold mb-0 ">{{ $produks->kategori_produk->nama }}</p>
+                        <p title="kategori produk" class="text-xs text-dark fw-bold mb-0 ">{{ $produks->kategori_produk->nama }}</p>
                       </td>
                       <td>
-                        <p title="brand" class="text-xs text-dark fw-bold mb-0 ">{{ $produks->brand->nama }}</p>
+                        <p title="nama brand/merek poduk" class="text-xs text-dark fw-bold mb-0 ">{{ $produks->brand->nama }}</p>
                       </td>
                       <td>
-                        <p title="harga" class="text-xs text-dark fw-bold mb-0">{{ $produks->harga_formatted }}</p>
+                        <p title="harga jual" class="text-xs text-dark fw-bold mb-0">{{ $produks->harga_formatted }}</p>
                       </td>
                       <td>
-                        <p title="unit" class="text-xs text-dark fw-bold mb-0">{{ $produks->unit->nama }}</p>
+                        <p title="jenis unit" class="text-xs text-dark fw-bold mb-0">{{ $produks->unit->nama }}</p>
                       </td>
                       <td>
-                        <span title="qty" class="text-dark text-xs fw-bold ">{{ $produks->qty }}</span>
+                        <span title="Jumlah Barang" class="text-dark text-xs fw-bold ">{{ $produks->qty }}</span>
                       </td>
                       <td>
-                        <div title="gambar & nama produk" class="d-flex px-2 py-1">
+                        <div title="foto & nama user" class="d-flex px-2 py-1">
                           <div>
-                            <img src="{{ $produks->user->img_user }}" class="avatar avatar-sm me-3" alt="produk1">
+                            <img src="{{ asset('storage/' . $produks->user->img_user) }}" class="avatar avatar-sm me-3" alt="produk1">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
                             <h6 class="mb-0 text-sm">{{ $produks->user->nama }}</h6>
@@ -200,7 +200,7 @@
                         </div>
                       </td>
                       <td class="align-middle pe-3">
-                        <a href="/produk/{{ $produks->slug }}" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Detail produk">
+                        <a href="{{ route('produk.show', $produks->slug) }}" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Detail produk">
                             <i class="fa fa-eye text-dark text-sm opacity-10"></i>
                         </a>
                         <a href="#" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Edit produk">

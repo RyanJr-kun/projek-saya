@@ -34,7 +34,8 @@
         <div class="row ">
             <div class="col-12 ">
                 <div class="card mb-4 ">
-                    <div class="card-hrader pb-0 px-3 pt-2 mb-3">
+
+                    <div class="card-header pb-0 px-3 pt-2 mb-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="mb-0">Data Pengguna</h5>
@@ -44,17 +45,8 @@
                             </div>
                             <div class="ms-auto my-auto mt-2">
                                 <div class="ms-auto mb-0">
-                                    {{-- button export pdf/excel user gak perlu ini --}}
-                                    {{-- <a href="#Export-Pdf" type="button" class="btn btn-outline-primary me-2 p-2 mb-0" title="Export PDF" >
-                                        <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20">
-                                    </a>
-                                    <a href="#Export-Excel" class="btn btn-outline-primary p-2 me-2 export mb-0 " data-type="csv" type="button" title="Export Excel">
-                                        <img src="assets/img/xls.png" alt="Download PDF" width="20" height="20">
-                                    </a> --}}
-
-                                    {{-- triger-modal --}}
-                                    <button class="btn bg-gradient-blue text-white " data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat User
-                                    </button>
+                                    {{-- triger modal create user baru --}}
+                                    <button class="btn bg-gradient-blue text-white " data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat User</button>
                                     {{-- start-modal-add-user--}}
                                     <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog mt-lg-4">
@@ -64,7 +56,7 @@
                                                     <button type="button" class="btn-close bg-dark me-1" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form action="/users" method="post">
+                                                    <form action="{{ route('users.store') }}" method="post" enctype="multipart/form-data">
                                                     @csrf
                                                         <div class="row">
                                                             <div class="d-flex align-items-center gap-3 mb-3">
@@ -76,7 +68,7 @@
                                                                 </div>
                                                                 <div class="ms-3 text-center">
                                                                     <label for="img" class="btn btn-outline-primary">Upload Image</label>
-                                                                    <input type="file" id="img" class="d-none" accept="image/jpeg, image/png">
+                                                                    <input type="file" id="img" name="img_user" class="d-none" accept="image/jpeg, image/png">
                                                                     <p class="text-muted mt-2 ps-2 small">JPEG, PNG up to 2MB</p>
                                                                 </div>
                                                             </div>
@@ -138,8 +130,7 @@
                                                                 </div>
                                                                 <div class="justify-content-end mt-4 form-check form-switch form-check-reverse">
                                                                     <label class="me-auto form-check-label" for="status_toggle">Status</label>
-                                                                    <input type="hidden" name="status" value="tidak">
-                                                                    <input class="form-check-input" type="checkbox" role="switch" id="status_toggle" name="status" value="aktif" checked >
+                                                                    <input class="form-check-input" type="checkbox" name="status" value="1" checked>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -167,14 +158,14 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="card-body px-0 pt-0 pb-2">
+                        <!-- Filter Pencarian Nama & kategori role -->
                         <div class="filter-container">
                             <div class="row g-3 align-items-center justify-content-between">
-                                <!-- Filter Pencarian Nama -->
                                 <div class="col-5 col-lg-3 ms-3">
                                     <input type="text" id="searchInput" class="form-control" placeholder="cari pengguna ...">
                                 </div>
-                                <!-- Filter Dropdown Posisi -->
                                 <div class="col-5 col-lg-2 me-3">
                                     <select id="posisiFilter" class="form-select">
                                         <option value="">Semua Posisi</option>
@@ -182,17 +173,17 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="table-responsive p-0 my-3">
                             <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
                                 <thead>
                                     <tr class="table-secondary">
-                                    <th class="text-uppercase text-dark text-xs font-weight-bolder">
-                                    <input type="checkbox" id="check-all" class="me-4">Nama</th>
-                                    <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">kontak</th>
-                                    <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Posisi</th>
-                                    <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">Mulai Bekerja</th>
-                                    <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
-                                    <th class="text-dark"></th>
+                                        <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
+                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">kontak</th>
+                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Posisi</th>
+                                        <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">Mulai Bekerja</th>
+                                        <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
+                                        <th class="text-dark"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="isiTable">
@@ -200,10 +191,9 @@
                                     <tr>
 
                                         <td>
-                                            <div class="d-flex ms-2 px-2 py-1 align-items-center">
-                                                <input name="checkboxUser" type="checkbox" class="check-item me-4 dark mb-0">
+                                            <div title="foto & nama user" class="d-flex ms-2 px-2 py-1 align-items-center">
                                                 <div>
-                                                    <img src="{{ $user->img_user }}" class="avatar avatar-sm me-3">
+                                                    <img src="{{ asset('storage/' . $user->img_user) }}" class="avatar avatar-sm me-3">
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-center">
                                                     <h6 class="mb-0 text-sm">{{ $user->nama }}</h6>
@@ -212,12 +202,12 @@
                                         </td>
 
                                         <td>
-                                            <p class="text-xs text-dark fw-bold mb-0">{{ $user->kontak }}</p>
-                                            <p class="text-xs text-dark mb-0">{{ $user->email }}</p>
+                                            <p title="nomer whatsapp" class="text-xs text-dark fw-bold mb-0">{{ $user->kontak }}</p>
+                                            <p title="email" class="text-xs text-dark mb-0">{{ $user->email }}</p>
                                         </td>
 
                                         <td>
-                                            <p class="text-xs text-dark fw-bold mb-0">{{ $user->role->nama }}</p>
+                                            <p title="Role user" class="text-xs text-dark fw-bold mb-0">{{ $user->role->nama }}</p>
                                         </td>
 
                                         <td class="align-middle text-center">
@@ -225,11 +215,16 @@
                                         </td>
 
                                         <td class="align-middle text-center text-sm">
-                                            <span class="badge {{ strtolower($user['status']) == 'aktif' ? 'badge-success' : 'badge-secondary' }}">{{ $user->status }} </span>
+                                            @if ($user->status)
+                                                <span class="badge badge-success">Aktif</span>
+                                            @else
+                                                <span class="badge badge-secondary">Tidak Aktif</span>
+                                            @endif
                                         </td>
 
                                         <td class="align-middle">
-                                            <a href="/dashboard/user/{{ $user->id }}" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Edit user">
+                                            {{-- {{ route('user.show', $user->username) }} --}}
+                                            <a href="{{ route('users.edit', $user->username) }}" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Edit user">
                                                 <i class="fa fa-pen-to-square text-dark text-sm opacity-10"></i>
                                             </a>
                                             <a href="#" class="text-dark fw-bold text-xs" data-toggle="tooltip" data-original-title="Delete user">
@@ -247,6 +242,7 @@
         </div>
         <x-footer></x-footer>
     </div>
+
 @push('scripts')
 <script>
         // ngambil gambar dan tampilin dia area border
@@ -388,4 +384,5 @@
         });
 </script>
 @endpush
+
 </x-layout>

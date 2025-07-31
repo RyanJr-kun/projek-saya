@@ -14,13 +14,15 @@ use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\KategoriPemasukanController;
 use App\Http\Controllers\KategoriPengeluaranController;
+use App\Models\Produk;
 
 //Autentikasi
 Route::get('login', [LoginController::class, 'index'])->name('login')->middleware('guest');
 Route::post('login', [LoginController::class, 'authenticate']);
 Route::post('logout',[LoginController::class, 'logout'])->name('logout');
-Route::get('users', [UserController::class, 'index'])->middleware('auth');
-Route::post('users', [UserController::class, 'store']);
+
+//users
+Route::resource('users', UserController::class)->middleware('auth');
 
 // market-beranda
 Route::get('/', function () {
@@ -37,9 +39,7 @@ Route::get('/dashboard', function () {
 })->middleware('auth')->name('dashboard');
 
 //manajemen Inventaris
-//produk
-Route::get('produk', [ProdukController::class, 'index'])->middleware('auth');
-Route::get('produk/{produk:slug}', [ProdukController::class, 'show'])->middleware('auth');
+Route::resource('produk', ProdukController::class)->middleware('auth');
 
 //kategori produk
 Route::get('ketegoriproduk', [KategoriProdukController::class,'index'])->middleware('auth');

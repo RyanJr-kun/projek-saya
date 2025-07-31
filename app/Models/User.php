@@ -27,7 +27,6 @@ class User extends Authenticatable
      */
     protected $with =['role'];
     protected $guarded = ['id'];
-    
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -49,6 +48,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'mulai_kerja' => 'date',
             'password' => 'hashed',
+            'status' => 'boolean',
         ];
     }
 
@@ -80,5 +80,14 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
       return $this->belongsTo(Role::class);
+    }
+    /**
+    * Get the route key for the model.
+    *
+    * @return string
+    */
+    public function getRouteKeyName(): string
+    {
+        return 'username';
     }
 }

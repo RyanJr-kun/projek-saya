@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Cviebrock\EloquentSluggable\Sluggable;
 
 class Produk extends model
 {
+    use Sluggable;
     use HasFactory;
     protected $guarded = ['id'];
     protected $with = ['kategori_produk', 'user', 'brand', 'unit', 'garansi'];
-    // 'brand', 'units', 'garansi', ''
 
     protected function hargaFormatted(): Attribute
     {
@@ -50,6 +51,30 @@ class Produk extends model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class);
+    }
+
+    /**
+    * Get the route key for the model.
+    *
+    * @return string
+    */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
+     * Return the sluggable configuration array for this model.
+     *
+     * @return array
+     */
+     public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'nama_produk'
+            ]
+        ];
     }
 
 }

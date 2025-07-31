@@ -13,7 +13,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        return view('dashboard.users', [
+        return view('dashboard.user.index', [
         'title'=>'users',
         'users' => User::latest()->get(),
         'roles' => Role::all()
@@ -25,7 +25,7 @@ class UserController extends Controller
      */
     public function create(Request $request)
     {
-
+        //
     }
 
     /**
@@ -41,8 +41,15 @@ class UserController extends Controller
             'role_id' => ['required', Rule::exists('roles', 'id')],
             'kontak' => 'nullable|min:9|max:14|unique:users',
             'mulai_kerja' => 'required|date',
-            'status' => 'required|string|in:aktif,tidak',
+            'status' => 'required|boolean',
+            'img_user' => 'nullable|image|mimes:jpeg,png|max:2048',
         ]);
+
+        if ($request->file('img_user')) {
+        // Simpan gambar ke folder public/storage/user-images
+        $path = $request->file('img_user')->store('user-images', 'public');
+        $validatedData['img_user'] = $path;
+        }
 
         $validatedData['password'] = bcrypt($validatedData['password']);
 
@@ -55,7 +62,10 @@ class UserController extends Controller
      * Display the specified resource. iki durung kangge bjir
      */
     public function show (user $user) {
-        //
+        return view('dashboard.user.show',[
+            'title' => 'Detail User',
+            'User' => $user
+        ]);
     }
 
     /**
@@ -63,7 +73,10 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        return view('dashboard.user.show',[
+            'title' => 'Edit User',
+            'User' => $id
+        ]);
     }
 
     /**

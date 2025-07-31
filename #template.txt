@@ -1,0 +1,45 @@
+#template Autoslug
+// model untuk isi slug otomatis
+use Cviebrock\EloquentSluggable\Sluggable;
+
+class Post extends Model
+{
+    use Sluggable;
+
+    /**
+     * Return the sluggable configuration array for this model.
+     *
+     * @return array
+     */
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'nama_produk '
+            ]
+        ];
+    }
+}
+
+//bikin routes
+route::get('users/chekSlug', [ProdukController::class, 'chekSlug'])->midleware('auth');
+
+//kalo udah, masukin js ini ke blade
+<script>
+const nama_produk = document.querySelector('#nama_produk ')
+const slug = document.querySelector('#slug')
+
+title.addEventListener('change', function(){
+    fecth('/users/chekSlug?title=' + title.value')
+        .then(response => response.json())
+        .then(data => slug.value = data.slug)
+});
+</script>
+
+//taro ini di controller
+use \Cviebrock\EloquentSluggable\Services\SlugService;
+
+public function chekSlug(Request $request) {
+    $slug = SlugService::createSlug(model::class, 'slug', $request->nama_produk );
+    return response()->json(['slug' => $slug])
+}

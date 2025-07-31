@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 class KategoriProdukController extends Controller
 {
    public function index() {
-    return view('dashboard.inventaris.kategoriproduk', [
+    return view('dashboard.kategoriproduk.index', [
         'title' => 'Data Kategori Produk',
         'kategori_produk'=>KategoriProduk::latest()->get(),
     ]);
@@ -32,12 +32,9 @@ class KategoriProdukController extends Controller
     /**
      * Display the specified resource.
      */
-    // public function show(KategoriProduk $kategori_produk) {
-    //     return view( 'kategoriproduk',[
-    //          'title' => 'filter produk',
-    //          'filter' => $kategori_produk
-    //     ]);
-    // }
+    public function show(KategoriProduk $kategori_produk) {
+        //
+    }
 
     /**
      * Show the form for editing the specified resource.

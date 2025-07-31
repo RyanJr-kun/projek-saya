@@ -12,16 +12,9 @@ class ProdukController extends Controller
      */
     public function index()
     {
-        return view('dashboard.inventaris.produk', [
+        return view('dashboard.produk.index', [
         'title'=>'Produk',
         'produk' => Produk::latest()->paginate(10)
-    ]);
-    }
-
-    public function show (Produk $produk) {
-        return view('dashboard.inventaris.produksingle',[
-        'title' => 'Single Produk',
-        'produk' => $produk
     ]);
     }
 
@@ -44,10 +37,13 @@ class ProdukController extends Controller
     /**
      * Display the specified resource.
      */
-    // public function show(Produk $produk)
-    // {
-    //     //
-    // }
+    public function show(Produk $produk)
+    {
+       return view('dashboard.produk.show',[
+            'title' => 'Detail Produk',
+            'produk' => $produk
+        ]);
+    }
 
     /**
      * Show the form for editing the specified resource.
