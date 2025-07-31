@@ -1,18 +1,20 @@
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
+import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: [
-                "resources/js/app.js",
-                "resources/scss/app.scss",
-                // "resources/css/argon-dashboard.min.css",
-                // "resources/js/argon-dashboard.min.js",
-            ],
+            input: ["resources/js/app.js", "resources/scss/app.scss"],
             refresh: true,
         }),
         tailwindcss(),
     ],
+    resolve: {
+        alias: {
+            "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
+            "~argon": path.resolve(__dirname, "resources/scss/argon-dashboard"),
+        },
+    },
 });

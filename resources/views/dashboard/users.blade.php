@@ -1,27 +1,35 @@
 <x-layout>
     <x-slot:title>{{ $title }}</x-slot:title>
-
-   @if (session()->has('success'))
-        <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                <div class="toast-body">
-                    <span class="alert-icon"><i class="ni ni-like-2 me-2"></i></span>
-                    {{ session('success') }}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
+    {{-- notif --}}
+    @if (session()->has('success'))
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+        <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <span class="alert-icon text-light me-2"><i class="fa fa-thumbs-up"></i></span>
+                <strong class="me-auto">Notifikasi</strong>
+                <small class="text-light">Baru saja</small>
+                <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ session('success') }}
             </div>
         </div>
-    @endif
-    <div class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
-  <div class="d-flex">
-    <div class="toast-body">
-      Hello, world! This is a toast message.
     </div>
-    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-  </div>
-</div>
+    @endif
+    {{-- main content --}}
+    <div class="toast-container">
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+            <img src="..." class="rounded me-2" alt="...">
+            <strong class="me-auto">Bootstrap</strong>
+            <small class="text-muted">just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+            See? Just like this.
+            </div>
+        </div>
+    </div>
     <div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto ">
         <div class="row ">
             <div class="col-12 ">
@@ -174,7 +182,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="table-responsive p-0 mt-4">
+                        <div class="table-responsive p-0 my-3">
                             <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
                                 <thead>
                                     <tr class="table-secondary">
@@ -365,17 +373,19 @@
     }
 </script>
 <script>
-  // Wait for the document to be fully loaded
-  document.addEventListener('DOMContentLoaded', function() {
-    // Select the toast element by its ID
-    var toastEl = document.getElementById('successToast');
+        // Menunggu halaman siap
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cari elemen toast berdasarkan ID-nya
+            var toastElement = document.getElementById('successToast');
 
-    // If the toast element exists, create a new Bootstrap toast instance and show it
-    if (toastEl) {
-      var toast = new bootstrap.Toast(toastEl);
-      toast.show();
-    }
-  });
+            // Jika elemennya ada...
+            if (toastElement) {
+            // Buat objek toast dari Bootstrap
+            var toast = new bootstrap.Toast(toastElement);
+            // Tampilkan toast!
+            toast.show();
+            }
+        });
 </script>
 @endpush
 </x-layout>
