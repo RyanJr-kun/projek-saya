@@ -25,7 +25,10 @@ class UserController extends Controller
      */
     public function create(Request $request)
     {
-        //
+        return view('dashboard.user.create',[
+            'title' => 'Detail User',
+            'User' => $request
+        ]);
     }
 
     /**
@@ -62,10 +65,7 @@ class UserController extends Controller
      * Display the specified resource. iki durung kangge bjir
      */
     public function show (user $user) {
-        return view('dashboard.user.show',[
-            'title' => 'Detail User',
-            'User' => $user
-        ]);
+        //
     }
 
     /**
@@ -73,7 +73,7 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        return view('dashboard.user.show',[
+        return view('dashboard.user.edit',[
             'title' => 'Edit User',
             'User' => $id
         ]);

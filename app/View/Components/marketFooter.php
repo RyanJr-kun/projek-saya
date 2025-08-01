@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class market-footer extends Component
+class marketFooter extends Component
 {
     /**
      * Create a new component instance.
@@ -21,6 +21,6 @@ class market-footer extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.market-footer');
+        return view('components.marketFooter');
     }
 }

@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="logo" sizes="100x100" href="../assets/img/logo.svg">
-  <link rel="icon" type="image/svg" href="../assets/img/logo.svg">
-  <title>Jo Computer Dashboard</title>
+  <link rel="logo" sizes="100x100" href="{{ asset('assets/img/logo.svg') }}">
+  <link rel="icon" type="image/svg" href="{{ asset('assets/img/logo.svg') }}">
+  <title>Point Of Sales - JO Computer</title>
 
   @vite(['resources/scss/app.scss', 'resources/js/app.js','resources/js/argon-dashboard.min.js' ])
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
   <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
@@ -41,7 +42,7 @@
                         </li>
                         <li class="nav-item dropdown d-flex align-items-center me-lg-2">
                             <a href="#notif" class="nav-link text-white me-n2 me-lg-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa fa-bell cursor-pointer"></i>
+                                <i class="bi bi-bell-fill cursor-pointer"></i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end px-2 py-3" aria-labelledby="dropdownMenuButton">
                                 <li>
@@ -52,7 +53,7 @@
                                                 <h6 class="text-sm font-weight-normal mb-1">
                                                     <span class="font-weight-bold">New message</span> from Laur
                                                 </h6>
-                                                <p class="text-xs text-secondary mb-0"><i class="fa fa-clock me-1"></i> 13 minutes ago</p>
+                                                <p class="text-xs text-secondary mb-0"><i class="bi bi-clock-fill me-1"></i> 13 minutes ago</p>
                                             </div>
                                         </div>
                                     </a>
@@ -65,7 +66,7 @@
                                                 <h6 class="text-sm font-weight-normal mb-1">
                                                     <span class="font-weight-bold">New message</span> from Laur
                                                 </h6>
-                                                <p class="text-xs text-secondary mb-0"><i class="fa fa-clock me-1"></i> 13 minutes ago</p>
+                                                <p class="text-xs text-secondary mb-0"><i class="bi bi-clock-fill me-1"></i> 13 minutes ago</p>
                                             </div>
                                         </div>
                                     </a>
@@ -75,7 +76,7 @@
                                     <a class="dropdown-item border-radius-md" href="/notifikasi">
                                         <h6 class="text-sm font-weight-normal mb-0">
                                             <span class="font-weight-bold">Notifikasi</span> Lainya
-                                            <i class="fa fa-angle-right ms-1"></i>
+                                            <i class="bi bi-bold bi-chevron-double-right  ms-2"></i>
                                         </h6>
 
                                     </a>
@@ -88,7 +89,7 @@
                                 @if (auth()->user()->img_user)
                                     <img src="{{ asset('storage/' . auth()->user()->img_user) }}" alt="Profile" class="avatar avatar-sm rounded-circle cursor-pointer">
                                 @else
-                                    <i class="fa fa-user cursor-pointer fs-5"></i>
+                                    <i class="bi bi-person-circle cursor-pointer fs-5"></i>
                                 @endif
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="userDropdown">
@@ -99,14 +100,14 @@
                                 </li>
                                 <li>
                                     <a class="dropdown-item border-radius-md" href="/">
-                                        <i class="fa fa-store me-2"></i> Web Market
+                                        <i class="bi bi-shop me-2"></i> Web Market
                                     </a>
                                 </li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="post">
                                         @csrf
                                         <button type="submit" class="dropdown-item border-radius-md w-100 text-danger" style="text-align: left;">
-                                            <i class="fa fa-right-from-bracket me-2"></i>Log Out
+                                            <i class="bi bi-box-arrow-right me-2"></i>Log Out
                                         </button>
                                     </form>
                                 </li>

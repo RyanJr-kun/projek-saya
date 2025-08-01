@@ -8,21 +8,14 @@
                 <title>
                     Jo Computer Dashboard
                 </title>
-             @vite([
-                    'resources/scss/app.scss',
-                    'resources/js/app.js',
-                    'resources/js/core/popper.min.js',
-                    'resources/js/core/bootstrap.min.js',
-                    'resources/js/plugins/perfect-scrollbar.min.js',
-                    // 'resources/js/plugins/smooth-scrollbar.min.js',
-                    // 'resources/js/argon-dashboard.min.js'
-                ])
+             @vite(['resources/scss/app.scss', 'resources/js/app.js','resources/js/argon-dashboard.min.js' ])
             <!--     Fonts and icons     -->
             <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
             <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
             <script async defer src="https://buttons.github.io/buttons.js"></script>
         </head>
-    <body class="">
+    <body>
         <div class="container position-sticky z-index-sticky top-0">
             <div class="row">
             <div class="col-12">
@@ -43,20 +36,20 @@
                     <div class="collapse navbar-collapse" id="navigation">
                     <ul class="navbar-nav mx-auto">
                         <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center me-2 active" aria-current="page" href="/">
-                            <i class="fa fa-chart-pie opacity-6 text-dark me-1"></i>
+                        <a class="nav-link d-flex align-items-center me-2 active mb-0" aria-current="page" href="/">
+                            <i class="bi bi-house-fill opacity-6 text-dark me-1"></i>
                             Beranda
                         </a>
                         </li>
                         <li class="nav-item">
                         <a class="nav-link me-2" href="/profile">
-                            <i class="fa fa-user opacity-6 text-dark me-1"></i>
+                            <i class="bi bi-person-circle opacity-6 text-dark me-1"></i>
                             Profile
                         </a>
                         </li>
                         <li class="nav-item">
                         <a class="nav-link me-2" href="/toko">
-                            <i class="fas fa-user-circle opacity-6 text-dark me-1"></i>
+                            <i class="bi bi-shop opacity-6 text-dark me-1"></i>
                             Market
                         </a>
                         </li>

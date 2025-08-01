@@ -16,25 +16,11 @@
         </div>
     </div>
     @endif
-    {{-- main content --}}
-    <div class="toast-container">
-        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-            <img src="..." class="rounded me-2" alt="...">
-            <strong class="me-auto">Bootstrap</strong>
-            <small class="text-muted">just now</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-            See? Just like this.
-            </div>
-        </div>
-    </div>
+
     <div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto ">
         <div class="row ">
             <div class="col-12 ">
                 <div class="card mb-4 ">
-
                     <div class="card-header pb-0 px-3 pt-2 mb-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -46,7 +32,7 @@
                             <div class="ms-auto my-auto mt-2">
                                 <div class="ms-auto mb-0">
                                     {{-- triger modal create user baru --}}
-                                    <button class="btn bg-gradient-blue text-white " data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat User</button>
+                                    <button class="btn btn-outline-info " data-bs-toggle="modal" data-bs-target="#import"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat User</button>
                                     {{-- start-modal-add-user--}}
                                     <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog mt-lg-4">
@@ -62,7 +48,7 @@
                                                             <div class="d-flex align-items-center gap-3 mb-3">
                                                                 <div id="imagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center" style="height: 150px; width: 150px; border-style: dashed !important; border-width: 2px !important;">
                                                                     <div class="text-center text-muted">
-                                                                        <i class="fa-solid fa-cloud-arrow-up fs-4"></i>
+                                                                        <i class="bi bi-cloud-arrow-up-fill fs-4"></i>
                                                                         <p class="mb-0 small">Image Preview</p>
                                                                     </div>
                                                                 </div>
@@ -84,7 +70,7 @@
 
                                                                 <div class="form-group">
                                                                     <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-                                                                    <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username"  value="{{ old('username') }}" required>
+                                                                    <input  type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username"  value="{{ old('username') }}" required >
                                                                     @error('username')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                     @enderror
@@ -130,7 +116,7 @@
                                                                 </div>
                                                                 <div class="justify-content-end mt-4 form-check form-switch form-check-reverse">
                                                                     <label class="me-auto form-check-label" for="status_toggle">Status</label>
-                                                                    <input class="form-check-input" type="checkbox" name="status" value="1" checked>
+                                                                    <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" checked>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -223,12 +209,14 @@
                                         </td>
 
                                         <td class="align-middle">
-                                            {{-- {{ route('user.show', $user->username) }} --}}
-                                            <a href="{{ route('users.edit', $user->username) }}" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip" data-original-title="Edit user">
-                                                <i class="fa fa-pen-to-square text-dark text-sm opacity-10"></i>
+                                            {{-- <a href="#" class="text-dark fw-bold text-xs" data-toggle="tooltip" data-original-title="Delete user">
+                                                <i class="bi bi-eye text-dark text-sm opacity-10"></i>
+                                            </a> --}}
+                                            <a href="{{ route('users.edit', $user->username) }}" class="text-dark fw-bold px-3 text-xs" data-toggle="tooltip" data-original-title="Edit user">
+                                                <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
                                             </a>
                                             <a href="#" class="text-dark fw-bold text-xs" data-toggle="tooltip" data-original-title="Delete user">
-                                                <i class="fa fa-trash text-dark text-sm opacity-10"></i>
+                                                <i class="bi bi-trash3 text-dark text-sm opacity-10"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -369,19 +357,13 @@
     }
 </script>
 <script>
-        // Menunggu halaman siap
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cari elemen toast berdasarkan ID-nya
-            var toastElement = document.getElementById('successToast');
-
-            // Jika elemennya ada...
-            if (toastElement) {
-            // Buat objek toast dari Bootstrap
+    document.addEventListener('DOMContentLoaded', function() {
+        var toastElement = document.getElementById('successToast');
+        if (toastElement) {
             var toast = new bootstrap.Toast(toastElement);
-            // Tampilkan toast!
             toast.show();
-            }
-        });
+        }
+    });
 </script>
 @endpush
 

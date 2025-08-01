@@ -6,7 +6,7 @@
                 © <script>
                   document.write(new Date().getFullYear())
                 </script>,
-                made with <i class="fa fa-heart"></i> by
+                made with <i class="bi bi-heart-fill text-dark"></i> by
                 <a href="/" class="font-weight-bold">Ryan Junior</a>
               </div>
             </div>

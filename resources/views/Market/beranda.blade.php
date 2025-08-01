@@ -1,3 +1,3 @@
-<x-market-layout>
-    
-</x-market-layout>
+<x-marketLayout>
+
+</x-marketLayout>

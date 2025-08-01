@@ -34,6 +34,10 @@ $black: #0b0b0b;
     font-size: 16px !important;
 }
 
+.fs-18px {
+    font-size: 18px !important;
+}
+
 .text-black {
     color: $black;
 }
@@ -72,4 +76,8 @@ $black: #0b0b0b;
 .badge-white {
     background-color: rgba($gray-300, 0.5);
     color: $gray-800;
+}
+
+.bi-tebal {
+    font-weight: bold !important; /* !important kadang diperlukan untuk menimpa style default */
 }
