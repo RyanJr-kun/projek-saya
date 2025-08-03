@@ -1,5 +1,8 @@
 <x-layout>
     <x-slot:title>{{ $title }}</x-slot:title>
+    @push('breadcrumb')
+    <li class="breadcrumb-item text-sm text-white active" aria-current="page">{{ $title }}</li>
+    @endpush
     <div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto ">
       <div class="row ">
         <div class="col-12 ">
@@ -12,118 +15,45 @@
                             Kelola Data Produkmu
                         </p>
                     </div>
-            <div class="ms-auto my-auto mt-lg-0 mt-4">
-                <div class="ms-auto mb-3">
-                    <div class="d-none d-md-block">
-                        <a href="#Export-Pdf" type="button" class="btn btn-outline-primary me-2 p-2 mb-0" title="Export PDF">
-                            <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20">
-                        </a>
-                        <a href="#Export-Excel" class="btn btn-outline-primary p-2 me-2 export mb-0" data-type="csv" type="button" title="Export Excel">
-                            <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20">
-                        </a>
-                        <button class="btn bg-gradient-blue text-white mb-0" data-bs-toggle="modal" data-bs-target="#import">
-                            <i class="fa fa-plus cursor-pointer pe-2"></i>Buat produk
-                        </button>
-                    </div>
-                    <div class="dropdown d-block d-md-none">
-                        <button class="btn bg-gradient-blue text-white dropdown-toggle mb-0" type="button" id="aksiMobile" data-bs-toggle="dropdown" aria-expanded="false">Pilih Aksi</button>
-                        <ul class="dropdown-menu" aria-labelledby="aksiMobile">
-                            <li>
-                                <a class="dropdown-item" href="#Export-Pdf">
-                                    <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20" class="me-2">Export PDF
+                    <div class="ms-auto my-auto mt-lg-0 mt-4">
+                        <div class="ms-auto mb-3">
+                            <div class="d-none d-md-block">
+                                <a href="#Export-Pdf" type="button" class="btn btn-outline-danger me-2 p-2 mb-0" title="Export PDF">
+                                    <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20">
                                 </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item export" href="#Export-Excel" data-type="csv">
-                                    <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20" class="me-2">Export Excel
+                                <a href="#Export-Excel" class="btn btn-outline-success p-2 me-2 export mb-0" data-type="csv" type="button" title="Export Excel">
+                                    <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20">
                                 </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#import">
-                                    <i class="fa fa-plus cursor-pointer pe-2"></i>Buat produk
+                                <a href="{{ route('produk.create') }}">
+                                    <button class="btn btn-outline-success mb-0">
+                                        <i class="bi bi-plus-lg cursor-pointer pe-2"></i>Buat produk
+                                    </button>
                                 </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                        {{-- start-modal-add-user--}}
-            <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog mt-lg-4">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="ModalLabel">Buat Pengguna Baru</h5>
-                            <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-        <div class="modal-body">
-            <form>
-                <div class="row">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div id="imagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center" style="height: 150px; width: 150px; border-style: dashed !important; border-width: 2px !important;">
-                         {{-- area gambar --}}
-                        <div class="text-center text-muted">
-                            <i class="fa-solid fa-cloud-arrow-up fs-4"></i>
-                            <p class="mb-0 small">Image Preview</p>
-                        </div>
-                    </div>
-                        <div class="ms-3 text-center">
-                            <label for="uploadImageInput" class="btn btn-outline-primary">Upload Image</label>
-                            <input type="file" id="uploadImageInput" class="d-none" accept="image/jpeg, image/png">
-                            <p class="text-muted mt-2 ps-2 small">JPEG, PNG up to 2MB</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="mb-3">
-                            <label for="userInput" class="form-label">Nama <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="userInput" required>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="roleSelect" class="form-label">Role <span class="text-danger">*</span></label>
-                            <select class="form-select" id="roleSelect" required>
-                                <option selected>Choose...</option>
-                                <option value="1">Admin</option>
-                                <option value="2">Kasir</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="emailInput" class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="emailInput" placeholder="example@gmail.com" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phoneInput" class="form-label">Phone <span class="text-danger">*</span></label>
-                            <input type="tel" class="form-control" id="phoneInput" required>
-                        </div>
-                    </div>
-                  </div>
-                  <div class="row mb-3">
-                        <div class="col-12 col-sm-6">
-                          <label for="passwordInput" >Password <span class="text-danger">*</span></label>
-                          <input id="passwordInput" class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
-                        </div>
-                        <div class="col-12 col-sm-6">
-                          <label for="passwordRepeat">Repeat Password <span class="text-danger">*</span></label>
-                          <input id="passwordRepeat" class="multisteps-form__input form-control" type="password" placeholder="******" onfocus="focused(this)" onfocusout="defocused(this)">
-                        </div>
-                      </div>
-                            <div class="justify-content-end mt-4 form-check form-switch form-check-reverse">
-                                <label class="me-auto form-check-label" for="switchCheckReverse">Status</label>
-                                    <input class="form-check-input text-success" type="checkbox" role="switch" id="switchCheckReverse">
                             </div>
-                        </form>
-                    </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-success btn-sm">Submit</button>
-                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">Cancel
-                        </button>
+                            <div class="dropdown d-block d-md-none">
+                                <button class="btn btn-outline-info dropdown-toggle mb-0" type="button" id="aksiMobile" data-bs-toggle="dropdown" aria-expanded="false">Pilih Aksi</button>
+                                <ul class="dropdown-menu" aria-labelledby="aksiMobile">
+                                    <li>
+                                        <a class="dropdown-item" href="#Export-Pdf">
+                                            <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20" class="me-2">Export PDF
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item export" href="#Export-Excel" data-type="csv">
+                                            <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20" class="me-2">Export Excel
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-success" href="#">
+                                            <i class="bi bi-plus-lg  cursor-pointer pe-2"></i>Buat Produk
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-         </div>
-        {{-- end-modal --}}
-      </div>
-    </div>
-  </div>
-</div>
             <div class="card-body px-0 pt-0 pb-2">
                 <div class="filter-container mb-3">
                     <div class="row g-3 align-items-center justify-content-between">

@@ -23,7 +23,10 @@ class ProdukController extends Controller
      */
     public function create()
     {
-        //
+        return view('dashboard.produk.create',[
+            'title' => 'Buat Produk',
+            'bread' => 'Buat produk Baru'
+        ]);
     }
 
     /**
@@ -41,6 +44,7 @@ class ProdukController extends Controller
     {
        return view('dashboard.produk.show',[
             'title' => 'Detail Produk',
+            'bread' => 'Detail Produk',
             'produk' => $produk
         ]);
     }
