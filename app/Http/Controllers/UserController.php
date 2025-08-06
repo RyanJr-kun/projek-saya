@@ -14,7 +14,7 @@ class UserController extends Controller
     public function index()
     {
         return view('dashboard.user.index', [
-        'title'=>'users',
+        'title'=>'Users',
         'users' => User::latest()->get(),
         'roles' => Role::all()
     ]);
@@ -26,8 +26,9 @@ class UserController extends Controller
     public function create(Request $request)
     {
         return view('dashboard.user.create',[
-            'title' => 'Detail User',
-            'User' => $request
+            'title' => 'Buat User Baru',
+            'bread' => 'Create User',
+            'roles' => Role::all()
         ]);
     }
 

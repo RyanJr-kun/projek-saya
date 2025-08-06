@@ -1,6 +1,18 @@
 <x-layout>
-    <x-slot:title>{{ $title }}</x-slot:title>
-    {{-- notif --}}
+    {{-- breadcrumb --}}
+    @section('breadcrumb')
+        @php
+        // Definisikan item breadcrumb dalam bentuk array
+        $breadcrumbItems = [
+            ['name' => 'Page', 'url' => '/dashboard'],
+            ['name' => 'Manajemen User', 'url' => route('users.index')],
+        ];
+        @endphp
+
+        {{-- Panggil component breadcrumb dan kirim datanya --}}
+        <x-breadcrumb :items="$breadcrumbItems" />
+    @endsection
+    {{-- notif-success-create-user --}}
     @if (session()->has('success'))
         <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
         <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -32,7 +44,9 @@
                             <div class="ms-auto my-auto mt-2">
                                 <div class="ms-auto mb-0">
                                     {{-- triger modal create user baru --}}
-                                    <button class="btn btn-outline-info " data-bs-toggle="modal" data-bs-target="#import"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat User</button>
+                                    <a href="{{ route('users.create') }}">
+                                        <button class="btn btn-outline-info"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat User</button>
+                                    </a>
                                     {{-- start-modal-add-user--}}
                                     <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog mt-lg-4">

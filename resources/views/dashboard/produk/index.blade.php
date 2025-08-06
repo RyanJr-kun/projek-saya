@@ -1,8 +1,6 @@
 <x-layout>
-    <x-slot:title>{{ $title }}</x-slot:title>
-    @push('breadcrumb')
-    <li class="breadcrumb-item text-sm text-white active" aria-current="page">{{ $title }}</li>
-    @endpush
+    
+
     <div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto ">
       <div class="row ">
         <div class="col-12 ">
@@ -44,7 +42,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item text-success" href="#">
+                                        <a class="dropdown-item text-success" href="{{ route('produk.create') }}">
                                             <i class="bi bi-plus-lg  cursor-pointer pe-2"></i>Buat Produk
                                         </a>
                                     </li>

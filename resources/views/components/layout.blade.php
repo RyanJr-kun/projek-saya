@@ -16,18 +16,12 @@
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
-    <div class="min-height-100 bg-gradient-blue position-absolute w-100"></div>
+    <div style="height: 80px;" class="bg-gradient-blue position-absolute w-100"></div>
     <x-aside></x-aside>
     <main class="main-content position-relative border-radius-lg ">
         <nav class="navbar navbar-main navbar-expand-lg px-0 px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
-            <div class="container-fluid py-3 px-3">
-                <nav aria-label="breadcrumb mb-0">
-                    <ol class="breadcrumb bg-transparent mb-0 pb-0 py-1 px-0 me-sm-6 me-5">
-                        <li class="breadcrumb-item text-sm"><a class="text-white" href="javascript:;">Pages</a></li>
-                        @stack('breadcrumb')
-                    </ol>
-                    <h4 class="font-weight-bolder text-white">{{ $title }}</h4>
-                </nav>
+            <div class="container-fluid py-0 px-3">
+                @yield('breadcrumb')
                 <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-4" id="navbar">
                     <div class="ms-md-auto pe-md-3 d-flex align-items-center"></div>
                     <ul class="navbar-nav justify-content-end">
