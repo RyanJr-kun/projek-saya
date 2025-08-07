@@ -1,6 +1,7 @@
 .page-item {
   &.active .page-link {
     box-shadow: $pagination-active-box-shadow;
+    color: #ffffff;
   }
 
   .page-link,
@@ -8,7 +9,7 @@
     display: $page-link-display;
     align-items: $page-link-align-items;
     justify-content: $page-link-justify-content;
-    color: $secondary;
+    color: $dark;
     padding: 0;
     margin: $page-link-margin;
     border-radius: $page-link-radius !important;

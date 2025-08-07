@@ -81,3 +81,61 @@ $black: #0b0b0b;
 .bi-tebal {
     font-weight: bold !important; /* !important kadang diperlukan untuk menimpa style default */
 }
+
+/* Kustomisasi agar editor Quill terlihat seperti form-control Bootstrap */
+
+// Mengatur toolbar
+.ql-toolbar.ql-snow {
+    border-top-left-radius: 0.5rem; // Sesuaikan dengan $border-radius-md Anda
+    border-top-right-radius: 0.5rem; // Sesuaikan dengan $border-radius-md Anda
+    border: 1px solid #d2d6da; // Sesuaikan dengan $input-border-color Anda
+    border-bottom: 0;
+}
+
+// Mengatur area pengetikan
+.ql-container.ql-snow {
+    border-bottom-left-radius: 0.5rem; // Sesuaikan dengan $border-radius-md Anda
+    border-bottom-right-radius: 0.5rem; // Sesuaikan dengan $border-radius-md Anda
+    border: 1px solid #d2d6da; // Sesuaikan dengan $input-border-color Anda
+    background-color: #fff;
+    min-height: 120px;
+}
+
+// _custom.scss
+.custom-dropzone {
+  border: 2px dashed $gray-300;
+  border-radius: $border-radius-lg;
+  background-color: $gray-100;
+  transition: all 0.2s ease-in-out;
+  padding: 2rem;
+
+  .dz-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: $gray-600;
+
+    .icon {
+      font-size: 3rem;
+      color: $primary;
+      margin-bottom: 1rem;
+    }
+
+    .message-text {
+      font-weight: 600;
+      color: $dark;
+    }
+  }
+
+  &.dz-drag-hover {
+    background-color: lighten($primary, 35%);
+    border-color: $primary;
+  }
+
+  .dz-preview .dz-image {
+    border-radius: $border-radius-md;
+    width: 120px;
+    height: 120px;
+  }
+}

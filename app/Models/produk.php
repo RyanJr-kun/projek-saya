@@ -15,8 +15,7 @@ use Cviebrock\EloquentSluggable\Sluggable;
 
 class Produk extends model
 {
-    use Sluggable;
-    use HasFactory;
+    use Sluggable, HasFactory;
     protected $guarded = ['id'];
     protected $with = ['kategori_produk', 'user', 'brand', 'unit', 'garansi'];
 

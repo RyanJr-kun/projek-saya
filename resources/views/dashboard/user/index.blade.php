@@ -47,113 +47,6 @@
                                     <a href="{{ route('users.create') }}">
                                         <button class="btn btn-outline-info"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat User</button>
                                     </a>
-                                    {{-- start-modal-add-user--}}
-                                    <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog mt-lg-4">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="ModalLabel">Buat Pengguna Baru</h5>
-                                                    <button type="button" class="btn-close bg-dark me-1" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form action="{{ route('users.store') }}" method="post" enctype="multipart/form-data">
-                                                    @csrf
-                                                        <div class="row">
-                                                            <div class="d-flex align-items-center gap-3 mb-3">
-                                                                <div id="imagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center" style="height: 150px; width: 150px; border-style: dashed !important; border-width: 2px !important;">
-                                                                    <div class="text-center text-muted">
-                                                                        <i class="bi bi-cloud-arrow-up-fill fs-4"></i>
-                                                                        <p class="mb-0 small">Image Preview</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="ms-3 text-center">
-                                                                    <label for="img" class="btn btn-outline-primary">Upload Image</label>
-                                                                    <input type="file" id="img" name="img_user" class="d-none" accept="image/jpeg, image/png">
-                                                                    <p class="text-muted mt-2 ps-2 small">JPEG, PNG up to 2MB</p>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-group">
-                                                                <div class="form-group">
-                                                                    <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
-                                                                    <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" placeholder="Nama" value="{{ old('nama') }}" required>
-                                                                    @error('nama')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                    @enderror
-                                                                </div>
-
-                                                                <div class="form-group">
-                                                                    <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-                                                                    <input  type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username"  value="{{ old('username') }}" required >
-                                                                    @error('username')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                    @enderror
-                                                                </div>
-
-                                                                <div class="form-group">
-                                                                    <label for="role_id" class="form-label">Posisi <span class="text-danger">*</span></label>
-                                                                    <select class="form-select" id="role_id" name="role_id" required>
-                                                                        <option value="" disabled selected>Pilih Role...</option>
-                                                                        @foreach ($roles as $role)
-                                                                            <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}> {{ $role->nama }} </option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                    @error('role_id')
-                                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                                    @enderror
-                                                                </div>
-
-                                                                <div class="form-group">
-                                                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                                                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="example@gmail.com" value="{{ old('email') }}" required>
-                                                                    @error('email')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                    @enderror
-                                                                </div>
-
-                                                                <div class="form-group">
-                                                                    <label for="kontak" class="form-label">Kontak</label>
-                                                                    <input type="tel" class="form-control" value="{{ old('kontak') }}" id="kontak" name="kontak">
-                                                                </div>
-
-                                                                <div class="form-group">
-                                                                    <label for="mulai_kerja" class="form-label">Mulai Bekerja</label>
-                                                                    <input id="mulai_kerja" name="mulai_kerja" class="form-control datepicker" value="{{ old('mulai_kerja') }}" placeholder="Please select date" type="date" required>
-                                                                </div>
-
-                                                                <div class="form-group">
-                                                                    <label for="password">Password <span class="text-danger">*</span></label>
-                                                                    <input name="password" id="password" class="form-control @error('password') is-invalid @enderror" type="password" placeholder="*****" required>
-                                                                    @error('password')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                    @enderror
-                                                                </div>
-                                                                <div class="justify-content-end mt-4 form-check form-switch form-check-reverse">
-                                                                    <label class="me-auto form-check-label" for="status_toggle">Status</label>
-                                                                    <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" checked>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-outline-success btn-sm">Buat User</button>
-                                                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
-                                                        </div>
-                                                    </form>
-                                                    <script>
-                                                        document.addEventListener('DOMContentLoaded', function () {
-                                                            const hasError = document.querySelector('.is-invalid');
-                                                                if (hasError) {
-                                                                    var importModal = new bootstrap.Modal(document.getElementById('import'));
-                                                                    importModal.show();
-                                                                }
-                                                            });
-                                                    </script>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {{-- end-modal --}}
                                 </div>
                             </div>
                         </div>
@@ -181,8 +74,8 @@
                                         <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
                                         <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">kontak</th>
                                         <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Posisi</th>
-                                        <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">Mulai Bekerja</th>
-                                        <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
+                                        <th class="text-uppercase text-dark text-xs font-weight-bolder text-center">Mulai Bekerja</th>
+                                        <th class="text-uppercase text-dark text-xs font-weight-bolder text-center">status</th>
                                         <th class="text-dark"></th>
                                     </tr>
                                 </thead>

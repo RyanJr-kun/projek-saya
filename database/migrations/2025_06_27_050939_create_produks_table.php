@@ -14,24 +14,24 @@ return new class extends Migration
         Schema::create('produks', function (Blueprint $table) {
             $table->id();
             // data penting untuk view table
-            $table->string('sku', 50)->unique();
             $table->string('nama_produk', 255);
-            $table->string('img_produk', 255);
             $table->string('slug', 100)->unique();
-            $table->string('qty', 255);
-            $table->foreignId('user_id'); //sudah bisa untuk memanggil data nama & img_user
-            $table->foreignId('kategori_produk_id');
-            $table->foreignId('brand_id');
-            $table->foreignId('unit_id');
-
-            // data penting untuk web market
+            $table->string('barcode', 100)->unique()->nullable(); // Barcode bisa jadi opsional
             $table->text('deskripsi')->nullable();
+            $table->foreignId('kategori_produk_id')->constrained();
+            $table->foreignId('brand_id')->constrained();
+            $table->foreignId('unit_id')->constrained();
+            $table->foreignId('garansi_id')->nullable()->constrained();
+            $table->foreignId('user_id')->constrained();
+
+
+            $table->string('sku', 50)->unique();
             $table->decimal('harga', 15, 2);
+            $table->integer('qty')->default(0);
             $table->unsignedInteger('stok_minimum')->default(0);
-            $table->json('spesifikasi')->nullable();
-            // $table->int('nomor_seri')->nullable();
-            // $table->foreignId('garansi_id')->nullable();
-            // $table->boolean('bisa_dijual')->default(true);
+
+            $table->string('img_produk', 255)->nullable();
+            $table->foreignId('user_id');
             $table->timestamps();
         });
     }

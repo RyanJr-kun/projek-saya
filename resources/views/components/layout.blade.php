@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="logo" sizes="100x100" href="{{ asset('assets/img/logo.svg') }}">
-  <link rel="icon" type="image/svg" href="{{ asset('assets/img/logo.svg') }}">
-  <title>Point Of Sales - JO Computer</title>
-
-  @vite(['resources/scss/app.scss', 'resources/js/app.js','resources/js/argon-dashboard.min.js' ])
-  <!--     Fonts and icons     -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/logo.svg') }}">
+    <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/apple-touch-icon.png') }}">
+    <title>Point Of Sales - JO Computer</title>
+    @vite(['resources/scss/app.scss', 'resources/js/app.js','resources/js/argon-dashboard.min.js' ])
+    @stack('styles')
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
 
 <body class="g-sidenav-show bg-gray-100">

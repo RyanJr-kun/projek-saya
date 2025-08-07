@@ -40,6 +40,8 @@ Route::get('/dashboard', function () {
 
 //manajemen Inventaris
 Route::resource('produk', ProdukController::class)->middleware('auth');
+Route::get('/dashboard/produk/chekSlug', [ProdukController::class, 'chekSlug'])->middleware('auth');
+Route::post('/dashboard/produk/upload-gambar', [ProdukController::class, 'uploadImage'])->name('produk.upload.gambar')->middleware('auth');
 
 //kategori produk
 Route::get('ketegoriproduk', [KategoriProdukController::class,'index'])->middleware('auth');
