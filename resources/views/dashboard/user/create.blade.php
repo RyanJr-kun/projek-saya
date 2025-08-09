@@ -20,7 +20,7 @@
                     {{-- KOLOM KIRI: Upload Gambar --}}
                     <div class="col-12 col-md-4 mb-4 mb-md-0">
                         <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                            <div id="imagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center position-relative" style="height: 180px; width: 180px; border-style: dashed !important; border-width: 2px !important;">
+                            <div id="imagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center position-relative" style="height: 300px; width: 300px; border-style: dashed !important; border-width: 2px !important;">
                                 <div class="text-center text-muted">
                                     <i class="bi bi-cloud-arrow-up-fill fs-1"></i>
                                     <p class="mb-0 small mt-2">Pratinjau Gambar</p>

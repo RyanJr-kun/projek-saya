@@ -31,7 +31,6 @@ return new class extends Migration
             $table->unsignedInteger('stok_minimum')->default(0);
 
             $table->string('img_produk', 255)->nullable();
-            $table->foreignId('user_id');
             $table->timestamps();
         });
     }
