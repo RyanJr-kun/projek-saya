@@ -20,7 +20,7 @@ class ProdukController extends Controller
      */
     public function index()
     {
-        return view('dashboard.produk.index', [
+        return view('dashboard.inventaris.produk.index', [
         'produk' => Produk::latest()->paginate(10)
     ]);
     }
@@ -30,7 +30,7 @@ class ProdukController extends Controller
      */
     public function create()
     {
-        return view('dashboard.produk.create',[
+        return view('dashboard.inventaris.produk.create',[
             'kategoris' => KategoriProduk::all(),
             'brands' => Brand::all(),
             'units' => Unit::all(),
@@ -85,7 +85,7 @@ class ProdukController extends Controller
      */
     public function show(Produk $produk)
     {
-       return view('dashboard.produk.show',[
+       return view('dashboard.inventaris.produk.show',[
             'produk' => $produk
         ]);
     }
@@ -95,7 +95,7 @@ class ProdukController extends Controller
      */
     public function edit(Produk $produk)
     {
-        return view('dashboard.produk.edit',[
+        return view('dashboard.inventaris.produk.edit',[
             'produk' => $produk,
             'kategoris' => KategoriProduk::all(),
             'brands' => Brand::all(),

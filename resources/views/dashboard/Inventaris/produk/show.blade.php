@@ -1,9 +1,15 @@
 <x-layout>
-    <x-slot:title>{{ $title }}</x-slot:title>
-    @push('breadcrumb')
-    <li class="breadcrumb-item text-sm text-white active" aria-current="page">{{ $title }}</li>
-    <li class="breadcrumb-item text-sm text-white active" aria-current="page">{{ $bread }}</li>
-    @endpush
+   @section('breadcrumb')
+        @php
+        // Definisikan item breadcrumb dalam bentuk array
+        $breadcrumbItems = [
+            ['name' => 'Page', 'url' => '/dashboard'],
+            ['name' => 'Manajemen Produk', 'url' => route('produk.index')],
+            ['name' => 'Detail Produk', 'url' => '#'],
+        ];
+        @endphp
+        <x-breadcrumb :items="$breadcrumbItems" />
+    @endsection
 
     <div class="card m-4 p-3">
         <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">

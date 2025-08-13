@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 class KategoriProdukController extends Controller
 {
    public function index() {
-    return view('dashboard.kategoriproduk.index', [
+    return view('dashboard.inventaris.kategoriproduk', [
         'title' => 'Data Kategori Produk',
         'kategoris'=>KategoriProduk::latest()->paginate(15),
     ]);
