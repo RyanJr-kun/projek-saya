@@ -10,12 +10,11 @@ use App\Models\KategoriProduk;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Cviebrock\EloquentSluggable\Sluggable;
 
 class Produk extends model
 {
-    use Sluggable, HasFactory;
+    use Sluggable;
     protected $guarded = ['id'];
     protected $with = ['kategori_produk', 'user', 'brand', 'unit', 'garansi'];
 

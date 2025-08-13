@@ -3,12 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/logo.svg') }}">
     <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
     <link rel="apple-touch-icon" href="{{ asset('assets/img/apple-touch-icon.png') }}">
     <title>Point Of Sales - JO Computer</title>
-    @vite(['resources/scss/app.scss', 'resources/js/app.js','resources/js/argon-dashboard.min.js' ])
+    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     @stack('styles')
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />

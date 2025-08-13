@@ -9,6 +9,13 @@
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
         "@tailwindcss/vite": "^4.0.0",
+        "@uppy/core": "^4.5.2",
+        "@uppy/dashboard": "^4.4.3",
+        "@uppy/drag-drop": "^4.2.2",
+        "@uppy/file-input": "^4.2.2",
+        "@uppy/image-editor": "^3.4.2",
+        "@uppy/progress-bar": "^4.3.2",
+        "@uppy/xhr-upload": "^4.4.2",
         "axios": "^1.8.2",
         "bootstrap": "^5.3.7",
         "concurrently": "^9.0.1",
@@ -18,7 +25,6 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
-        "chart.js": "^4.5.0",
         "perfect-scrollbar": "^1.5.6",
         "smooth-scrollbar": "^8.8.4"
     }

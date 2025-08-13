@@ -16,14 +16,30 @@ class UnitFactory extends Factory
      * @return array<string, mixed>
      */
     public function definition(): array
-    {
+{
+    // Daftar nama unit yang mungkin
     $nama = $this->faker->unique()->randomElement(['Pieces', 'Unit', 'Box', 'Set', 'Bundling', 'Paket', 'Meter']);
 
+    // 1. Buat pemetaan dari nama ke singkatan
+    $abbreviations = [
+        'Pieces' => 'Pcs',
+        'Unit' => 'Unt',
+        'Box' => 'Box',
+        'Set' => 'Set',
+        'Bundling' => 'Bndl',
+        'Paket' => 'Pkt',
+        'Meter' => 'Mtr',
+    ];
+
+    // 2. Ambil singkatan yang sesuai dari map
+    $singkatan = $abbreviations[$nama];
+
+    // 3. Kembalikan data lengkap
     return [
         'nama' => $nama,
         'slug' => Str::slug($nama),
-        'deskripsi' => $this->faker->paragraph(),
-        'status' => $this->faker->randomElement(['aktif', 'tidak']),
+        'singkat' => $singkatan, 
+        'status' => $this->faker->boolean(),
     ];
-    }
+}
 }

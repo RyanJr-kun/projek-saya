@@ -22,8 +22,7 @@ class KategoriPengeluaranFactory extends Factory
     return [
         'nama' => $nama,
         'slug' => Str::slug($nama),
-        'deskripsi' => $this->faker->paragraph(),
-        'status' => $this->faker->randomElement(['aktif', 'tidak']),
+        'status' => $this->faker->boolean(),
     ];
     }
 }

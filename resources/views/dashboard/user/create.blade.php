@@ -12,13 +12,12 @@
     @endsection
 
     <div class="card m-4">
-        <div class="card-body p-4">
+        <div class="card-body">
             <form action="{{ route('users.store') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
 
-                    {{-- KOLOM KIRI: Upload Gambar --}}
-                    <div class="col-12 col-md-4 mb-4 mb-md-0">
+                    <div class="col-12 col-md-4 mb-md-0">
                         <div class="d-flex flex-column justify-content-center align-items-center h-100">
                             <div id="imagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center position-relative" style="height: 300px; width: 300px; border-style: dashed !important; border-width: 2px !important;">
                                 <div class="text-center text-muted">
@@ -29,12 +28,11 @@
                             <div class="mt-3 text-center">
                                 <label for="img" class="btn btn-outline-primary">Pilih Gambar</label>
                                 <input type="file" id="img" name="img_user" class="d-none" accept="image/jpeg, image/png">
-                                <p class="text-muted mt-2 ps-2 small">JPEG, PNG maks 2MB</p>
+                                <p class="text-sm">JPEG, PNG maks 2MB</p>
                             </div>
                         </div>
                     </div>
 
-                    {{-- KOLOM KANAN: Form Isian --}}
                     <div class="col-12 col-md-8">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -101,7 +99,8 @@
                             <div class="col-12">
                                 <div class="justify-content-end form-check form-switch form-check-reverse">
                                     <label class="me-auto form-check-label" for="status_toggle">Status</label>
-                                    <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" checked>
+                                    <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" {{ old('status') == 1 ? 'checked' : '' }} checked>
+                                    <input type="hidden" name="status" value="0">
                                 </div>
                             </div>
                         </div>
@@ -109,9 +108,9 @@
                 </div>
 
                 {{-- Tombol Aksi --}}
-                <div class="d-flex justify-content-end pt-4 mt-4 border-top">
-                    <button type="submit" class="btn btn-outline-success btn-sm">Buat User</button>
-                    <a href="{{ route('users.index') }}" class="btn btn-outline-danger btn-sm ms-3">Batalkan</a>
+                <div class="d-flex justify-content-end pt-3 mt-3">
+                    <button type="submit" class="btn btn-info">Buat User</button>
+                    <a href="{{ route('users.index') }}" class="btn btn-danger ms-3">Batalkan</a>
                 </div>
             </form>
         </div>

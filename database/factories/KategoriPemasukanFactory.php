@@ -17,13 +17,12 @@ class KategoriPemasukanFactory extends Factory
      */
     public function definition(): array
     {
-    $nama = $this->faker->unique()->randomElement(['Penjualan Produk Toko', 'Penjualan Online', 'Jasa Servis', 'Penjualan Grosir', 'Pendapatan Afiliasi']);
+        $nama = $this->faker->unique()->randomElement(['Penjualan Produk Toko', 'Penjualan Online', 'Jasa Servis', 'Penjualan Grosir', 'Pendapatan Afiliasi']);
 
-    return [
-        'nama' => $nama,
-        'slug' => Str::slug($nama),
-        'deskripsi' => $this->faker->paragraph(),
-        'status' => $this->faker->randomElement(['aktif', 'tidak']),
-    ];
+        return [
+            'nama' => $nama,
+            'slug' => Str::slug($nama),
+            'status' => $this->faker->boolean(),
+        ];
     }
 }

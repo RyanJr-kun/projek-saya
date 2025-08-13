@@ -27,11 +27,11 @@
         </div>
     @endif
 
-    <div class="container-fluid d-flex flex-column min-vh-100 p-3 mb-auto ">
+    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
         <div class="row ">
             <div class="col-12 ">
             <div class="card mb-4 ">
-                <div class="card-header pb-0 p-3 mb-3 ">
+                <div class="card-header pb-0 px-3 pt-2 mb-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="mb-0">Data Produk</h5>
@@ -49,7 +49,7 @@
                                         <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20">
                                     </a>
                                     <a href="{{ route('produk.create') }}">
-                                        <button class="btn btn-outline-success mb-0">
+                                        <button class="btn btn-outline-info mb-0">
                                             <i class="bi bi-plus-lg cursor-pointer pe-2"></i>Buat produk
                                         </button>
                                     </a>
@@ -119,7 +119,11 @@
 
                                     <td>
                                         <div title="gambar & nama produk" class="d-flex align-items-center px-2 py-1">
-                                            <img src="{{ $produks->user->img_user }}" class="avatar avatar-sm me-3" alt="produk1">
+                                            @if ($produks->img_produk)
+                                                <img src="{{ asset('storage/' . $produks->img_produk) }}" class="avatar avatar-sm me-3" alt="{{ $produks->nama_produk }}">
+                                            @else
+                                                <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
+                                            @endif
                                             <h6 class="mb-0 text-sm">{{ $produks->nama_produk }}</h6>
                                         </div>
                                     </td>
@@ -179,7 +183,7 @@
                     <div class="modal-body text-center mt-3 mx-n5">
                         <i class="fa fa-trash fa-2x text-danger mb-3"></i>
                         <p class="mb-0">Are you sure you want to delete product?</p>
-                        <h5 class="mt-2" id="productNameToDelete"></h5>
+                        <h6 class="mt-2" id="productNameToDelete"></h6>
                         <div class="mt-4">
                             <form id="deleteProductForm" method="POST" class="d-inline" data-base-url="{{ url('produk') }}">
                                 @method('delete')

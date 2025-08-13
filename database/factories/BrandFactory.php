@@ -20,10 +20,10 @@ class BrandFactory extends Factory
     $nama = $this->faker->unique()->randomElement(['Logitech', 'Razer', 'SteelSeries', 'Corsair', 'Asus ROG', 'HyperX', 'Samsung', 'LG']);
 
     return [
+        'img_brand' => '../assets/img/team-'. $this->faker->numberBetween(1, 4) .'.jpg',
         'nama' => $nama,
         'slug' => Str::slug($nama),
-        'deskripsi' => $this->faker->paragraph(),
-        'status' => $this->faker->randomElement(['aktif', 'tidak']),
+        'status' => $this->faker->boolean(),
     ];
     }
 }

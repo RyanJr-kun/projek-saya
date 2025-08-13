@@ -112,25 +112,19 @@ class ProdukController extends Controller
     {
         $rules = [
             'nama_produk' => 'required|string|max:255',
-            // 'barcode' => 'nullable|string|unique:produks,barcode',
-            // 'sku' => 'required|string|unique:produks,sku',
-            'kategori' => 'required|exists:kategori_produks,id', // 'kategori' sesuai nama di form
+            'kategori' => 'required|exists:kategori_produks,id',
             'brand' => 'required|exists:brands,id',
             'unit' => 'required|exists:units,id',
             'deskripsi' => 'required|string',
-            'harga' => 'required|numeric', // 'harga' dari form single product
-            'qty' => 'required|integer', // 'qty' dari form single product
+            'harga' => 'required|numeric',
+            'qty' => 'required|integer',
             'garansi' => 'nullable|exists:garansis,id',
             'stok_minimum' => 'required|integer',
             'img_produk' => 'nullable|string',
-
             'slug' => ['required', 'string', Rule::unique('produks', 'slug')->ignore($produk->id)],
             'barcode' => ['nullable', 'string', Rule::unique('produks', 'barcode')->ignore($produk->id)],
             'sku' => ['required', 'string', Rule::unique('produks', 'sku')->ignore($produk->id)],
         ];
-        // if($request->slug != $produk->slug){
-        //     $rules['slug'] = 'required|unique:produks' ;
-        // }
 
         $validatedData = $request->validate($rules);
         $validatedData['user_id'] = Auth::id();
@@ -138,16 +132,18 @@ class ProdukController extends Controller
         $validatedData['brand_id'] = $validatedData['brand'];
         $validatedData['unit_id'] = $validatedData['unit'];
         $validatedData['garansi_id'] = $validatedData['garansi'];
-        // if ($request->img_produk) {
-        //     $tempPath = $request->img_produk;
-        //     $newPath = str_replace('tmp/', 'produk/', $tempPath);
-        //     Storage::disk('public')->move($tempPath, $newPath);
-        //     $validatedData['img_produk'] = $newPath;
-        // }
+
+        if ($request->img_produk) {
+            $tempPath = $request->img_produk;
+            $newPath = str_replace('tmp/', 'produk/', $tempPath);
+            Storage::disk('public')->move($tempPath, $newPath);
+            $validatedData['img_produk'] = $newPath;
+        }
+
         unset($validatedData['kategori'], $validatedData['brand'], $validatedData['unit'], $validatedData['garansi']);
 
         $produk->update($validatedData);
-        return redirect('/produk')->with('success', 'Produk berhasil dirubah.');
+        return redirect('/produk')->with('success', 'Data Produk berhasil diperbarui!');
     }
 
     /**
@@ -159,25 +155,13 @@ class ProdukController extends Controller
         Storage::disk('public')->delete($produk->img_produk);
         }
 
-        // Panggil method delete() pada objek produk yang sudah ditemukan oleh Laravel
         $produk->delete();
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus.');
+        return redirect()->route('produk.index')->with('success', 'Data Produk berhasil dihapus!');
     }
 
     public function chekSlug(Request $request)
     {
         $slug = SlugService::createSlug(Produk::class, 'slug', $request->nama_produk );
         return response()->json(['slug' => $slug]);
-    }
-
-    public function uploadImage(Request $request)
-    {
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            // Simpan file ke direktori sementara dan kembalikan path-nya
-            $path = $file->store('tmp', 'public');
-            return response()->json(['path' => $path]);
-        }
-        return response()->json(['error' => 'No file uploaded.'], 400);
     }
 }

@@ -1,15 +1,25 @@
-import * as bootstrap from "bootstrap";
-import "./http"; // Asumsi ini adalah file http client Anda seperti axios
-import PerfectScrollbar from "perfect-scrollbar";
-import "perfect-scrollbar/css/perfect-scrollbar.css";
-import Scrollbar from "smooth-scrollbar";
-import { Chart, registerables } from "chart.js";
+import Uppy from '@uppy/core';
+import Dashboard from '@uppy/dashboard';
+import ImageEditor from '@uppy/image-editor';
+import XHRUpload from '@uppy/xhr-upload';
+import './argon-dashboard.js';
 
-// Daftarkan semua komponen Chart.js
-Chart.register(...registerables);
+import 'perfect-scrollbar/css/perfect-scrollbar.css';
+import '@uppy/core/dist/style.min.css';
+import '@uppy/dashboard/dist/style.min.css';
+import '@uppy/image-editor/dist/style.min.css';
 
-// Jadikan variabel menjadi global agar bisa diakses dari file lain (seperti Blade)
-window.bootstrap = bootstrap; // <-- INI KUNCINYA
+import * as bootstrap from 'bootstrap';
+import './http';
+import PerfectScrollbar from 'perfect-scrollbar';
+import Scrollbar from 'smooth-scrollbar';
+
+// === JADIKAN VARIABEL GLOBAL ===
+window.bootstrap = bootstrap;
 window.PerfectScrollbar = PerfectScrollbar;
 window.Scrollbar = Scrollbar;
-window.Chart = Chart;
+
+window.Uppy = Uppy;
+window.Dashboard = Dashboard;
+window.ImageEditor = ImageEditor;
+window.XHRUpload = XHRUpload;

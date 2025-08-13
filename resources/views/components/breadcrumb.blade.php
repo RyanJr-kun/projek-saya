@@ -17,6 +17,6 @@
             @endif
         @endforeach
     </ol>
-    <h4 class="font-weight-bolder text-white mt-3 mt-md-0">{{ last($items)['name'] ?? '' }}</h4>
+    <h5 class="font-weight-bolder text-white mt-3 mt-md-0">{{ last($items)['name'] ?? '' }}</h5>
 </nav>
 @endif

@@ -17,13 +17,14 @@ class GaransiFactory extends Factory
      */
     public function definition(): array
     {
-    $nama = $this->faker->unique()->randomElement(['1 Tahun', '2 Tahun', '6 Bulan', '3 Bulan', 'Garansi Resmi', 'Garansi Distributor']);
 
-    return [
-        'nama' => $nama,
-        'slug' => Str::slug($nama),
-        'deskripsi' => $this->faker->paragraph(),
-        'status' => $this->faker->randomElement(['aktif', 'tidak']),
-    ];
+        $nama = 'Garansi ' . $this->faker->unique()->words(2, true);
+        return [
+            'nama' => $nama,
+            'slug' => Str::slug($nama),
+            'deskripsi' => $this->faker->paragraph(),
+            'durasi' => $this->faker->randomElement([3, 6, 12, 24, 36]),
+            'status' => $this->faker->boolean(),
+        ];
     }
 }

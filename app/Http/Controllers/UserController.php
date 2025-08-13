@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -15,7 +16,7 @@ class UserController extends Controller
     {
         return view('dashboard.user.index', [
         'title'=>'Users',
-        'users' => User::latest()->get(),
+        'users' => User::latest()->paginate(10),
         'roles' => Role::all()
     ]);
     }
@@ -26,8 +27,6 @@ class UserController extends Controller
     public function create(Request $request)
     {
         return view('dashboard.user.create',[
-            'title' => 'Buat User Baru',
-            'bread' => 'Create User',
             'roles' => Role::all()
         ]);
     }
@@ -71,27 +70,60 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(User $user)
     {
         return view('dashboard.user.edit',[
-            'title' => 'Edit User',
-            'User' => $id
+            'user' => $user,
+            'roles' => Role::all()
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, User $user)
     {
-        //
+
+        $rules = [
+            'nama' => 'required|max:255',
+            'username' => ['required', 'min:3', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'email' => ['required', 'email:dns', Rule::unique('users')->ignore($user->id)],
+            'password' => 'nullable|min:5|max:255',
+            'role_id' => ['required', Rule::exists('roles', 'id')],
+            'kontak' => ['nullable', 'min:9', 'max:14', Rule::unique('users')->ignore($user->id)],
+            'mulai_kerja' => 'required|date',
+            'status' => 'required|boolean',
+            'img_user' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ];
+
+        $validatedData['status'] = $request->has('status') ? 1 : 0;
+        $validatedData = $request->validate($rules);
+        if ($request->file('img_user')) {
+            if ($user->img_user) {
+                Storage::disk('public')->delete($user->img_user);
+            }
+            $path = $request->file('img_user')->store('user-images', 'public');
+            $validatedData['img_user'] = $path;
+        }
+
+        if ($request->filled('password')) {
+            $validatedData['password'] = bcrypt($validatedData['password']);
+        } else {
+            unset($validatedData['password']);
+        }
+        $user->update($validatedData);
+        return redirect('/users')->with('success', 'Data User Berhasil Diperbarui!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        //
+         if ($user->img_user) {
+        Storage::disk('public')->delete($user->img_user);
+         }
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'Data Pengguna berhasil dihapus!');
     }
 }
