@@ -1,5 +1,5 @@
 $light-blue: #4a90e2;
-$dark-blue: #002d62;
+$dark-blue: #00367c;
 $solid-blue: #0d6efd;
 $black: #0b0b0b;
 
@@ -8,7 +8,7 @@ $black: #0b0b0b;
     background-image: linear-gradient(90deg, $light-blue, $dark-blue);
 }
 .bg-blue {
-    background-color: $solid-blue;
+    background-color: $dark-blue;
 }
 
 .text-blue {

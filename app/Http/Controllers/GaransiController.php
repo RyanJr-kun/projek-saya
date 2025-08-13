@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Garansi;
 use Illuminate\Http\Request;
+use \Cviebrock\EloquentSluggable\Services\SlugService;
+use Illuminate\Validation\Rule;
 
 class GaransiController extends Controller
 {
@@ -14,7 +16,7 @@ class GaransiController extends Controller
     {
         return view('dashboard.inventaris.garansi',[
         'title' => 'garansi',
-        'garansi' => Garansi::latest()->get()
+        'garansis' => Garansi::latest()->paginate(15)
     ]);
     }
 
@@ -31,7 +33,33 @@ class GaransiController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validasi semua input dari form create
+        $validated = $request->validate([
+            'nama' => 'required|string|max:100|unique:garansis',
+            'slug' => 'required|string|max:100|unique:garansis',
+            'durasi' => 'required|integer|min:1',
+            'period' => 'required|string|in:Month,Year',
+            'deskripsi' => 'nullable|string',
+            'status' => 'nullable|boolean',
+        ]);
+
+        // Kalkulasi total bulan
+        $totalMonths = $validated['durasi'];
+        if ($validated['period'] === 'Year') {
+            $totalMonths = $validated['durasi'] * 12;
+        }
+
+        // Siapkan data untuk disimpan, termasuk slug
+        $dataToStore = [
+            'nama' => $validated['nama'],
+            'slug' => $validated['slug'],
+            'deskripsi' => $validated['deskripsi'] ?? null,
+            'status' => $request->has('status'),
+            'durasi' => $totalMonths,
+        ];
+
+        Garansi::create($dataToStore);
+        return redirect()->route('garansi.index')->with('success', 'Garansi baru berhasil dibuat!');
     }
 
     /**
@@ -45,9 +73,14 @@ class GaransiController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+    public function getGaransiJson(Garansi $garansi)
+    {
+        return response()->json($garansi);
+    }
+
     public function edit(Garansi $garansi)
     {
-        //
+        return redirect()->route('garansi.index');
     }
 
     /**
@@ -55,14 +88,51 @@ class GaransiController extends Controller
      */
     public function update(Request $request, Garansi $garansi)
     {
-        //
+        // Validasi untuk update
+        $validated = $request->validate([
+            'nama' => ['required', 'max:255', Rule::unique('garansis')->ignore($garansi->id)],
+            'slug' => ['required', 'max:255', Rule::unique('garansis')->ignore($garansi->id)],
+            'durasi' => 'required|integer|min:1',
+            'period' => 'required|string|in:Month,Year',
+            'deskripsi' => 'nullable|string',
+            'status' => 'nullable|boolean',
+        ]);
+
+        // Kalkulasi ulang total bulan
+        $totalMonths = $validated['durasi'];
+        if ($validated['period'] === 'Year') {
+            $totalMonths = $validated['durasi'] * 12;
+        }
+
+        // Siapkan data untuk diupdate
+        $dataToUpdate = [
+            'nama' => $validated['nama'],
+            'slug' => $validated['slug'],
+            'deskripsi' => $validated['deskripsi'] ?? null,
+            'status' => $request->has('status'),
+            'durasi' => $totalMonths,
+        ];
+
+        $garansi->update($dataToUpdate);
+        return redirect()->route('garansi.index')->with('success', 'Data garansi berhasil diperbarui!');
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Garansi $garansi)
     {
-        //
+        if ($garansi->produks()->count() > 0) {
+        return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki produk terkait!');
+    }
+        $garansi->delete();
+        return redirect()->route('garansi.index')->with('success', 'Kategori produk berhasil dihapus!');
+    }
+
+    public function chekSlug(Request $request)
+    {
+        $slug = SlugService::createSlug(Garansi::class, 'slug', $request->nama );
+        return response()->json(['slug' => $slug]);
     }
 }

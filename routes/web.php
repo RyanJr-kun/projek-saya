@@ -67,7 +67,11 @@ Route::resource('unit', UnitController::class)->middleware('auth');
 Route::get('/dashboard/unit/chekSlug', [UnitController::class, 'chekSlug'])->middleware('auth');
 
 //garansi
-Route::get('garansi',[GaransiController::class, 'index'])->middleware('auth');
+Route::get('/garansi/{garansi}/json', [GaransiController::class, 'getGaransiJson'])
+     ->middleware('auth')
+     ->name('garansi.getjson');
+Route::resource('garansi', GaransiController::class)->middleware('auth');
+Route::get('/dashboard/garansi/chekSlug', [GaransiController::class, 'chekSlug'])->middleware('auth');
 
 //Managemen transaksi
 //transaksi Pembelian
@@ -77,13 +81,19 @@ Route::get('pemasok',[PemasokController::class,'index'])->middleware('auth');
 Route::get('pelanggan', [PelangganController::class, 'index'])->middleware('auth');
 
 //pengeluaran.
-Route::get('pengeluaran',[PengeluaranController::class, 'index'])->middleware('auth');
-Route::get('kategoripengeluaran',[KategoriPengeluaranController::class, 'index'])->middleware('auth');
+Route::resource('pengeluaran',PengeluaranController::class)->middleware('auth');
+Route::resource('kategoripengeluaran',KategoriPengeluaranController::class)->middleware('auth');
+
 
 //pemasukan
-Route::get('pemasukan',[PemasukanController::class, 'index'])->middleware('auth');
-Route::get('kategoripemasukan',[KategoriPemasukanController::class, 'index'])->middleware('auth');
+Route::resource('pemasukan',PemasukanController::class)->middleware('auth');
 
+// kategori pemasukan
+Route::get('/kategoripemasukan/{kategoripemasukan}/json', [KategoriPemasukanController::class, 'getKategoriJson'])
+     ->middleware('auth')
+     ->name('kategoripemasukan.getjson');
+Route::resource('kategoripemasukan',KategoriPemasukanController::class)->middleware('auth');
+Route::get('/dashboard/kategoripemasukan/chekSlug', [KategoriPemasukanController::class, 'chekSlug'])->middleware('auth');
 
 //laporan
 //Transaksi Penjualan

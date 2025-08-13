@@ -27,18 +27,18 @@ class KategoriProdukController extends Controller
      * Store a newly created resource in storage.
      */
    public function store(Request $request)
-{
-    $validatedData = $request->validate([
-        'nama' => 'required|max:255|unique:kategori_produks',
-        'slug' => 'required|max:255|unique:kategori_produks',
-        'status' => 'nullable|boolean',
-    ]);
+    {
+        $validatedData = $request->validate([
+            'nama' => 'required|max:255|unique:kategori_produks',
+            'slug' => 'required|max:255|unique:kategori_produks',
+            'status' => 'nullable|boolean',
+        ]);
 
-    $validatedData['status'] = $request->has('status');
+        $validatedData['status'] = $request->has('status');
 
-    KategoriProduk::create($validatedData);
-    return redirect('/kategoriproduk')->with('success', 'Pembuatan kategori produk baru berhasil!');
-}
+        KategoriProduk::create($validatedData);
+        return redirect('/kategoriproduk')->with('success', 'Pembuatan kategori produk baru berhasil!');
+    }
 
     /**
      * Display the specified resource.

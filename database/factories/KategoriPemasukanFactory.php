@@ -22,6 +22,7 @@ class KategoriPemasukanFactory extends Factory
         return [
             'nama' => $nama,
             'slug' => Str::slug($nama),
+            'deskripsi' => $this->faker->paragraph(),
             'status' => $this->faker->boolean(),
         ];
     }

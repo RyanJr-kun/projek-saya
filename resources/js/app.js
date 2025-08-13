@@ -3,6 +3,7 @@ import Dashboard from '@uppy/dashboard';
 import ImageEditor from '@uppy/image-editor';
 import XHRUpload from '@uppy/xhr-upload';
 import './argon-dashboard.js';
+import './core/popper.min.js';
 
 import 'perfect-scrollbar/css/perfect-scrollbar.css';
 import '@uppy/core/dist/style.min.css';

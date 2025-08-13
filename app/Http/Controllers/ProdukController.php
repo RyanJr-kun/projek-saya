@@ -115,7 +115,7 @@ class ProdukController extends Controller
             'kategori' => 'required|exists:kategori_produks,id',
             'brand' => 'required|exists:brands,id',
             'unit' => 'required|exists:units,id',
-            'deskripsi' => 'required|string',
+            'deskripsi' => 'nullable|string',
             'harga' => 'required|numeric',
             'qty' => 'required|integer',
             'garansi' => 'nullable|exists:garansis,id',
