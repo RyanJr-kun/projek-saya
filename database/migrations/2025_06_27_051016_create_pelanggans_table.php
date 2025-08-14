@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('pelanggans', function (Blueprint $table) {
             $table->id();
-            $table->string('img_pelanggan')->nullable();
             $table->string('nama', 255);
             $table->string('kontak', 20)->unique();
             $table->string('email')->unique()->nullable();

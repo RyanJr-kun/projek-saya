@@ -92,7 +92,7 @@
                                             @endif
                                         </td>
 
-                                        <td class="text-end">
+                                        <td class="text-center">
                                             <a href="#" class="text-dark fw-bold px-3 text-xs"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editModal"
@@ -350,7 +350,7 @@
                         });
                     }
 
-            //filter search & status
+                //filter search & status
                 const searchInput = document.getElementById('searchInput');
                 const statusFilter = document.getElementById('posisiFilter'); // Ganti nama variabel agar lebih jelas
                 const tableBody = document.getElementById('isiTable');
@@ -424,34 +424,5 @@
                 }
             });
         </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-
-                // quill input deskripsi
-                // const quill = new Quill('#quill-editor', {
-                //     theme: 'snow',
-                //     placeholder: 'Tulis deskripsi pemasukan di sini...',
-                // });
-                // const hiddenInput = document.getElementById('deskripsi');
-                // quill.on('text-change', function() {
-                //     hiddenInput.value = quill.root.innerHTML;
-                // });
-                // if (hiddenInput.value) {
-                //     quill.root.innerHTML = hiddenInput.value;
-                // }
-
-
-                // slug
-                // const nama = document.querySelector('#nama ')
-                // const slug = document.querySelector('#slug')
-
-                // nama.addEventListener('change', function(){
-                //     fetch('/dashboard/kategoripemasukan/chekSlug?nama=' + nama.value)
-                //         .then(response => response.json())
-                //         .then(data => slug.value = data.slug)
-                // });
-            });
-        </script>
-
     @endpush
 </x-layout>

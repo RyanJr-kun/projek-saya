@@ -82,7 +82,13 @@ Route::get('pelanggan', [PelangganController::class, 'index'])->middleware('auth
 
 //pengeluaran.
 Route::resource('pengeluaran',PengeluaranController::class)->middleware('auth');
+
+// kategori pengeluaran
+Route::get('/kategoripengeluaran/{kategoripengeluaran}/json', [KategoriPengeluaranController::class, 'getKategoriJson'])
+     ->middleware('auth')
+     ->name('kategoripengeluaran.getjson');
 Route::resource('kategoripengeluaran',KategoriPengeluaranController::class)->middleware('auth');
+Route::get('/dashboard/kategoripengeluaran/chekSlug', [KategoriPengeluaranController::class, 'chekSlug'])->middleware('auth');
 
 
 //pemasukan

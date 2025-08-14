@@ -70,18 +70,19 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
                     <div class="card card-plain">
+
+                        <div class="card-header pb-0 text-start">
+                        <h4 class="font-weight-bolder">Login</h4>
+                        <p class="mb-0">masukan email dan password untuk login</p>
                         @if (session()->has('loginError'))
-                            <div class="alert alert-danger  alert-dismissible fade show" role="alert">
-                                <span class="alert-icon"><i class="ni ni-like-2"></i></span>
+                            <div class="alert alert-warning alert-dismissible text-white mt-2 mb-n3" role="alert">
+                                {{-- <span class="alert-icon"><i class="bi bi-exclamation-circle"></i></span> --}}
                                 {{ session('loginError') }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                          @endif
-                        <div class="card-header pb-0 text-start">
-                        <h4 class="font-weight-bolder">Login</h4>
-                        <p class="mb-0">masukan email dan password untuk login</p>
                         </div>
                         <div class="card-body">
                             {{-- setting auth --}}
