@@ -81,13 +81,13 @@
                                     @foreach ($users as $user)
                                     <tr>
                                         <td>
-                                            <div title="foto & nama user" class="d-flex ms-2 px-2 py-1 align-items-center">
-                                                <div>
-                                                    <img src="{{ asset('storage/' . $user->img_user) }}" class="avatar avatar-sm me-3">
-                                                </div>
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">{{ $user->nama }}</h6>
-                                                </div>
+                                            <div title="image & Nama User" class="d-flex align-items-center px-2 py-1">
+                                                @if ($user->img_user)
+                                                    <img src="{{ asset('storage/' . $user->img_user) }}" class="avatar avatar-sm me-3" alt="{{ $user->nama }}">
+                                                @else
+                                                    <img src="{{ asset('assets/img/user.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
+                                                @endif
+                                                <h6 class="mb-0 text-sm">{{ $user->nama }}</h6>
                                             </div>
                                         </td>
                                         <td>

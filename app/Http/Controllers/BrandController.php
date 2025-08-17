@@ -17,7 +17,7 @@ class BrandController extends Controller
     {
         return view('dashboard.inventaris.brand',[
             'title' => 'Data Brand',
-            'brands' => Brand::withCount('produks')->paginate(10)
+            'brands' => Brand::withCount('produks')->latest()->paginate(10)
         ]);
     }
 
@@ -35,14 +35,13 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-        'img_brand' => 'nullable|image|mimes:jpeg,png|max:2048',
+        'img_brand' => 'nullable|image|mimes:jpeg,png|max:1024',
         'nama' => 'required|max:255|unique:brands',
         'slug' => 'required|max:255|unique:brands',
         'status' => 'nullable|boolean',
         ]);
 
         if ($request->file('img_brand')) {
-        // Simpan gambar ke folder public/storage/brand-images
         $path = $request->file('img_brand')->store('brand-images', 'public');
         $validatedData['img_brand'] = $path;
         }
@@ -78,7 +77,7 @@ class BrandController extends Controller
     public function update(Request $request, Brand $brand)
     {
         $rules = [
-            'img_brand' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'img_brand' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
             'nama' => ['required', 'max:255', Rule::unique('brands')->ignore($brand->id)],
             'slug' => ['required', 'max:255', Rule::unique('brands')->ignore($brand->id)],
             'status' => 'nullable|boolean',
@@ -105,6 +104,9 @@ class BrandController extends Controller
     {
         if ($brand->produks()->count() > 0) {
         return back()->with('error', 'brand tidak dapat dihapus karena masih memiliki produk terkait!');
+    }
+        if ($brand->img_brand) {
+        Storage::disk('public')->delete($brand->img_brand);
     }
         $brand->delete();
         return redirect()->route('brand.index')->with('success', 'Data Brand berhasil dihapus!');

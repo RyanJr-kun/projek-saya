@@ -17,6 +17,7 @@ class KategoriProduk extends Model
     {
       return $this->hasMany(Produk::class);
     }
+    
     public function getRouteKeyName(): string
     {
         return 'slug';

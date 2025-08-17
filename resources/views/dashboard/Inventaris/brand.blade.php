@@ -25,6 +25,22 @@
             </div>
         </div>
     @endif
+    {{-- notif-error --}}
+    @if (session()->has('error'))
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+            <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header bg-warning text-white">
+                    <span class="alert-icon text-light me-2"><i class="bi bi-exclamation-triangle"></i></span>
+                    <strong class="me-auto">Notifikasi</strong>
+                    <small class="text-light">Baru saja</small>
+                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    {{ session('error') }}
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
         <div class="row ">
@@ -42,80 +58,6 @@
                                 <div class="ms-auto mb-0">
                                     {{-- triger-modal --}}
                                     <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Brand</button>
-
-                                    {{-- start-modal --}}
-                                    <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header border-0 mb-n3">
-                                                    <h6 class="modal-title" id="ModalLabel">Buat Data Brand Baru</h6>
-                                                    <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form action="{{ route('brand.store') }}" method="post" enctype="multipart/form-data">
-                                                        @csrf
-                                                        <div class="row">
-                                                            <div class="col-md-5">
-                                                                <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                                                                    <div id="imagePreviewBox"
-                                                                        class="border rounded p-2 d-flex justify-content-center align-items-center position-relative"
-                                                                        style="height: 150px; width: 150px; border-style: dashed !important; border-width: 2px !important;">
-                                                                        <div class="text-center text-muted">
-                                                                            <i class="bi bi-cloud-arrow-up-fill fs-1"></i>
-                                                                            <p class="mb-0 small mt-2">Pratinjau Gambar</p>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="mt-3 text-center">
-                                                                        <label for="img" class="btn btn-outline-primary">Pilih Gambar</label>
-                                                                        <input type="file" id="img" name="img_brand" class="d-none" accept="image/jpeg, image/png">
-                                                                        <p class="text-sm">JPEG, PNG maks 2MB</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-md-7">
-                                                                <div class="mb-3">
-                                                                    <label for="nama" class="form-label">Brand</label>
-                                                                    <input id="nama" name="nama" type="text" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
-                                                                    @error('nama')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                    @enderror
-                                                                </div>
-
-                                                                <div class="mb-3">
-                                                                    <label for="slug" class="form-label">Slug</label>
-                                                                    <input id="slug" name="slug" type="text" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug') }}" required>
-                                                                    @error('slug')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                    @enderror
-                                                                </div>
-
-                                                                <div class="justify-content-end form-check form-switch form-check-reverse">
-                                                                    <label class="me-auto form-check-label" for="status">Status</label>
-                                                                    <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="modal-footer border-0 pb-0 mt-3">
-                                                            <button type="submit" class="btn btn-info btn-sm">Buat Brand</button>
-                                                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
-                                                        </div>
-                                                    </form>
-                                                    <script>
-                                                        document.addEventListener('DOMContentLoaded', function () {
-                                                            const hasError = document.querySelector('.is-invalid');
-                                                                if (hasError) {
-                                                                    var importModal = new bootstrap.Modal(document.getElementById('import'));
-                                                                    importModal.show();
-                                                                }
-                                                            });
-                                                    </script>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {{-- end-modal --}}
                                 </div>
                             </div>
                         </div>
@@ -140,6 +82,7 @@
                         <thead>
                             <tr class="table-secondary">
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah Produk</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Dibuat Tanggal</th>
                                 <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
                                 <th class="text-dark"></th>
@@ -150,13 +93,16 @@
                             <tr>
                             <td>
                                 <div title="foto & nama brand" class="d-flex ms-2 px-2 py-1 align-items-center">
-                                    <div>
-                                        <img src="{{ asset('storage/' . $brand->img_brand) }}" class="avatar avatar-sm me-3">
-                                    </div>
-                                    <div class="d-flex flex-column justify-content-center">
-                                        <h6 class="mb-0 text-sm">{{ $brand->nama }}</h6>
-                                    </div>
+                                    @if ($brand->img_brand)
+                                        <img src="{{ asset('storage/' . $brand->img_brand) }}" class="avatar avatar-sm me-3" alt="{{ $brand->nama }}">
+                                    @else
+                                        <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
+                                    @endif
+                                    <h6 class="mb-0 text-sm">{{ $brand->nama }}</h6>
                                 </div>
+                            </td>
+                            <td>
+                                <p class="text-xs text-dark fw-bold mb-0">{{ $brand->produks_count }}</p>
                             </td>
                             <td>
                                 <p class="text-xs text-dark fw-bold mb-0">{{ $brand->created_at->translatedFormat('d M Y') }}</p>
@@ -195,6 +141,67 @@
                         </table>
                         <div class="my-3 ms-3">{{ $brands->onEachSide(1)->links() }}</div>
                     </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- modal-create --}}
+        <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0 mb-n3">
+                        <h6 class="modal-title" id="ModalLabel">Buat Data Brand Baru</h6>
+                        <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ route('brand.store') }}" method="post" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                                        <div id="imagePreviewBox"
+                                            class="border rounded p-2 d-flex justify-content-center align-items-center position-relative"
+                                            style="height: 150px; width: 150px; border-style: dashed !important; border-width: 2px !important;">
+                                            <div class="text-center text-muted">
+                                                <i class="bi bi-cloud-arrow-up-fill fs-1"></i>
+                                                <p class="mb-0 small mt-2">Pratinjau Gambar</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 text-center">
+                                            <label for="img" class="btn btn-outline-primary">Pilih Gambar</label>
+                                            <input type="file" id="img" name="img_brand" class="d-none" accept="image/jpeg, image/png">
+                                            <p class="text-sm">JPEG, PNG maks 1MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="mb-3">
+                                        <label for="nama" class="form-label">Brand</label>
+                                        <input id="nama" name="nama" type="text" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
+                                        @error('nama')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="slug" class="form-label">Slug</label>
+                                        <input id="slug" name="slug" type="text" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug') }}" required>
+                                        @error('slug')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="justify-content-end form-check form-switch form-check-reverse">
+                                        <label class="me-auto form-check-label" for="status">Status</label>
+                                        <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer border-0 pb-0 mt-3">
+                                <button type="submit" class="btn btn-info btn-sm">Buat Brand</button>
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -292,6 +299,12 @@
             }
 
             // --- MODAL CREATE ---
+            const hasError = document.querySelector('.is-invalid');
+            if (hasError) {
+                var importModal = new bootstrap.Modal(document.getElementById('import'));
+                importModal.show();
+            }
+
             const createModal = document.getElementById('import');
             if (createModal) {
                 const namaInput = createModal.querySelector('#nama');
@@ -429,10 +442,17 @@
                 statusFilter.addEventListener('change', filterTable);
             }
 
-            // Notifikasi Toast
-            const toastElement = document.getElementById('successToast');
-            if (toastElement) {
-                const toast = new bootstrap.Toast(toastElement);
+            // toast notif success
+            var succesToast = document.getElementById('successToast');
+            if (succesToast) {
+                var toast = new bootstrap.Toast(succesToast);
+                toast.show();
+            }
+
+            // toast notif error
+            var errorToast = document.getElementById('errorToast');
+            if (errorToast) {
+                var toast = new bootstrap.Toast(errorToast);
                 toast.show();
             }
 

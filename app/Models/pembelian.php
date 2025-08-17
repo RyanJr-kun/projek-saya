@@ -9,12 +9,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Pembelian extends Model
 {
-    public function pemasok(): BelongsTo
+    protected $guarded = ['id'];
+    
+    public function pemasoks(): BelongsTo
     {
         return $this->belongsTo(Pemasok::class);
     }
 
-    public function User(): BelongsTo
+    public function users(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

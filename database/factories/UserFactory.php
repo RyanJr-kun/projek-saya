@@ -30,7 +30,6 @@ class UserFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'kontak' => $this->faker->unique()->phoneNumber(),
             'role_id' => Role::inRandomOrder()->first()->id,
-            'img_user' => '../assets/img/team-'. $this->faker->numberBetween(1, 4) .'.jpg',
             'email_verified_at' => now(),
             'password' => Hash::make('12345'), // password default
             'mulai_kerja' => now(),

@@ -17,6 +17,7 @@ class KategoriPengeluaran extends Model
     {
       return $this->hasMany(Pengeluaran::class);
     }
+    
     public function getRouteKeyName(): string
     {
         return 'slug';

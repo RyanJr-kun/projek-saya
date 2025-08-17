@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 use App\Models\KategoriProduk;
 use Illuminate\Http\Request;
-use \Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
+use \Cviebrock\EloquentSluggable\Services\SlugService;
+
 
 class KategoriProdukController extends Controller
 {
    public function index() {
     return view('dashboard.inventaris.kategoriproduk', [
         'title' => 'Data Kategori Produk',
-        'kategoris'=>KategoriProduk::latest()->paginate(15),
+        'kategoris'=>KategoriProduk::withCount('produks')->latest()->paginate(15),
     ]);
     }
 
@@ -29,10 +31,16 @@ class KategoriProdukController extends Controller
    public function store(Request $request)
     {
         $validatedData = $request->validate([
+            'img_kategori' => 'nullable|image|mimes:jpeg,png|max:1024',
             'nama' => 'required|max:255|unique:kategori_produks',
             'slug' => 'required|max:255|unique:kategori_produks',
             'status' => 'nullable|boolean',
         ]);
+
+        if ($request->file('img_kategori')) {
+        $path = $request->file('img_kategori')->store('kategori-images', 'public');
+        $validatedData['img_kategori'] = $path;
+        }
 
         $validatedData['status'] = $request->has('status');
 
@@ -66,13 +74,21 @@ class KategoriProdukController extends Controller
     public function update(Request $request, KategoriProduk $kategoriproduk)
     {
         $rules = [
-            // Pastikan 'nama' unik, TAPI abaikan untuk ID kategori yang sedang diedit.
+            'img_kategori' => 'nullable|image|mimes:jpeg,png|max:1024',
             'nama' => ['required', 'max:255', Rule::unique('kategori_produks')->ignore($kategoriproduk->id)],
             'slug' => ['required', 'max:255', Rule::unique('kategori_produks')->ignore($kategoriproduk->id)],
             'status' => 'nullable|boolean',
         ];
 
         $validatedData = $request->validate($rules);
+
+         if ($request->file('img_kategori')) {
+            if ($kategoriproduk->img_kategori) {
+                Storage::disk('public')->delete($kategoriproduk->img_kategori);
+            }
+            $path = $request->file('img_kategori')->store('kategori-images', 'public');
+            $validatedData['img_kategori'] = $path;
+        }
 
 
         $validatedData['status'] = $request->has('status');
@@ -87,6 +103,9 @@ class KategoriProdukController extends Controller
     {
         if ($kategoriproduk->produks()->count() > 0) {
         return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki produk terkait!');
+    }
+        if ($kategoriproduk->img_kategori) {
+        Storage::disk('public')->delete($kategoriproduk->img_kategori);
     }
         $kategoriproduk->delete();
         return redirect()->route('kategoriproduk.index')->with('success', 'Kategori produk berhasil dihapus!');

@@ -1,6 +1,5 @@
 <x-layout>
     @push('styles')
-        <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css"/>
         <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
     @endpush
     @section('breadcrumb')
@@ -157,22 +156,19 @@
         </div>
 
         <div class="card m-4">
-            <div class="card-header pt-3 pb-0 mb-0">
+            <div class="card-header pt-3 pb-0 mb-n3">
                 <h6 class="">Gambar Produk</h6>
             </div>
-            <div class="card-body px-4 pt-0">
-                {{-- Area ini akan diubah oleh Uppy menjadi dashboard upload --}}
-                <div id="drag-drop-area"></div>
-
-                {{-- Input tersembunyi untuk menyimpan path gambar setelah di-upload --}}
-                <input type="hidden" name="img_produk" id="image_path">
-
-                @error('img_produk')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
+            <div class="card-body " >
+                <input type="file"
+       class="filepond"
+       name="filepond"
+       multiple
+       data-max-file-size="300MB"
+       data-max-files="3" />
             </div>
         </div>
-        
+
         <div class="d-flex justify-content-end mt-3 me-4">
             <button type="submit" class="btn btn-info">Buat Produk</button>
             <a href="{{ route('produk.index') }}" class="btn btn-danger ms-3">Batalkan</a>
@@ -180,10 +176,12 @@
     </form>
 
     @push('scripts')
-        <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                FilePond.create(
+                    document.querySelector('input')
+                );
                 // quill
                 const quill = new Quill('#quill-editor', {
                     theme: 'snow',
@@ -205,27 +203,6 @@
                     fetch('/dashboard/produk/chekSlug?nama_produk=' + nama_produk.value)
                         .then(response => response.json())
                         .then(data => slug.value = data.slug)
-                });
-            });
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Panggil variabel global yang sudah kita siapkan di app.js
-                const { Uppy, Dashboard, ImageEditor, XHRUpload } = window;
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                const uppy = new Uppy({ /* ... konfigurasi Anda ... */ });
-
-                uppy.use(Dashboard, { /* ... konfigurasi Anda ... */ });
-                uppy.use(ImageEditor, { /* ... konfigurasi Anda ... */ });
-                uppy.use(XHRUpload, {
-                    endpoint: '{{ route('produk.upload') }}',
-                    fieldName: 'image',
-                    headers: { 'X-CSRF-TOKEN': csrfToken }
-                });
-
-                uppy.on('upload-success', (file, response) => {
-                    document.getElementById('image_path').value = response.body.path;
                 });
             });
         </script>

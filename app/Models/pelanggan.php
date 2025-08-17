@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pelanggan extends Model
 {
-    public function penjualan(): HasMany
+    protected $guarded = ['id'];
+    
+    public function penjualans(): HasMany
     {
         return $this->hasMany(Penjualan::class);
     }

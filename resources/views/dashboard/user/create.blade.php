@@ -143,13 +143,6 @@
                 });
             }
 
-            // Script untuk Toast (jika ada)
-            var toastElement = document.getElementById('successToast');
-            if (toastElement) {
-                var toast = new bootstrap.Toast(toastElement);
-                toast.show();
-            }
-
             // Script untuk scrollbar (khusus Windows)
             var isWindows = navigator.platform.indexOf('Win') > -1;
             if (isWindows && document.querySelector('#sidenav-scrollbar')) {

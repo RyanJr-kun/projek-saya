@@ -143,51 +143,47 @@
                         <tbody id="isiTable">
                             @foreach ($units as $unit)
                             <tr>
-                            <td>
-                                <div class="d-flex ms-2 px-2 py-1 align-items-center">
-                                    <p class="mb-0 text-xs text-dark fw-bold">{{ $unit->nama }}</p>
-                                </div>
-                            </td>
-                            <td>
-                                <p class="text-xs text-dark fw-bold mb-0">{{ $unit->singkat }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs text-dark fw-bold mb-0">{{ $unit->produks_count }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs text-dark fw-bold mb-0">{{ $unit->created_at->translatedFormat('d M Y') }}</p>
-                            </td>
+                                <td>
+                                    <div class="d-flex ms-2 px-2 py-1 align-items-center">
+                                        <p class="mb-0 text-xs text-dark fw-bold">{{ $unit->nama }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="text-xs text-dark fw-bold mb-0">{{ $unit->singkat }}</p>
+                                </td>
+                                <td>
+                                    <p class="text-xs text-dark fw-bold mb-0">{{ $unit->produks_count }}</p>
+                                </td>
+                                <td>
+                                    <p class="text-xs text-dark fw-bold mb-0">{{ $unit->created_at->translatedFormat('d M Y') }}</p>
+                                </td>
 
-                            <td class="align-middle text-center text-sm">
-                                @if ($unit->status)
-                                    <span class="badge badge-success">Aktif</span>
-                                @else
-                                    <span class="badge badge-secondary">Tidak Aktif</span>
-                                @endif
-                            </td>
+                                <td class="align-middle text-center text-sm">
+                                    @if ($unit->status)
+                                        <span class="badge badge-success">Aktif</span>
+                                    @else
+                                        <span class="badge badge-secondary">Tidak Aktif</span>
+                                    @endif
+                                </td>
 
-                            <td class="align-middle">
-                                {{-- <a href="/#" class="text-dark fw-bold pe-3 text-xs" data-toggle="tooltip"
-                                    data-original-title="Detail user">
-                                    <i class="fa fa-eye text-dark text-sm opacity-10"></i>
-                                </a> --}}
-                                <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editModal"
-                                    data-url="{{ route('unit.getjson', $unit->slug) }}"
-                                    data-update-url="{{ route('unit.update', $unit->slug) }}"
-                                    title="Edit unit">
-                                    <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                </a>
-                                <a href="#" class="text-dark delete-user-btn"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteConfirmationModal"
-                                    data-unit-slug="{{ $unit->slug }}"
-                                    data-unit-name="{{ $unit->nama }}"
-                                    title="Hapus Unit">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
+                                <td class="align-middle">
+                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editModal"
+                                        data-url="{{ route('unit.getjson', $unit->slug) }}"
+                                        data-update-url="{{ route('unit.update', $unit->slug) }}"
+                                        title="Edit unit">
+                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
+                                    </a>
+                                    <a href="#" class="text-dark delete-user-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteConfirmationModal"
+                                        data-unit-slug="{{ $unit->slug }}"
+                                        data-unit-name="{{ $unit->nama }}"
+                                        title="Hapus Unit">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -262,9 +258,7 @@
         <x-footer></x-footer>
     </div>
 @push('scripts')
-
-@endpush
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter'); // Ganti nama variabel agar lebih jelas
@@ -416,5 +410,7 @@
             }
         });
     </script>
+@endpush
+
 </x-layout>
 

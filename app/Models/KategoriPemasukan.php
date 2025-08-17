@@ -17,6 +17,7 @@ class KategoriPemasukan extends Model
     {
       return $this->hasMany(Pemasukan::class);
     }
+    
     public function getRouteKeyName(): string
     {
         return 'slug';

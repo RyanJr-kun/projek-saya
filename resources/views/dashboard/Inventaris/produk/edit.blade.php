@@ -102,7 +102,7 @@
                         <div class="form-group">
                             <label for="deskripsi
                             " class="form-label">Deskripsi <span class="text-danger">*</span></label>
-                            <div id="quill-editor" style="min-height: 100px;">{!! old('deskripsi') !!}</div>
+                            <div id="quill-editor" style="min-height: 100px;">{!! old('deskripsi', $produk->deskripsi) !!}</div>
                             <input type="hidden" name="deskripsi" id="deskripsi" value="{{ old('deskripsi', $produk->deskripsi) }}">
                             @error('deskripsi')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -163,15 +163,12 @@
 
         {{-- gambar --}}
         <div class="card m-4">
-            <div class="card-header pt-3 pb-0 mb-0">
+            <div class="card-header">
                 <h6 class="">Gambar Produk</h6>
             </div>
-            <div class="card-body px-4 pt-0">
-                <div id="drag-drop-area"></div>
-                <input type="hidden" name="img_produk" id="image_path" value="{{ $produk->img_produk }}">
-                @error('img_produk')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
+            <div class="card-body">
+                {{-- Perintah kerja dengan instruksi tambahan: "muat gambar lama dari URL ini" --}}
+                <input type="text" class="filepond filepond-square" name="img_produk" data-file-url="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : '' }}">
             </div>
         </div>
 
@@ -207,55 +204,6 @@
                     fetch('/dashboard/produk/chekSlug?nama_produk=' + nama_produk.value)
                         .then(response => response.json())
                         .then(data => slug.value = data.slug)
-                });
-
-                //uppy
-                const { Uppy, Dashboard, ImageEditor, XHRUpload } = window;
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                const imagePathInput = document.getElementById('image_path');
-
-                const uppy = new Uppy({
-                        autoProceed: false,
-                        restrictions: { maxNumberOfFiles: 1, allowedFileTypes: ['image/*'] }
-                    })
-                    .use(Dashboard, {
-                        inline: true,
-                        target: '#drag-drop-area',
-                        proudlyDisplayPoweredByUppy: false,
-                        height: 300,
-                    })
-                    .use(ImageEditor, { target: Dashboard })
-                    .use(XHRUpload, {
-                        endpoint: '{{ route('produk.upload') }}',
-                        fieldName: 'image',
-                        headers: { 'X-CSRF-TOKEN': csrfToken }
-                    });
-
-                // --- BAGIAN PENTING UNTUK MENAMPILKAN GAMBAR LAMA ---
-                const existingImageUrl = "{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : '' }}";
-                const existingImageName = "{{ $produk->img_produk ? basename($produk->img_produk) : '' }}";
-
-                if (existingImageUrl) {
-                    fetch(existingImageUrl)
-                        .then(response => response.blob()) // Ambil gambar sebagai data blob
-                        .then(blob => {
-                            uppy.addFile({
-                                name: existingImageName,
-                                type: blob.type,
-                                data: blob
-                            });
-                        });
-                }
-                // --------------------------------------------------------
-
-                // Saat upload baru berhasil, update hidden input
-                uppy.on('upload-success', (file, response) => {
-                    imagePathInput.value = response.body.path;
-                });
-
-                // Saat file dihapus dari Uppy, kosongkan hidden input
-                uppy.on('file-removed', (file) => {
-                    imagePathInput.value = '';
                 });
             });
         </script>

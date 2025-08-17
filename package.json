@@ -9,13 +9,9 @@
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
         "@tailwindcss/vite": "^4.0.0",
-        "@uppy/core": "^4.5.2",
-        "@uppy/dashboard": "^4.4.3",
         "@uppy/drag-drop": "^4.2.2",
         "@uppy/file-input": "^4.2.2",
-        "@uppy/image-editor": "^3.4.2",
         "@uppy/progress-bar": "^4.3.2",
-        "@uppy/xhr-upload": "^4.4.2",
         "axios": "^1.8.2",
         "bootstrap": "^5.3.7",
         "concurrently": "^9.0.1",
@@ -25,6 +21,14 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
+        "filepond": "^4.32.8",
+        "filepond-plugin-file-poster": "^2.5.2",
+        "filepond-plugin-file-validate-size": "^2.2.8",
+        "filepond-plugin-file-validate-type": "^1.2.9",
+        "filepond-plugin-image-crop": "^2.0.6",
+        "filepond-plugin-image-exif-orientation": "^1.0.11",
+        "filepond-plugin-image-preview": "^4.6.12",
+        "filepond-plugin-image-resize": "^2.0.10",
         "perfect-scrollbar": "^1.5.6",
         "smooth-scrollbar": "^8.8.4"
     }

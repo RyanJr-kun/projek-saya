@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pemasok extends Model
 {
-    public function pembelian(): HasMany
+    protected $guarded = ['id'];
+    
+    public function pembelians(): HasMany
     {
         return $this->hasMany(Pembelian::class);
     }

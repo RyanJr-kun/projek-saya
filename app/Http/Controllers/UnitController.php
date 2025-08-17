@@ -16,7 +16,7 @@ class UnitController extends Controller
     {
         return view('dashboard.inventaris.unit', [
             'title'=>'Units',
-            'units' => Unit::withCount('produks')->paginate(15)
+            'units' => Unit::withCount('produks')->latest()->paginate(15)
         ]);
     }
 

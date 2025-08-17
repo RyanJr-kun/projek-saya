@@ -52,27 +52,27 @@ class User extends Authenticatable
         ];
     }
 
-    public function produk(): HasMany
+    public function produks(): HasMany
     {
       return $this->hasMany(Produk::class);
     }
 
-    public function penjualan(): HasMany
+    public function penjualans(): HasMany
     {
       return $this->hasMany(Penjualan::class);
     }
 
-    public function pembelian(): HasMany
+    public function pembelians(): HasMany
     {
       return $this->hasMany(Pembelian::class);
     }
 
-    public function Pemasukan(): HasMany
+    public function Pemasukans(): HasMany
     {
       return $this->hasMany(Pemasukan::class);
     }
 
-    public function pengeluaran(): HasMany
+    public function pengeluarans(): HasMany
     {
       return $this->hasMany(Pengeluaran::class);
     }

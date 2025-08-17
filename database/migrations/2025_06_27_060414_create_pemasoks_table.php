@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('pemasoks', function (Blueprint $table) {
             $table->id();
-            $table->string('img_pemasok')->nullable();
             $table->string('nama', 255);
             $table->string('kontak', 20)->unique();
             $table->string('email')->unique()->nullable();
             $table->text('alamat')->nullable();
-            $table->text('catatan')->nullable();
+            $table->text('note')->nullable();
             $table->timestamps();
         });
     }

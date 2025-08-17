@@ -61,18 +61,23 @@ class ProdukController extends Controller
             'img_produk' => 'nullable|string',
         ]);
 
-
         $validatedData['user_id'] = Auth::id();
         $validatedData['kategori_produk_id'] = $validatedData['kategori'];
         $validatedData['brand_id'] = $validatedData['brand'];
         $validatedData['unit_id'] = $validatedData['unit'];
         $validatedData['garansi_id'] = $validatedData['garansi'];
-        // if ($request->img_produk) {
-        //     $tempPath = $request->img_produk;
-        //     $newPath = str_replace('tmp/', 'produk/', $tempPath);
-        //     Storage::disk('public')->move($tempPath, $newPath);
-        //     $validatedData['img_produk'] = $newPath;
-        // }
+
+        if ($request->img_produk) {
+            $tempPath = $request->img_produk; // Contoh: "tmp/produk/xyz.jpg"
+
+            // Pastikan file benar-benar ada di folder temporer
+            if (Storage::disk('public')->exists($tempPath)) {
+                $newPath = str_replace('tmp/', '', $tempPath); // Ganti jadi "produk/xyz.jpg"
+                Storage::disk('public')->move($tempPath, $newPath); // Pindahkan file
+                $validatedData['img_produk'] = $newPath; // Simpan path final ke database
+            }
+        }
+
         unset($validatedData['kategori'], $validatedData['brand'], $validatedData['unit'], $validatedData['garansi']);
 
         Produk::create($validatedData);
@@ -133,11 +138,23 @@ class ProdukController extends Controller
         $validatedData['unit_id'] = $validatedData['unit'];
         $validatedData['garansi_id'] = $validatedData['garansi'];
 
-        if ($request->img_produk) {
-            $tempPath = $request->img_produk;
-            $newPath = str_replace('tmp/', 'produk/', $tempPath);
-            Storage::disk('public')->move($tempPath, $newPath);
-            $validatedData['img_produk'] = $newPath;
+         $newImagePath = $request->img_produk;
+
+        // Cek jika ada path gambar baru yang dikirim DAN path itu berbeda dari yang lama
+        if ($newImagePath && $newImagePath !== $produk->img_produk) {
+
+            // 1. Hapus gambar lama dari storage jika ada
+            if ($produk->img_produk && Storage::disk('public')->exists($produk->img_produk)) {
+                Storage::disk('public')->delete($produk->img_produk);
+            }
+
+            // 2. Pindahkan gambar baru dari folder tmp ke folder final
+            $tempPath = $newImagePath;
+            if (Storage::disk('public')->exists($tempPath)) {
+                $finalPath = str_replace('tmp/', '', $tempPath);
+                Storage::disk('public')->move($tempPath, $finalPath);
+                $validatedData['img_produk'] = $finalPath; // Simpan path baru
+            }
         }
 
         unset($validatedData['kategori'], $validatedData['brand'], $validatedData['unit'], $validatedData['garansi']);
