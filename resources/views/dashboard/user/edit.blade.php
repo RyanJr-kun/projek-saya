@@ -1,6 +1,12 @@
 <x-layout>
     <x-slot:title>Edit User: {{ $user->nama }}</x-slot:title>
 
+    @push('styles')
+        <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
+    @endpush
+
     @section('breadcrumb')
         @php
         $breadcrumbItems = [
@@ -18,32 +24,14 @@
                 @method('put')
                 @csrf
                 <div class="row">
-                    <div class="col-12 col-md-4 mb-md-0">
-                        <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                            {{-- KOTAK PRATINJAU GAMBAR --}}
-                            <div id="imagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center position-relative" style="height: 300px; width: 300px; border-style: dashed !important; border-width: 2px !important;">
-                                @if ($user->img_user)
-                                    <img src="{{ asset('storage/' . $user->img_user) }}" alt="User Image" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">
-                                @else
-                                    <div class="text-center text-muted">
-                                        <i class="bi bi-cloud-arrow-up-fill fs-1"></i>
-                                        <p class="mb-0 small mt-2">Pratinjau Gambar</p>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="mt-3 text-center">
-                                <label for="img_user" class="btn btn-outline-primary">Pilih Gambar</label>
-                                <input type="file" id="img_user" name="img_user" class="d-none @error('img_user') is-invalid @enderror" accept="image/jpeg, image/png, image/jpg">
-                                <p class="mt-1 text-sm">JPEG, PNG, JPG maks 2MB</p>
-                                @error('img_user')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+                    <div class="col-12 col-md-4 mb-4 mb-md-0">
+                        <h6 class="ms-2">Gambar Pengguna :</h6>
+                        <input type="file" class="filepond" name="img_user" id="image">
                     </div>
 
                     <div class="col-12 col-md-8">
                          <div class="row">
+                            <h6>Data Pribadi :</h6>
                             <div class="col-md-6 mb-3">
                                 <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" placeholder="Nama Lengkap" value="{{ old('nama', $user->nama) }}" required>
@@ -77,7 +65,7 @@
                                 <select class="form-select @error('role_id') is-invalid @enderror" id="role_id" name="role_id" required>
                                     <option value="" disabled selected>Pilih Role...</option>
                                     @foreach ($roles as $role)
-                                        <option value="{{ $role->id }}" {{ old('role_id', $user->role->id) == $role->id ? 'selected' : '' }}>{{ $role->nama }}</option>
+                                        <option value="{{ $role->id }}" @selected(old('role_id', $user->role_id) == $role->id)>{{ $role->nama }}</option>
                                     @endforeach
                                 </select>
                                 @error('role_id')
@@ -102,7 +90,7 @@
                                 <div class="justify-content-end form-check form-switch form-check-reverse">
                                     <label class="me-auto form-check-label" for="status_toggle">Status Aktif</label>
                                     <input type="hidden" name="status" value="0">
-                                    <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" {{ old('status', $user->status) == 1 ? 'checked' : '' }}>
+                                    <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" @checked(old('status', $user->status))>
                                 </div>
                             </div>
                         </div>
@@ -118,32 +106,52 @@
     </div>
 
     @push('scripts')
+        <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const uploadInput = document.getElementById('img_user');
-                const previewBox = document.getElementById('imagePreviewBox');
+                // FilePond
+                FilePond.registerPlugin(
+                    FilePondPluginImagePreview,
+                    FilePondPluginFileValidateSize,
+                    FilePondPluginImageCrop,
+                    FilePondPluginFileValidateType,
+                    FilePondPluginImageTransform
+                );
 
-                // Pastikan elemen ditemukan sebelum menambahkan event listener
-                if (uploadInput && previewBox) {
-                    uploadInput.addEventListener('change', function(event) {
-                        // Ambil file yang dipilih oleh pengguna
-                        const file = event.target.files[0];
-
-                        // Jika ada file yang dipilih
-                        if (file) {
-                            // Buat objek FileReader untuk membaca file
-                            const reader = new FileReader();
-
-                            // Tentukan apa yang harus dilakukan setelah file selesai dibaca
-                            reader.onload = function(e) {
-                                // Ganti isi kotak pratinjau dengan gambar baru
-                                previewBox.innerHTML =
-                                    `<img src="${e.target.result}" alt="Pratinjau Gambar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">`;
-                            };
-                            reader.readAsDataURL(file);
+                const inputElement = document.querySelector('input[id="image"]');
+                const pond = FilePond.create(inputElement, {
+                    labelIdle: `Seret & Lepas gambar atau <span class="filepond--label-action">Cari</span>`,
+                    allowImagePreview: true,
+                    allowFileSizeValidation: true,
+                    maxFileSize: '2MB',
+                    allowImageCrop: true,
+                    imageCropAspectRatio: '1:1',
+                    acceptedFileTypes: ['image/png', 'image/jpeg'],
+                    labelFileTypeNotAllowed: 'Jenis file tidak valid. Hanya PNG dan JPG yang diizinkan.',
+                    server: {
+                        process: {
+                            url: '{{ route("users.upload") }}',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        },
+                        // Anda bisa menambahkan endpoint 'revert' di sini
+                    },
+                    files: [
+                        @if($user->img_user)
+                        {
+                            source: '{{ $user->img_user }}', // Path di storage
+                            options: {
+                                type: 'local', // Menandakan file sudah ada di server
+                                metadata: { poster: '{{ asset('storage/' . $user->img_user) }}' } // URL untuk preview
+                            }
                         }
-                    });
-                }
+                        @endif
+                    ]
+                });
             });
         </script>
     @endpush

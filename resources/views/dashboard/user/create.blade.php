@@ -1,4 +1,10 @@
 <x-layout>
+    @push('styles')
+        <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
+    @endpush
+
     @section('breadcrumb')
         @php
         // Definisikan item breadcrumb dalam bentuk array
@@ -16,20 +22,9 @@
             <form action="{{ route('users.store') }}" method="post" enctype="multipart/form-data" >
                 @csrf
                 <div class="row">
-                    <div class="col-12 col-md-4 mb-md-0">
-                        <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                            <div id="imagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center position-relative" style="height: 300px; width: 300px; border-style: dashed !important; border-width: 2px !important;">
-                                <div class="text-center text-muted">
-                                    <i class="bi bi-cloud-arrow-up-fill fs-1"></i>
-                                    <p class="mb-0 small mt-2">Pratinjau Gambar</p>
-                                </div>
-                            </div>
-                            <div class="mt-3 text-center">
-                                <label for="img" class="btn btn-outline-primary">Pilih Gambar</label>
-                                <input type="file" id="img" name="img_user" class="d-none" accept="image/jpeg, image/png">
-                                <p class="text-sm">JPEG, PNG maks 2MB</p>
-                            </div>
-                        </div>
+                    <div class="col-12 col-md-4 mb-4 mb-md-0">
+                        <h6 class="ms-2">Gambar Pengguna</h6>
+                        <input type="file" class="filepond" name="img_user" id="image">
                     </div>
 
                     <div class="col-12 col-md-8">
@@ -117,46 +112,42 @@
     </div>
 
     @push('scripts')
+    <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Script untuk pratinjau gambar dengan validasi
-            const uploadInput = document.getElementById('img');
-            const previewBox = document.getElementById('imagePreviewBox');
+            // FilePond
+            FilePond.registerPlugin(
+                FilePondPluginImagePreview,
+                FilePondPluginFileValidateSize,
+                FilePondPluginImageCrop,
+                FilePondPluginFileValidateType,
+                FilePondPluginImageTransform
+            );
 
-            if (uploadInput) {
-                uploadInput.addEventListener('change', function(event) {
-                    const file = event.target.files[0];
-                    const allowedTypes = ['image/jpeg', 'image/png'];
-                    const maxSize = 2 * 1024 * 1024; // 2MB
-
-                    if (file) {
-                        if (!allowedTypes.includes(file.type)) {
-                            alert('Hanya file JPEG dan PNG yang diizinkan.');
-                            event.target.value = ''; // Reset input
-                            return;
+            const inputElement = document.querySelector('input[id="image"]');
+            const pond = FilePond.create(inputElement, {
+                labelIdle: `Seret & Lepas gambar atau <span class="filepond--label-action">Cari</span>`,
+                allowImagePreview: true,
+                allowFileSizeValidation: true,
+                maxFileSize: '2MB',
+                allowImageCrop: true,
+                imageCropAspectRatio: '1:1',
+                acceptedFileTypes: ['image/png', 'image/jpeg'],
+                labelFileTypeNotAllowed: 'Jenis file tidak valid. Hanya PNG dan JPG yang diizinkan.',
+                server: {
+                    process: {
+                        url: '{{ route("users.upload") }}',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         }
-
-                        if (file.size > maxSize) {
-                            alert('Ukuran file maksimal adalah 2MB.');
-                            event.target.value = ''; // Reset input
-                            return;
-                        }
-
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.style.width = '100%';
-                            img.style.height = '100%';
-                            img.style.objectFit = 'cover';
-                            img.style.borderRadius = '0.5rem';
-                            previewBox.innerHTML = '';
-                            previewBox.appendChild(img);
-                        };
-                        reader.readAsDataURL(file);
                     }
-                });
-            }
+                }
+            });
         });
     </script>
     @endpush

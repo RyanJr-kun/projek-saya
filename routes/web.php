@@ -27,6 +27,7 @@ Route::post('logout',[LoginController::class, 'logout'])->name('logout');
 Route::resource('users', UserController::class)
     ->middleware('auth')
     ->parameter('users', 'user:username');
+Route::post('/dashboard/users/upload', [UserController::class, 'upload'])->name('users.upload')->middleware('auth');
 
 // market-beranda
 Route::get('/', function () {
@@ -113,5 +114,3 @@ Route::get('/dashboard/kategoripemasukan/chekSlug', [KategoriPemasukanController
 //Laba Bersih
 
 //Stok
-
-

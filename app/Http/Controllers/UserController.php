@@ -45,13 +45,19 @@ class UserController extends Controller
             'kontak' => 'nullable|min:9|max:14|unique:users',
             'mulai_kerja' => 'required|date',
             'status' => 'required|boolean',
-            'img_user' => 'nullable|image|mimes:jpeg,png|max:2048',
+            'img_user' => 'nullable|string', // Diubah dari 'image' menjadi 'string'
         ]);
 
-        if ($request->file('img_user')) {
-        // Simpan gambar ke folder public/storage/user-images
-        $path = $request->file('img_user')->store('user-images', 'public');
-        $validatedData['img_user'] = $path;
+        // Pindahkan gambar dari temp ke folder user-images
+        if ($request->img_user) {
+            $tempPath = $request->img_user;
+            // Pastikan file ada di folder temporary
+            if (Storage::disk('public')->exists($tempPath)) {
+                // Buat path baru dan pindahkan file
+                $newPath = str_replace('tmp/user-images/', 'user-images/', $tempPath);
+                Storage::disk('public')->move($tempPath, $newPath);
+                $validatedData['img_user'] = $newPath;
+            }
         }
 
         $validatedData['password'] = bcrypt($validatedData['password']);
@@ -93,17 +99,33 @@ class UserController extends Controller
             'kontak' => ['nullable', 'min:9', 'max:14', Rule::unique('users')->ignore($user->id)],
             'mulai_kerja' => 'required|date',
             'status' => 'required|boolean',
-            'img_user' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'img_user' => 'nullable|string',
         ];
 
-        $validatedData['status'] = $request->has('status') ? 1 : 0;
         $validatedData = $request->validate($rules);
-        if ($request->file('img_user')) {
-            if ($user->img_user) {
-                Storage::disk('public')->delete($user->img_user);
+
+        // Cek apakah ada gambar baru yang diunggah (path dimulai dengan 'tmp/')
+        if ($request->filled('img_user') && str_starts_with($request->img_user, 'tmp/')) {
+            $tempPath = $request->img_user;
+            if (Storage::disk('public')->exists($tempPath)) {
+                // Hapus gambar lama jika ada
+                if ($user->img_user && Storage::disk('public')->exists($user->img_user)) {
+                    Storage::disk('public')->delete($user->img_user);
+                }
+                // Pindahkan gambar baru dari tmp ke folder user-images
+                $newPath = str_replace('tmp/user-images/', 'user-images/', $tempPath);
+                Storage::disk('public')->move($tempPath, $newPath);
+                $validatedData['img_user'] = $newPath;
             }
-            $path = $request->file('img_user')->store('user-images', 'public');
-            $validatedData['img_user'] = $path;
+        // Cek jika pengguna menghapus gambar (input ada tapi nilainya kosong/null)
+        } elseif ($request->exists('img_user') && $request->input('img_user') === null) {
+            if ($user->img_user && Storage::disk('public')->exists($user->img_user)) {
+                Storage::disk('public')->delete($user->img_user);
+                $validatedData['img_user'] = null;
+            }
+        } else {
+            // Jika tidak ada perubahan gambar, hapus dari data yang divalidasi agar tidak menimpa path yang ada
+            unset($validatedData['img_user']);
         }
 
         if ($request->filled('password')) {
@@ -125,5 +147,24 @@ class UserController extends Controller
          }
         $user->delete();
         return redirect()->route('users.index')->with('success', 'Data Pengguna berhasil dihapus!');
+    }
+
+    /**
+     * Menangani unggahan file asinkron dari FilePond.
+     */
+    public function upload(Request $request)
+    {
+        if ($request->hasFile('img_user')) {
+            $request->validate([
+                'img_user' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+            $file = $request->file('img_user');
+            // Simpan ke storage/app/public/tmp/user-images
+            $path = $file->store('tmp/user-images', 'public');
+            // Kembalikan path sebagai response text, FilePond akan menangkap ini
+            return $path;
+        }
+        // Jika gagal
+        return response('Gagal mengunggah.', 500);
     }
 }
