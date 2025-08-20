@@ -13,10 +13,9 @@
 
     <div class="card m-4">
         <div class="card-body">
-            <form action="{{ route('users.store') }}" method="post" enctype="multipart/form-data">
+            <form action="{{ route('users.store') }}" method="post" enctype="multipart/form-data" >
                 @csrf
                 <div class="row">
-
                     <div class="col-12 col-md-4 mb-md-0">
                         <div class="d-flex flex-column justify-content-center align-items-center h-100">
                             <div id="imagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center position-relative" style="height: 300px; width: 300px; border-style: dashed !important; border-width: 2px !important;">
@@ -72,7 +71,7 @@
                                 <select class="form-select @error('role_id') is-invalid @enderror" id="role_id" name="role_id" required>
                                     <option value="" disabled selected>Pilih Role...</option>
                                     @foreach ($roles as $role)
-                                        <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>{{ $role->nama }}</option>
+                                        <option value="{{ $role->id }}" @selected(old('role_id') == $role->id)>{{ $role->nama }}</option>
                                     @endforeach
                                 </select>
                                 @error('role_id')
@@ -99,8 +98,9 @@
                             <div class="col-12">
                                 <div class="justify-content-end form-check form-switch form-check-reverse">
                                     <label class="me-auto form-check-label" for="status_toggle">Status</label>
-                                    <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" {{ old('status') == 1 ? 'checked' : '' }} checked>
+                                    {{-- The hidden input ensures a '0' is sent if the checkbox is unchecked --}}
                                     <input type="hidden" name="status" value="0">
+                                    <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" @checked(old('status', true))>
                                 </div>
                             </div>
                         </div>
@@ -119,14 +119,29 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Script untuk pratinjau gambar
+            // Script untuk pratinjau gambar dengan validasi
             const uploadInput = document.getElementById('img');
             const previewBox = document.getElementById('imagePreviewBox');
 
             if (uploadInput) {
                 uploadInput.addEventListener('change', function(event) {
                     const file = event.target.files[0];
+                    const allowedTypes = ['image/jpeg', 'image/png'];
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+
                     if (file) {
+                        if (!allowedTypes.includes(file.type)) {
+                            alert('Hanya file JPEG dan PNG yang diizinkan.');
+                            event.target.value = ''; // Reset input
+                            return;
+                        }
+
+                        if (file.size > maxSize) {
+                            alert('Ukuran file maksimal adalah 2MB.');
+                            event.target.value = ''; // Reset input
+                            return;
+                        }
+
                         const reader = new FileReader();
                         reader.onload = function(e) {
                             const img = document.createElement('img');
@@ -141,13 +156,6 @@
                         reader.readAsDataURL(file);
                     }
                 });
-            }
-
-            // Script untuk scrollbar (khusus Windows)
-            var isWindows = navigator.platform.indexOf('Win') > -1;
-            if (isWindows && document.querySelector('#sidenav-scrollbar')) {
-                var options = { damping: '0.5' };
-                Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
             }
         });
     </script>

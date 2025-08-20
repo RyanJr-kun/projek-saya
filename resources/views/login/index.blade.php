@@ -102,7 +102,7 @@
                             <label class="form-check-label" for="rememberMe">Selalu Ingat Saya.</label>
                             </div>
                             <div class="text-center">
-                            <button type="submit" class="btn btn-lg bg-gradient-blue text-white w-100 mt-4 mb-0" >Login</button>
+                            <button type="submit" class="btn btn-lg btn-info w-100 mt-4 mb-0" >Login</button>
                             </div>
                         </form>
 

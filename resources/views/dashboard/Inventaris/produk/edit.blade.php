@@ -2,6 +2,9 @@
 
     @push('styles')
         <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
     @endpush
 
     @section('breadcrumb')
@@ -20,7 +23,6 @@
     <form method="post" action="{{ route('produk.update', $produk->slug) }}">
         @method('put')
         @csrf
-
         {{-- informasi produk --}}
         <div class="card m-4">
             <div class="card-header pt-3 pb-0 mb-0 ">
@@ -65,7 +67,7 @@
                         <select class="form-select @error('kategori') is-invalid @enderror" name="kategori" id="kategori" placeholder="Departure" required>
                             <option value="" disabled selected>Pilih</option>
                             @foreach ($kategoris as $kategori)
-                                <option value="{{ $kategori->id }}" {{ old('kategori', $produk->kategori_produk->id) == $kategori->id ? 'selected' : '' }}>{{ $kategori->nama }}</option>
+                                <option value="{{ $kategori->id }}" @selected(old('kategori', $produk->kategori_produk?->id) == $kategori->id)>{{ $kategori->nama }}</option>
                                 @endforeach
                         </select>
                         @error('kategori')
@@ -78,7 +80,7 @@
                         <select class="form-select @error('brand') is-invalid @enderror" id="brand" name="brand" required>
                             <option value="" disabled selected>Pilih</option>
                             @foreach ($brands as $brand)
-                            <option value="{{ $brand->id }}" {{ old('brand', $produk->brand->id) == $brand->id ? 'selected' : '' }}>{{ $brand->nama }}</option>
+                            <option value="{{ $brand->id }}" @selected(old('brand', $produk->brand?->id) == $brand->id)>{{ $brand->nama }}</option>
                             @endforeach
                         </select>
                         @error('brand')
@@ -90,7 +92,7 @@
                         <select class="form-select @error('unit') is-invalid @enderror" id="unit" name="unit" required>
                             <option value="" disabled selected>Pilih</option>
                             @foreach ($units as $unit)
-                                <option value="{{ $unit->id }}" {{ old('unit', $produk->unit->id) == $unit->id ? 'selected' : '' }}>{{ $unit->nama }} </option>
+                                <option value="{{ $unit->id }}" @selected(old('unit', $produk->unit?->id) == $unit->id)>{{ $unit->nama }} </option>
                             @endforeach
                         </select>
                         @error('unit')
@@ -142,7 +144,7 @@
                         <select class="form-select @error('garansi') is-invalid @enderror" id="garansi" name="garansi">
                             <option value="" disabled selected>Pilih</option>
                              @foreach ($garansis as $garansi)
-                                    <option value="{{ $garansi->id }}" {{ old('garansi', $produk->garansi->id) == $garansi->id ? 'selected' : '' }}>{{ $garansi->nama }} </option>
+                                    <option value="{{ $garansi->id }}" @selected(old('garansi', $produk->garansi?->id) == $garansi->id)>{{ $garansi->nama }} </option>
                                 @endforeach
                         </select>
                         @error('garansi')
@@ -162,13 +164,12 @@
         </div>
 
         {{-- gambar --}}
-        <div class="card m-4">
-            <div class="card-header">
+        <div class="card m-4 w-md-50">
+            <div class="card-header mb-n5">
                 <h6 class="">Gambar Produk</h6>
             </div>
-            <div class="card-body">
-                {{-- Perintah kerja dengan instruksi tambahan: "muat gambar lama dari URL ini" --}}
-                <input type="text" class="filepond filepond-square" name="img_produk" data-file-url="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : '' }}">
+            <div class="card-body" >
+                <input  type="file" class="filepond" name="img_produk" id="image" style="max-height: 100px;">
             </div>
         </div>
 
@@ -181,6 +182,13 @@
 
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // quill
@@ -204,6 +212,48 @@
                     fetch('/dashboard/produk/chekSlug?nama_produk=' + nama_produk.value)
                         .then(response => response.json())
                         .then(data => slug.value = data.slug)
+                });
+
+                // FilePond
+                FilePond.registerPlugin(
+                    FilePondPluginImagePreview,
+                    FilePondPluginFileValidateSize,
+                    FilePondPluginImageCrop,
+                    FilePondPluginFileValidateType,
+                    FilePondPluginImageTransform // Daftarkan plugin transform
+                );
+
+                const inputElement = document.querySelector('input[id="image"]');
+                const pond = FilePond.create(inputElement, {
+                    labelIdle: `Seret & Lepas gambar Anda atau <span class="filepond--label-action">Cari</span>`,
+                    allowImagePreview: true,
+                    imagePreviewHeight: 170,
+                    allowFileSizeValidation: true,
+                    maxFileSize: '2MB',
+                    allowImageCrop: true,
+                    imageCropAspectRatio: '1:1',
+                    acceptedFileTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+                    labelFileTypeNotAllowed: 'Jenis file tidak valid.',
+                    labelMaxFileSizeExceeded: 'Ukuran file terlalu besar',
+                    labelMaxFileSize: 'Ukuran file maksimum adalah {filesize}',
+                    server: {
+                        process: {
+                            url: '/dashboard/produk/upload',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        },
+                        // Anda bisa menambahkan endpoint 'revert' di sini
+                    },
+                    files: [
+                        @if($produk->img_produk)
+                        {
+                            source: '{{ $produk->img_produk }}', // Path di storage
+                            options: {
+                                type: 'local', // Menandakan file sudah ada di server
+                                metadata: { poster: '{{ asset('storage/' . $produk->img_produk) }}' } // URL untuk preview
+                            }
+                        }
+                        @endif
+                    ]
                 });
             });
         </script>

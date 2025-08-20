@@ -11,35 +11,56 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    <div class="card m-4 p-3">
-        <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
-            <p class="text-dark ms-2 my-0">{{ $produk->sku }}</p>
-            <a href="javascript:;" class="d-block">
-            <img src="{{ $produk->user->img_user }}" class="w-10 h-10 border-radius-lg">
-            </a>
+    <div class="card m-4">
+        <div class="card-header pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Detail Produk: {{ $produk->nama_produk }}</h5>
+                <div>
+                    <a href="{{ route('produk.edit', $produk->slug) }}" class="btn btn-sm btn-info mb-0">Edit</a>
+                    <a href="{{ route('produk.index') }}" class="btn btn-sm btn-outline-secondary mb-0">Kembali</a>
+                </div>
+            </div>
         </div>
-        <div class="card-body pt-2">
-            <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{ $produk->brand->nama }}</span>
-            <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{ $produk->kategori_produk->nama }}</span>
-            <a href="javascript:;" class="card-title h5 d-block text-darker">
-            {{ $produk->nama }}
-            </a>
-            <h3 class=" mb-4"> Rp.{{ $produk->harga_formatted }}</h3>
-            <div class="author align-items-center">
-                <img src="{{ $produk->user->img_user }}" alt="..." class="avatar shadow">
-                <div class="name ps-3">
-                    <span>{{ $produk->user->nama }}</span>
-                    <div class="stats">
-                        <p class="text-dark">sisa produk <small class=" fw-bold text-dark">{{ $produk->qty }}</small></p>
+        <div class="card-body">
+            <div class="row">
+                {{-- Kolom Kiri: Detail Produk dalam Tabel --}}
+                <div class="col-lg-7">
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr><td class="fw-bold" style="width: 30%;">Nama Produk</td><td>: {{ $produk->nama_produk }}</td></tr>
+                                <tr><td class="fw-bold">SKU (Stock Keeping Unit)</td><td>: {{ $produk->sku }}</td></tr>
+                                <tr><td class="fw-bold">Barcode</td><td>: {{ $produk->barcode ?? '-' }}</td></tr>
+                                <tr><td class="fw-bold">Kategori</td><td>: {{ $produk->kategori_produk->nama }}</td></tr>
+                                <tr><td class="fw-bold">Brand</td><td>: {{ $produk->brand->nama }}</td></tr>
+                                <tr><td class="fw-bold">Unit</td><td>: {{ $produk->unit->nama }}</td></tr>
+                                <tr><td class="fw-bold">Harga</td><td>: Rp.{{ number_format($produk->harga, 0, ',', '.') }}</td></tr>
+                                <tr><td class="fw-bold">Stok Saat Ini</td><td>: {{ $produk->qty }}</td></tr>
+                                <tr><td class="fw-bold">Stok Minimum</td><td>: {{ $produk->stok_minimum }}</td></tr>
+                                <tr><td class="fw-bold">Garansi</td><td>: {{ $produk->garansi?->nama ?? 'Tidak ada garansi' }}</td></tr>
+                                <tr><td class="fw-bold">Dibuat oleh</td><td>: {{ $produk->user->nama }}</td></tr>
+                                <tr>
+                                    <td class="fw-bold align-text-top">Deskripsi</td>
+                                    <td class="align-text-top">: {!! $produk->deskripsi ?? '-' !!}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Kolom Kanan: Gambar Produk --}}
+                <div class="col-lg-5 mt-4 mt-lg-0">
+                    <h5 class="ms-2">Gambar Produk :</h5>
+                    <div class="text-start ms-2 my-3">
+                        @if($produk->img_produk && Storage::disk('public')->exists($produk->img_produk))
+                            <img src="{{ asset('storage/' . $produk->img_produk) }}" class="img-fluid border-radius-lg shadow-lg" style="max-height: 500px;" alt="Gambar Produk {{ $produk->nama_produk }}">
+                        @else
+                            <img src="https://via.placeholder.com/400x400.png/f8f9fa/6c757d?text=Tidak+Ada+Gambar" class="img-fluid border-radius-lg" alt="Tidak ada gambar">
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
-        <a href="/produk">
-            <button class="btn btn-sm btn-outline-danger">Back</button>
-        </a>
     </div>
 
 </x-layout>
-
-

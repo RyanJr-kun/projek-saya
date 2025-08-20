@@ -8,8 +8,11 @@ use App\Models\Produk;
 use App\Models\Garansi;
 use Illuminate\Http\Request;
 use App\Models\KategoriProduk;
+use App\Models\TempFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
 
@@ -44,7 +47,6 @@ class ProdukController extends Controller
 
     public function store(Request $request)
     {
-
         $validatedData = $request->validate([
             'nama_produk' => 'required|string|max:255',
             'slug' => 'required|string|unique:produks,slug',
@@ -67,14 +69,13 @@ class ProdukController extends Controller
         $validatedData['unit_id'] = $validatedData['unit'];
         $validatedData['garansi_id'] = $validatedData['garansi'];
 
+        // Pindahkan gambar dari temp ke folder produk
         if ($request->img_produk) {
-            $tempPath = $request->img_produk; // Contoh: "tmp/produk/xyz.jpg"
-
-            // Pastikan file benar-benar ada di folder temporer
+            $tempPath = $request->img_produk;
             if (Storage::disk('public')->exists($tempPath)) {
-                $newPath = str_replace('tmp/', '', $tempPath); // Ganti jadi "produk/xyz.jpg"
-                Storage::disk('public')->move($tempPath, $newPath); // Pindahkan file
-                $validatedData['img_produk'] = $newPath; // Simpan path final ke database
+                $newPath = str_replace('tmp/produk/', 'produk/', $tempPath);
+                Storage::disk('public')->move($tempPath, $newPath);
+                $validatedData['img_produk'] = $newPath;
             }
         }
 
@@ -138,22 +139,24 @@ class ProdukController extends Controller
         $validatedData['unit_id'] = $validatedData['unit'];
         $validatedData['garansi_id'] = $validatedData['garansi'];
 
-         $newImagePath = $request->img_produk;
-
-        // Cek jika ada path gambar baru yang dikirim DAN path itu berbeda dari yang lama
-        if ($newImagePath && $newImagePath !== $produk->img_produk) {
-
-            // 1. Hapus gambar lama dari storage jika ada
+        // Cek apakah ada gambar baru yang diunggah (path dimulai dengan 'tmp/')
+        if ($request->filled('img_produk') && str_starts_with($request->img_produk, 'tmp/')) {
+            $tempPath = $request->img_produk;
+            if (Storage::disk('public')->exists($tempPath)) {
+                // Hapus gambar lama jika ada
+                if ($produk->img_produk && Storage::disk('public')->exists($produk->img_produk)) {
+                    Storage::disk('public')->delete($produk->img_produk);
+                }
+                // Pindahkan gambar baru dari tmp ke folder produk
+                $newPath = str_replace('tmp/produk/', 'produk/', $tempPath);
+                Storage::disk('public')->move($tempPath, $newPath);
+                $validatedData['img_produk'] = $newPath;
+            }
+        // Cek jika pengguna menghapus gambar (input ada tapi nilainya kosong/null)
+        } elseif ($request->exists('img_produk') && $request->input('img_produk') === null) {
             if ($produk->img_produk && Storage::disk('public')->exists($produk->img_produk)) {
                 Storage::disk('public')->delete($produk->img_produk);
-            }
-
-            // 2. Pindahkan gambar baru dari folder tmp ke folder final
-            $tempPath = $newImagePath;
-            if (Storage::disk('public')->exists($tempPath)) {
-                $finalPath = str_replace('tmp/', '', $tempPath);
-                Storage::disk('public')->move($tempPath, $finalPath);
-                $validatedData['img_produk'] = $finalPath; // Simpan path baru
+                $validatedData['img_produk'] = null;
             }
         }
 
@@ -180,5 +183,21 @@ class ProdukController extends Controller
     {
         $slug = SlugService::createSlug(Produk::class, 'slug', $request->nama_produk );
         return response()->json(['slug' => $slug]);
+    }
+
+    public function upload(Request $request)
+    {
+        if ($request->hasFile('img_produk')) {
+            $request->validate([
+                'img_produk' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+            $file = $request->file('img_produk');
+            // Simpan ke storage/app/public/tmp/produk
+            $path = $file->store('tmp/produk', 'public');
+            // Kembalikan path sebagai response text, FilePond akan menangkap ini
+            return $path;
+        }
+        // Jika gagal
+        return response('Gagal mengunggah.', 500);
     }
 }

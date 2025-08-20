@@ -4,7 +4,7 @@
     <div class="sidenav-header">
       <i class="bi bi-x-lg p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
       <a class="navbar-brand m-0" href="/dashboard" target="_blank">
-        <img src="../assets/img/logo.svg" width="40px" height="40px" class="navbar-brand-img h-100" alt="main_logo">
+        <img src="{{ asset('assets/img/logo.svg') }}" width="40px" height="40px" class="navbar-brand-img h-100" alt="main_logo">
         <span class="ms-1 font-weight-bold">Computer POS</span>
       </a>
     </div>

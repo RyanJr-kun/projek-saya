@@ -1,6 +1,8 @@
 <x-layout>
     @push('styles')
         <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
     @endpush
     @section('breadcrumb')
         @php
@@ -15,7 +17,7 @@
     @endsection
 
     {{-- Form Isian --}}
-    <form method="post" action="{{ route('produk.store') }}">
+    <form id="addform" method="post" action="{{ route('produk.store') }} " enctype="multipart/form-data">
         @csrf
         <div class="card m-4">
             <div class="card-header pt-3 pb-0 mb-0 ">
@@ -60,7 +62,7 @@
                         <select class="form-select @error('kategori') is-invalid @enderror" name="kategori" id="kategori" placeholder="Departure" required>
                             <option value="" disabled selected>Pilih</option>
                             @foreach ($kategoris as $kategori)
-                                <option value="{{ $kategori->id }}" {{ old('kategori') == $kategori->id ? 'selected' : '' }}>{{ $kategori->nama }}</option>
+                                <option value="{{ $kategori->id }}" @selected(old('kategori') == $kategori->id)>{{ $kategori->nama }}</option>
                                 @endforeach
                         </select>
                         @error('kategori')
@@ -73,7 +75,7 @@
                         <select class="form-select @error('brand') is-invalid @enderror" id="brand" name="brand" required>
                             <option value="" disabled selected>Pilih</option>
                             @foreach ($brands as $brand)
-                            <option value="{{ $brand->id }}" {{ old('brand') == $brand->id ? 'selected' : '' }}>{{ $brand->nama }}</option>
+                            <option value="{{ $brand->id }}" @selected(old('brand') == $brand->id)>{{ $brand->nama }}</option>
                             @endforeach
                         </select>
                         @error('brand')
@@ -86,7 +88,7 @@
                         <select class="form-select @error('unit') is-invalid @enderror" id="unit" name="unit" required>
                             <option value="" disabled selected>Pilih</option>
                             @foreach ($units as $unit)
-                                <option value="{{ $unit->id }}" {{ old('unit') == $unit->id ? 'selected' : '' }}>{{ $unit->nama }} </option>
+                                <option value="{{ $unit->id }}" @selected(old('unit') == $unit->id)>{{ $unit->nama }} </option>
                             @endforeach
                         </select>
                         @error('unit')
@@ -136,7 +138,7 @@
                         <select class="form-select @error('garansi') is-invalid @enderror" id="garansi" name="garansi">
                             <option value="" disabled selected>Pilih</option>
                              @foreach ($garansis as $garansi)
-                                    <option value="{{ $garansi->id }}" {{ old('garansi') == $garansi->id ? 'selected' : '' }}>{{ $garansi->nama }} </option>
+                                    <option value="{{ $garansi->id }}" @selected(old('garansi') == $garansi->id)>{{ $garansi->nama }} </option>
                                 @endforeach
                         </select>
                         @error('garansi')
@@ -155,33 +157,32 @@
             </div>
         </div>
 
-        <div class="card m-4">
+        <div class="card m-4 w-md-50">
             <div class="card-header pt-3 pb-0 mb-n3">
                 <h6 class="">Gambar Produk</h6>
             </div>
-            <div class="card-body " >
-                <input type="file"
-       class="filepond"
-       name="filepond"
-       multiple
-       data-max-file-size="300MB"
-       data-max-files="3" />
+            <div class="card-body">
+                <input type="file" class="filepond" name="img_produk" id="image">
             </div>
         </div>
 
         <div class="d-flex justify-content-end mt-3 me-4">
-            <button type="submit" class="btn btn-info">Buat Produk</button>
+            <button id="saveBtn" type="submit" class="btn btn-info">Buat Produk</button>
             <a href="{{ route('produk.index') }}" class="btn btn-danger ms-3">Batalkan</a>
         </div>
     </form>
 
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                FilePond.create(
-                    document.querySelector('input')
-                );
                 // quill
                 const quill = new Quill('#quill-editor', {
                     theme: 'snow',
@@ -196,13 +197,51 @@
                 }
 
                 // slug
-                const nama_produk = document.querySelector('#nama_produk ')
+                const nama_produk = document.querySelector('#nama_produk')
                 const slug = document.querySelector('#slug')
 
-                nama_produk.addEventListener('change', function(){
+                nama_produk.addEventListener('change', function() {
                     fetch('/dashboard/produk/chekSlug?nama_produk=' + nama_produk.value)
                         .then(response => response.json())
                         .then(data => slug.value = data.slug)
+                });
+
+                // FilePond
+                FilePond.registerPlugin(
+                    FilePondPluginImagePreview,
+                    FilePondPluginFileValidateSize,
+                    FilePondPluginImageCrop,
+                    FilePondPluginFileValidateType,
+                    FilePondPluginImageTransform // Daftarkan plugin transform
+                );
+
+                const inputElement = document.querySelector('input[id="image"]');
+                const pond = FilePond.create(inputElement, {
+                    labelIdle: `Seret & Lepas gambar Anda atau <span class="filepond--label-action">Cari</span>`,
+                    // Aktifkan pratinjau gambar
+                    allowImagePreview: true,
+                    imagePreviewHeight: 170,
+                    // Aktifkan validasi ukuran file
+                    allowFileSizeValidation: true,
+                    maxFileSize: '2MB',
+                    // Aktifkan crop gambar
+                    allowImageCrop: true,
+                    imageCropAspectRatio: '1:1',
+                    labelMaxFileSizeExceeded: 'Ukuran file terlalu besar',
+                    labelMaxFileSize: 'Ukuran file maksimum adalah 2MB',
+                    // Validasi tipe file
+                    acceptedFileTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+                    labelFileTypeNotAllowed: 'Jenis file tidak valid. Hanya PNG, JPG, WEBP, dan SVG yang diizinkan.',
+                    server: {
+                        process: {
+                            url: '/dashboard/produk/upload',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        },
+
+                        // Anda bisa menambahkan endpoint 'revert' di sini untuk menghapus file sementara jika dibatalkan
+                    }
                 });
             });
         </script>

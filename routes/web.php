@@ -5,8 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\GaransiController;
 use App\Http\Controllers\PemasokController;
 use App\Http\Controllers\PelangganController;
@@ -41,8 +43,11 @@ Route::get('/dashboard', function () {
 })->middleware('auth')->name('dashboard');
 
 //manajemen Inventaris
+
+//produk
 Route::resource('produk', ProdukController::class)->middleware('auth');
 Route::get('/dashboard/produk/chekSlug', [ProdukController::class, 'chekSlug'])->middleware('auth');
+Route::post('/dashboard/produk/upload', [ProdukController::class, 'upload'])->name('produk.upload')->middleware('auth');
 
 //kategori produk
 Route::get('/kategoriproduk/{kategoriproduk}/json', [KategoriProdukController::class, 'getKategoriJson'])
