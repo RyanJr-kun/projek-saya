@@ -32,25 +32,37 @@ class BrandController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    // app/Http/Controllers/BrandController.php
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-        'img_brand' => 'nullable|image|mimes:jpeg,png|max:1024',
-        'nama' => 'required|max:255|unique:brands',
-        'slug' => 'required|max:255|unique:brands',
-        'status' => 'nullable|boolean',
+            'nama' => 'required|max:255|unique:brands',
+            'slug' => 'required|unique:brands',
+            'status' => 'nullable',
+            'img_brand' => 'nullable|string', // Validasi sebagai string (path dari FilePond)
         ]);
 
-        if ($request->file('img_brand')) {
-        $path = $request->file('img_brand')->store('brand-images', 'public');
-        $validatedData['img_brand'] = $path;
+        // Jika ada file yang diunggah melalui FilePond
+        if ($request->filled('img_brand')) {
+            $sourcePath = $request->input('img_brand'); // Path dari folder tmp
+            $fileName = basename($sourcePath);
+            $destinationPath = 'brand-images/' . $fileName;
+
+            // Pindahkan file dari tmp ke direktori tujuan
+            if (Storage::disk('public')->exists($sourcePath)) {
+                Storage::disk('public')->move($sourcePath, $destinationPath);
+                $validatedData['img_brand'] = $destinationPath; // Simpan path baru
+            }
         }
 
         $validatedData['status'] = $request->has('status');
 
         Brand::create($validatedData);
-        return redirect('/brand')->with('success', 'Pembuatan Data Brand baru berhasil!');
+
+        return response()->json(['message' => 'Brand baru berhasil ditambahkan!'], 201);
     }
+
     /**
      * Display the specified resource.
      */
@@ -74,27 +86,48 @@ class BrandController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, Brand $brand)
     {
         $rules = [
-            'img_brand' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
-            'nama' => ['required', 'max:255', Rule::unique('brands')->ignore($brand->id)],
-            'slug' => ['required', 'max:255', Rule::unique('brands')->ignore($brand->id)],
-            'status' => 'nullable|boolean',
+            'nama' => 'required|max:255|unique:brands,nama,' . $brand->id,
+            'slug' => 'required|unique:brands,slug,' . $brand->id,
+            'status' => 'nullable',
+            'img_brand' => 'nullable|string',
         ];
 
         $validatedData = $request->validate($rules);
-        if ($request->file('img_brand')) {
-            if ($brand->img_brand) {
-                Storage::disk('public')->delete($brand->img_brand);
+
+        // Cek apakah ada file baru yang diunggah
+        if ($request->filled('img_brand')) {
+            $sourcePath = $request->input('img_brand');
+
+            // Pastikan ini adalah file baru dari tmp, bukan path file lama
+            if (strpos($sourcePath, 'tmp/') === 0 && Storage::disk('public')->exists($sourcePath)) {
+                // Hapus gambar lama jika ada
+                if ($brand->img_brand) {
+                    Storage::disk('public')->delete($brand->img_brand);
+                }
+
+                // Pindahkan gambar baru dari tmp ke lokasi permanen
+                $fileName = basename($sourcePath);
+                $destinationPath = 'brand-images/' . $fileName;
+                Storage::disk('public')->move($sourcePath, $destinationPath);
+                $validatedData['img_brand'] = $destinationPath;
             }
-            $path = $request->file('img_brand')->store('brand-images', 'public');
-            $validatedData['img_brand'] = $path;
+        // Menangani kasus jika pengguna menghapus gambar yang ada melalui FilePond
+        } elseif ($request->exists('img_brand') && $request->input('img_brand') === null) {
+            if ($brand->img_brand && Storage::disk('public')->exists($brand->img_brand)) {
+                Storage::disk('public')->delete($brand->img_brand);
+                $validatedData['img_brand'] = null;
+            }
         }
+
         $validatedData['status'] = $request->has('status');
 
         $brand->update($validatedData);
-        return redirect()->route('brand.index')->with('success', 'Data Brand Berhasil Diperbarui!');
+
+        return redirect()->route('brand.index')->with('success', 'Data brand berhasil diperbarui!');
     }
 
     /**
@@ -118,4 +151,39 @@ class BrandController extends Controller
         return response()->json(['slug' => $slug]);
     }
 
+    /**
+     * Menangani unggahan file sementara dari FilePond.
+     */
+    public function upload(Request $request)
+    {
+        if ($request->hasFile('img_brand')) {
+            $request->validate([
+                'img_brand' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+
+            $file = $request->file('img_brand');
+            // Simpan file ke direktori 'tmp' di dalam 'storage/app/public'
+            $path = $file->store('tmp/brand-images', 'public');
+
+            // Kembalikan path file sebagai plain text
+            return $path;
+        }
+
+        // Jika tidak ada file, kembalikan response error
+        return response()->json(['error' => 'No file uploaded.'], 400);
+    }
+
+    /**
+     * Menangani pembatalan unggahan file dari FilePond.
+     */
+    public function revert(Request $request)
+    {
+        $filePath = $request->getContent();
+        if ($filePath && Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
+            return response()->noContent();
+        }
+
+        return response()->json(['error' => 'File not found.'], 404);
+    }
 }

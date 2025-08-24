@@ -37,15 +37,20 @@ class KategoriProdukController extends Controller
             'status' => 'nullable|boolean',
         ]);
 
-        if ($request->file('img_kategori')) {
-        $path = $request->file('img_kategori')->store('kategori-images', 'public');
-        $validatedData['img_kategori'] = $path;
+        // Pindahkan gambar dari temp ke folder produk
+        if ($request->img_kategori) {
+            $tempPath = $request->img_kategori;
+            if (Storage::disk('public')->exists($tempPath)) {
+                $newPath = str_replace('tmp/kategori-images/', 'kategori-images/', $tempPath);
+                Storage::disk('public')->move($tempPath, $newPath);
+                $validatedData['img_kategori'] = $newPath;
+            }
         }
 
         $validatedData['status'] = $request->has('status');
 
         KategoriProduk::create($validatedData);
-        return redirect('/kategoriproduk')->with('success', 'Pembuatan kategori produk baru berhasil!');
+        return redirect('/kategoriproduk')->with('success', 'Kategori produk baru berhasil ditambahkan');
     }
 
     /**

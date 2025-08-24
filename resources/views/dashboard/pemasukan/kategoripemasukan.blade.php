@@ -238,7 +238,6 @@
                 </div>
             </div>
         </div>
-        <x-footer></x-footer>
     </div>
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>

@@ -1,5 +1,11 @@
 <x-layout>
     {{-- breadcrumb --}}
+    @push('styles')
+        <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+        <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
+    @endpush
+
     @section('breadcrumb')
         @php
         $breadcrumbItems = [
@@ -8,35 +14,26 @@
         ];
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
+
     @endsection
     {{-- notif-success --}}
-    @if (session()->has('success'))
+    @if (session()->has('success') || session()->has('error'))
+        @php
+            $toastType = session()->has('success') ? 'success' : 'error';
+            $toastMessage = session('success') ?? session('error');
+            $toastHeaderBg = $toastType === 'success' ? 'bg-success' : 'bg-warning';
+            $toastIcon = $toastType === 'success' ? 'fa fa-thumbs-up' : 'bi bi-exclamation-triangle';
+        @endphp
         <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-success text-white">
-                    <span class="alert-icon text-light me-2"><i class="fa fa-thumbs-up"></i></span>
+            <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header {{ $toastHeaderBg }} text-white">
+                    <span class="alert-icon text-light me-2"><i class="{{ $toastIcon }}"></i></span>
                     <strong class="me-auto">Notifikasi</strong>
                     <small class="text-light">Baru saja</small>
                     <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
                 <div class="toast-body">
-                    {{ session('success') }}
-                </div>
-            </div>
-        </div>
-    @endif
-    {{-- notif-error --}}
-    @if (session()->has('error'))
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-warning text-white">
-                    <span class="alert-icon text-light me-2"><i class="bi bi-exclamation-triangle"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ session('error') }}
+                    {{ $toastMessage }}
                 </div>
             </div>
         </div>
@@ -145,6 +142,7 @@
                 </div>
             </div>
         </div>
+
         {{-- modal-create --}}
         <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -154,40 +152,23 @@
                         <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ route('brand.store') }}" method="post" enctype="multipart/form-data">
+                        <form id="createBrandForm" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
-                                <div class="col-md-5">
-                                    <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                                        <div id="imagePreviewBox"
-                                            class="border rounded p-2 d-flex justify-content-center align-items-center position-relative"
-                                            style="height: 150px; width: 150px; border-style: dashed !important; border-width: 2px !important;">
-                                            <div class="text-center text-muted">
-                                                <i class="bi bi-cloud-arrow-up-fill fs-1"></i>
-                                                <p class="mb-0 small mt-2">Pratinjau Gambar</p>
-                                            </div>
-                                        </div>
-                                        <div class="mt-3 text-center">
-                                            <label for="img" class="btn btn-outline-primary">Pilih Gambar</label>
-                                            <input type="file" id="img" name="img_brand" class="d-none" accept="image/jpeg, image/png">
-                                            <p class="text-sm">JPEG, PNG maks 1MB</p>
-                                        </div>
-                                    </div>
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <p class="text-dark fw-bold ">Gambar Brand:</p>
+                                    <input type="file" class="filepond" name="img_brand" id="img_brand_create">
                                 </div>
-                                <div class="col-md-7">
-                                    <div class="mb-3">
+                                <div class="col-md-6">
+                                    <div class="mt-md-4">
                                         <label for="nama" class="form-label">Brand</label>
                                         <input id="nama" name="nama" type="text" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
-                                        @error('nama')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <div class="invalid-feedback" id="nama-error"></div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="slug" class="form-label">Slug</label>
                                         <input id="slug" name="slug" type="text" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug') }}" required>
-                                        @error('slug')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <div class="invalid-feedback" id="slug-error"></div>
                                     </div>
 
                                     <div class="justify-content-end form-check form-switch form-check-reverse">
@@ -198,14 +179,15 @@
                             </div>
 
                             <div class="modal-footer border-0 pb-0 mt-3">
-                                <button type="submit" class="btn btn-info btn-sm">Buat Brand</button>
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
+                                <button type="button" id="submit-create-button" class="btn btn-info btn-sm">Buat Brand</button>
+                                <button type="button" id="cancel-create-button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+
         {{-- modal edit --}}
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -219,31 +201,20 @@
                             @method('put')
                             @csrf
                             <div class="row">
-                                <div class="col-md-5">
-                                    <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                                        <div id="editImagePreviewBox" class="border rounded p-2 d-flex justify-content-center align-items-center position-relative" style="height: 150px; width: 150px; border-style: dashed !important; border-width: 2px !important;">
-                                            <div class="text-center text-muted">
-                                                <i class="bi bi-cloud-arrow-up-fill fs-1"></i>
-                                                <p class="mb-0 small mt-2">Pratinjau Gambar</p>
-                                            </div>
-                                        </div>
-                                        <div class="mt-3 text-center">
-                                            <label for="edit_img_brand" class="btn btn-outline-primary">Ubah Gambar</label>
-                                            <input type="file" id="edit_img_brand" name="img_brand" class="d-none" accept="image/jpeg, image/png">
-                                            <p class="text-sm">JPEG, PNG maks 2MB</p>
-                                        </div>
-                                    </div>
+                                <div class="col-md-6">
+                                    <p class="text-dark fw-bold ">Gambar Brand:</p>
+                                    <input type="file" class="filepond" name="img_brand" id="img_brand_edit">
                                 </div>
 
                                 <!-- Kolom Kanan untuk Input Teks -->
-                                <div class="col-md-7">
-                                    <div class="mb-3">
+                                <div class="col-md-6">
+                                    <div class="mt-4">
                                         <label for="edit_nama" class="form-label">Nama</label>
                                         <input id="edit_nama" name="nama" type="text" class="form-control" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="edit_slug" class="form-label">Slug</label>
-                                        <input id="edit_slug" name="slug" type="text" class="form-control" required readonly>
+                                        <input id="edit_slug" name="slug" type="text" class="form-control" required>
                                     </div>
                                     <div class="justify-content-end form-check form-switch form-check-reverse mt-4">
                                         <label class="me-auto form-check-label" for="edit_status">Status</label>
@@ -253,7 +224,7 @@
                             </div>
                             <div class="modal-footer border-0 pb-0 mt-3">
                                 <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
+                                <button type="button" id="cancel-edit-button" class="btn btn-danger btn-sm" onclick="location.reload();">Batalkan</button>
                             </div>
                         </form>
                     </div>
@@ -280,37 +251,59 @@
                 </div>
             </div>
         </div>
-        <x-footer></x-footer>
     </div>
 @push('scripts')
+    {{-- FilePond Scripts --}}
+    <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // --- FUNGSI GLOBAL ---
-            // Fungsi untuk menampilkan pratinjau gambar
-            function previewImage(fileInput, previewBox) {
-                const file = fileInput.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewBox.innerHTML = `<img src="${e.target.result}" alt="Image Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">`;
-                    }
-                    reader.readAsDataURL(file);
+            // --- FILEPOND SETUP ---
+            FilePond.registerPlugin(
+                FilePondPluginImagePreview,
+                FilePondPluginFileValidateSize,
+                FilePondPluginImageCrop,
+                FilePondPluginFileValidateType,
+                FilePondPluginImageTransform
+            );
+
+            // Setup FilePond untuk modal create
+            const createPond = FilePond.create(document.querySelector('#img_brand_create'), {
+                labelIdle: `Seret & Lepas atau <span class="filepond--label-action">Cari</span>`,
+                // Aktifkan pratinjau gambar
+                allowImagePreview: true,
+                // Aktifkan validasi ukuran file
+                allowFileSizeValidation: true,
+                maxFileSize: '2MB',
+                // Aktifkan crop gambar
+                allowImageCrop: true,
+                imageCropAspectRatio: '1:1',
+                // stylePanelAspectRatio: '1:1',
+                labelMaxFileSizeExceeded: 'Ukuran file terlalu besar',
+                labelMaxFileSize: 'Ukuran file maksimum adalah 2MB',
+                acceptedFileTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+                labelFileTypeNotAllowed: 'Jenis file tidak valid. Hanya PNG, JPG, WEBP, dan SVG yang diizinkan.',
+                server: {
+                    process: {
+                        url: '/dashboard/brand/upload', // Pastikan route ini ada
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                    },
+                        revert: {
+                            url: '/dashboard/brand/revert',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        }
                 }
-            }
+            });
 
             // --- MODAL CREATE ---
-            const hasError = document.querySelector('.is-invalid');
-            if (hasError) {
-                var importModal = new bootstrap.Modal(document.getElementById('import'));
-                importModal.show();
-            }
-
             const createModal = document.getElementById('import');
             if (createModal) {
                 const namaInput = createModal.querySelector('#nama');
                 const slugInput = createModal.querySelector('#slug');
-                const imageInput = createModal.querySelector('#img');
-                const imagePreviewBox = createModal.querySelector('#imagePreviewBox');
 
                 // Event listener untuk slug otomatis
                 namaInput.addEventListener('change', function() {
@@ -319,29 +312,103 @@
                         .then(data => slugInput.value = data.slug);
                 });
 
-                // Event listener untuk pratinjau gambar
-                imageInput.addEventListener('change', function() {
-                    previewImage(this, imagePreviewBox);
-                });
-
                 // Tampilkan modal jika ada error validasi dari server
                 const hasError = document.querySelector('.is-invalid');
                 if (hasError) {
-                    var importModal = new bootstrap.Modal(createModal);
-                    importModal.show();
+                    var createModalInstance = new bootstrap.Modal(createModal);
+                    createModalInstance.show();
+                }
+
+                // Logika tombol batalkan di modal create
+                const cancelCreateBtn = createModal.querySelector('#cancel-create-button');
+                if (cancelCreateBtn) {
+                    cancelCreateBtn.addEventListener('click', function(e) {
+                        e.preventDefault(); // Mencegah navigasi langsung
+
+                        const files = pond.getFiles();
+                        if (files.length === 0) {
+                            // Jika tidak ada file di FilePond, langsung navigasi
+                            window.location.href = this.href;
+                            return;
+                        }
+                        // Ambil file pertama (karena ini bukan multiple upload)
+                        const file = files[0];
+                        // serverId berisi path yang dikembalikan oleh server saat upload
+                        const serverId = file.serverId;
+
+                        if (!serverId) {
+                            // File belum selesai diunggah atau gagal, langsung navigasi
+                            window.location.href = this.href;
+                            return;
+                        }
+
+                        // Kirim permintaan DELETE secara manual untuk menghapus file di server
+                        fetch('{{ route("brand.revert") }}', {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: serverId
+                        }).finally(() => {
+                            window.location.href = this.href;
+                        });
+                    });
+                }
+
+
+                // Logika submit form create via AJAX
+                const createForm = document.getElementById('createBrandForm');
+                const submitCreateBtn = document.getElementById('submit-create-button');
+
+                if (submitCreateBtn) {
+                    submitCreateBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(createForm);
+
+                        // Reset error states
+                        createForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                        createForm.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+                        fetch('{{ route("brand.store") }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json' // Penting untuk memberitahu Laravel kita mau JSON
+                            },
+                            body: formData
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                // Jika berhasil, reload halaman untuk melihat data baru
+                                window.location.reload();
+                            } else if (response.status === 422) {
+                                // Jika ada error validasi
+                                return response.json().then(data => {
+                                    Object.keys(data.errors).forEach(key => {
+                                        const input = createForm.querySelector(`[name="${key}"]`);
+                                        const errorDiv = createForm.querySelector(`#${key}-error`);
+                                        if (input) {
+                                            input.classList.add('is-invalid');
+                                        }
+                                        if (errorDiv) {
+                                            errorDiv.textContent = data.errors[key][0];
+                                        }
+                                    });
+                                });
+                            }
+                        })
+                        .catch(error => console.error('An unexpected error occurred:', error));
+                    });
                 }
             }
 
             // --- MODAL EDIT ---
             const editModal = document.getElementById('editModal');
+            let editPond = null; // Untuk menyimpan instance FilePond modal edit
+
             if (editModal) {
                 const editForm = editModal.querySelector('#editBrandForm');
                 const inputNama = editModal.querySelector('#edit_nama');
                 const inputSlug = editModal.querySelector('#edit_slug');
                 const inputStatus = editModal.querySelector('#edit_status');
-                const imageInput = editModal.querySelector('#edit_img_brand');
-                const imagePreviewBox = editModal.querySelector('#editImagePreviewBox');
-                const defaultPreview = `<div class="text-center text-muted"><i class="bi bi-cloud-arrow-up-fill fs-1"></i><p class="mb-0 small mt-2">Pratinjau Gambar</p></div>`;
 
                 // Event listener untuk menampilkan modal edit
                 editModal.addEventListener('show.bs.modal', function (event) {
@@ -359,12 +426,47 @@
                             inputSlug.value = data.slug;
                             inputStatus.checked = data.status == 1;
 
-                            // Tampilkan gambar yang sudah ada atau placeholder
-                            if (data.img_brand) {
-                                imagePreviewBox.innerHTML = `<img src="/storage/${data.img_brand}" alt="${data.nama}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">`;
-                            } else {
-                                imagePreviewBox.innerHTML = defaultPreview;
+                            // Hancurkan instance FilePond lama jika ada
+                            if (editPond) {
+                                editPond.destroy();
                             }
+
+                            const pondFiles = [];
+                          if (data.img_brand) {
+                                pondFiles.push({
+                                    source: data.img_brand,
+                                    options: {
+                                        type: 'local',
+                                        metadata: { poster: `/storage/${data.img_brand}` }
+                                    }
+                                });
+                            }
+
+                            // Buat instance FilePond baru untuk modal edit
+                            editPond = FilePond.create(document.querySelector('#img_brand_edit'), {
+                                labelIdle: `Seret & Lepas atau <span class="filepond--label-action">Cari</span>`,
+                                files: pondFiles,
+                                allowImagePreview: true,
+                                allowFileSizeValidation: true,
+                                maxFileSize: '2MB',
+                                allowImageCrop: true,
+                                imageCropAspectRatio: '1:1',
+                                // stylePanelAspectRatio: '1:1',
+                                acceptedFileTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+                                labelFileTypeNotAllowed: 'Jenis file tidak valid.',
+                                labelMaxFileSizeExceeded: 'Ukuran file terlalu besar',
+                                labelMaxFileSize: 'Ukuran file maksimum adalah 2MB',
+                                server: {
+                                    process: {
+                                        url: '/dashboard/brand/upload', // Pastikan route ini ada
+                                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                    },
+                                    revert: {
+                                        url: '/dashboard/brand/revert',
+                                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                    }
+                                }
+                            });
                         })
                         .catch(error => console.error('Error fetching brand data:', error));
                 });
@@ -376,10 +478,32 @@
                         .then(data => inputSlug.value = data.slug);
                 });
 
-                // Event listener untuk pratinjau gambar di modal edit
-                imageInput.addEventListener('change', function() {
-                    previewImage(this, imagePreviewBox);
-                });
+                // Logika tombol batalkan di modal edit
+                const cancelEditBtn = editModal.querySelector('#cancel-edit-button');
+                if (cancelEditBtn) {
+                    cancelEditBtn.addEventListener('click', function(e) {
+                        e.preventDefault(); // Mencegah navigasi langsung
+                        // Cari file yang BARU diunggah oleh pengguna dan sudah selesai diproses
+                        const newFile = pond.getFiles().find(file =>
+                            file.origin === FilePond.FileOrigin.INPUT &&
+                            file.status === FilePond.FileStatus.PROCESSING_COMPLETE
+                        );
+                        if (newFile && newFile.serverId) {
+                            // Jika ada file baru yang sudah diunggah, hapus dulu dari server
+                            fetch('{{ route("produk.revert") }}', {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: newFile.serverId
+                            }).finally(() => {
+                                window.location.href = this.href;
+                            });
+                        } else {
+                            window.location.href = this.href;
+                        }
+                    });
+                }
             }
 
             // --- MODAL DELETE ---
@@ -424,7 +548,7 @@
                 for (let i = 0; i < rows.length; i++) {
                     const row = rows[i];
                     const namaCell = row.cells[0];
-                    const statusCell = row.cells[2]; // Status ada di kolom ke-3 (index 2)
+                    const statusCell = row.cells[3]; // Status ada di kolom ke-4 (index 3)
 
                     if (namaCell && statusCell) {
                         const namaText = namaCell.textContent.toLowerCase().trim();
@@ -443,16 +567,9 @@
             }
 
             // toast notif success
-            var succesToast = document.getElementById('successToast');
-            if (succesToast) {
-                var toast = new bootstrap.Toast(succesToast);
-                toast.show();
-            }
-
-            // toast notif error
-            var errorToast = document.getElementById('errorToast');
-            if (errorToast) {
-                var toast = new bootstrap.Toast(errorToast);
+            const notificationToastEl = document.getElementById('notificationToast');
+            if (notificationToastEl) {
+                const toast = new bootstrap.Toast(notificationToastEl);
                 toast.show();
             }
 
@@ -465,4 +582,3 @@
     </script>
 @endpush
 </x-layout>
-

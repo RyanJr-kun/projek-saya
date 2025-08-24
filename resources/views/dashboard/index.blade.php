@@ -323,7 +323,6 @@
                 </div>
             </div>
         </div>
-        <x-footer></x-footer>
     </div>
 @push('scripts')
     <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>

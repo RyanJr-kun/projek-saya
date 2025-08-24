@@ -105,7 +105,7 @@
                 {{-- Tombol Aksi --}}
                 <div class="d-flex justify-content-end pt-3 mt-3">
                     <button type="submit" class="btn btn-info">Buat User</button>
-                    <a href="{{ route('users.index') }}" class="btn btn-danger ms-3">Batalkan</a>
+                    <a href="{{ route('users.index') }}" id="cancel-button" class="btn btn-danger ms-3">Batalkan</a>
                 </div>
             </form>
         </div>
@@ -145,9 +145,50 @@
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         }
-                    }
+                    },
+                    revert: {
+                            url: '/dashboard/users/revert',
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        }
                 }
             });
+
+            const cancelButton = document.getElementById('cancel-button');
+            if (cancelButton) {
+                cancelButton.addEventListener('click', function(e) {
+                    e.preventDefault(); // Mencegah navigasi langsung
+
+                    const files = pond.getFiles();
+                    if (files.length === 0) {
+                        // Jika tidak ada file di FilePond, langsung navigasi
+                        window.location.href = this.href;
+                        return;
+                    }
+
+                    // Ambil file pertama (karena ini bukan multiple upload)
+                    const file = files[0];
+                    // serverId berisi path yang dikembalikan oleh server saat upload
+                    const serverId = file.serverId;
+
+                    if (!serverId) {
+                        // File belum selesai diunggah atau gagal, langsung navigasi
+                        window.location.href = this.href;
+                        return;
+                    }
+
+                    // Kirim permintaan DELETE secara manual untuk menghapus file di server
+                    fetch('{{ route("users.revert") }}', {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        body: serverId
+                    }).finally(() => {
+                        window.location.href = this.href;
+                    });
+                });
+            }
         });
     </script>
     @endpush

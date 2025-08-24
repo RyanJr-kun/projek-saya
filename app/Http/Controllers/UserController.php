@@ -167,4 +167,20 @@ class UserController extends Controller
         // Jika gagal
         return response('Gagal mengunggah.', 500);
     }
+    
+    /**
+     * Menangani pembatalan unggahan file dari FilePond.
+     */
+    public function revert(Request $request)
+    {
+        // FilePond mengirimkan path file sebagai konten body request
+        $filePath = $request->getContent();
+
+        if ($filePath && Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
+            return response()->noContent(); // Berhasil, tidak ada konten untuk dikembalikan
+        }
+
+        return response()->json(['error' => 'File not found or path is missing.'], 404);
+    }
 }

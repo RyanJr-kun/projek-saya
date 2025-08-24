@@ -176,7 +176,7 @@
         {{-- button submit --}}
         <div class="d-flex justify-content-end mt-3 me-4">
             <button type="submit" class="btn btn-info">Edit Produk</button>
-            <a href="{{ route('produk.index') }}" class="btn btn-danger ms-3">Batalkan</a>
+            <a href="{{ route('produk.index') }}" id="cancel-button" class="btn btn-danger ms-3">Batalkan</a>
         </div>
     </form>
 
@@ -188,7 +188,6 @@
         <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
         <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
-
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // quill
@@ -227,8 +226,8 @@
                 const pond = FilePond.create(inputElement, {
                     labelIdle: `Seret & Lepas gambar Anda atau <span class="filepond--label-action">Cari</span>`,
                     allowImagePreview: true,
-                    imagePreviewHeight: 170,
                     allowFileSizeValidation: true,
+                    imagePreviewHeight: 300,
                     maxFileSize: '2MB',
                     allowImageCrop: true,
                     imageCropAspectRatio: '1:1',
@@ -241,7 +240,13 @@
                             url: '/dashboard/produk/upload',
                             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                         },
-                        // Anda bisa menambahkan endpoint 'revert' di sini
+                        revert: {
+                            url: '/dashboard/produk/revert',
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        }
                     },
                     files: [
                         @if($produk->img_produk)
@@ -255,8 +260,33 @@
                         @endif
                     ]
                 });
+                const cancelButton = document.getElementById('cancel-button');
+                if (cancelButton) {
+                    cancelButton.addEventListener('click', function(e) {
+                        e.preventDefault(); // Mencegah navigasi langsung
+                        // Cari file yang BARU diunggah oleh pengguna dan sudah selesai diproses
+                        const newFile = pond.getFiles().find(file =>
+                            file.origin === FilePond.FileOrigin.INPUT &&
+                            file.status === FilePond.FileStatus.PROCESSING_COMPLETE
+                        );
+
+                        if (newFile && newFile.serverId) {
+                            // Jika ada file baru yang sudah diunggah, hapus dulu dari server
+                            fetch('{{ route("produk.revert") }}', {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: newFile.serverId
+                            }).finally(() => {
+                                window.location.href = this.href;
+                            });
+                        } else {
+                            window.location.href = this.href;
+                        }
+                    });
+                }
             });
         </script>
-
     @endpush
 </x-layout>

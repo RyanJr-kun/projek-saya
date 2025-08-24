@@ -116,6 +116,7 @@
             </nav>
             {{ $slot }}
         </main>
+        <x-footer></x-footer>
         {{-- Script untuk scrollbar (khusus Windows) --}}
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -130,5 +131,7 @@
             });
         </script>
         @stack('scripts')
+
     </body>
+
 </html>

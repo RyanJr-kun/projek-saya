@@ -28,6 +28,7 @@ Route::resource('users', UserController::class)
     ->middleware('auth')
     ->parameter('users', 'user:username');
 Route::post('/dashboard/users/upload', [UserController::class, 'upload'])->name('users.upload')->middleware('auth');
+Route::delete('/dashboard/users/revert', [UserController::class, 'revert'])->name('users.revert')->middleware('auth');
 
 // market-beranda
 Route::get('/', function () {
@@ -49,6 +50,7 @@ Route::get('/dashboard', function () {
 Route::resource('produk', ProdukController::class)->middleware('auth');
 Route::get('/dashboard/produk/chekSlug', [ProdukController::class, 'chekSlug'])->middleware('auth');
 Route::post('/dashboard/produk/upload', [ProdukController::class, 'upload'])->name('produk.upload')->middleware('auth');
+Route::delete('/dashboard/produk/revert', [ProdukController::class, 'revert'])->name('produk.revert')->middleware('auth');
 
 //kategori produk
 Route::get('/kategoriproduk/{kategoriproduk}/json', [KategoriProdukController::class, 'getKategoriJson'])
@@ -63,6 +65,8 @@ Route::get('/brand/{brand}/json', [BrandController::class, 'getBrandJson'])
      ->name('brand.getjson');
 Route::resource('brand', BrandController::class)->middleware('auth');
 Route::get('/dashboard/brand/chekSlug', [BrandController::class, 'chekSlug'])->middleware('auth');
+Route::post('/dashboard/brand/upload', [BrandController::class, 'upload'])->name('brand.upload')->middleware('auth');
+Route::delete('/dashboard/brand/revert', [BrandController::class, 'revert'])->name('brand.revert')->middleware('auth');
 
 //unit
 Route::get('/unit/{unit}/json', [UnitController::class, 'getUnitJson'])

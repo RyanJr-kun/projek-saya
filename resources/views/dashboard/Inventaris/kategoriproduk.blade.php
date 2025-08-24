@@ -281,7 +281,6 @@
                 </div>
             </div>
         </div>
-        <x-footer></x-footer>
     </div>
     @push('scripts')
         <script>

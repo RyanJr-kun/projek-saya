@@ -99,7 +99,7 @@
 
                 <div class="d-flex justify-content-end pt-3 mt-3">
                     <button type="submit" class="btn btn-outline-success btn-sm">Perbarui User</button>
-                    <a href="{{ route('users.index') }}" class="btn btn-outline-danger btn-sm ms-3">Batal</a>
+                    <a href="{{ route('users.index') }}" id="cancel-button" class="btn btn-outline-danger btn-sm ms-3">Batal</a>
                 </div>
             </form>
         </div>
@@ -138,7 +138,13 @@
                             url: '{{ route("users.upload") }}',
                             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                         },
-                        // Anda bisa menambahkan endpoint 'revert' di sini
+                        revert: {
+                            url: '/dashboard/users/revert',
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        }
                     },
                     files: [
                         @if($user->img_user)
@@ -152,6 +158,31 @@
                         @endif
                     ]
                 });
+                const cancelButton = document.getElementById('cancel-button');
+                if (cancelButton) {
+                    cancelButton.addEventListener('click', function(e) {
+                        e.preventDefault(); // Mencegah navigasi langsung
+                        // Cari file yang BARU diunggah oleh pengguna dan sudah selesai diproses
+                        const newFile = pond.getFiles().find(file =>
+                            file.origin === FilePond.FileOrigin.INPUT &&
+                            file.status === FilePond.FileStatus.PROCESSING_COMPLETE
+                        );
+                        if (newFile && newFile.serverId) {
+                            // Jika ada file baru yang sudah diunggah, hapus dulu dari server
+                            fetch('{{ route("users.revert") }}', {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: newFile.serverId
+                            }).finally(() => {
+                                window.location.href = this.href;
+                            });
+                        } else {
+                            window.location.href = this.href;
+                        }
+                    });
+                }
             });
         </script>
     @endpush

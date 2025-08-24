@@ -168,7 +168,7 @@
 
         <div class="d-flex justify-content-end mt-3 me-4">
             <button id="saveBtn" type="submit" class="btn btn-info">Buat Produk</button>
-            <a href="{{ route('produk.index') }}" class="btn btn-danger ms-3">Batalkan</a>
+            <a href="{{ route('produk.index') }}" id="cancel-button" class="btn btn-danger ms-3">Batalkan</a>
         </div>
     </form>
 
@@ -220,7 +220,7 @@
                     labelIdle: `Seret & Lepas gambar Anda atau <span class="filepond--label-action">Cari</span>`,
                     // Aktifkan pratinjau gambar
                     allowImagePreview: true,
-                    imagePreviewHeight: 170,
+                    imagePreviewHeight: 300,
                     // Aktifkan validasi ukuran file
                     allowFileSizeValidation: true,
                     maxFileSize: '2MB',
@@ -239,10 +239,50 @@
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             }
                         },
-
+                        revert: {
+                            url: '/dashboard/produk/revert',
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        }
                         // Anda bisa menambahkan endpoint 'revert' di sini untuk menghapus file sementara jika dibatalkan
                     }
                 });
+
+                const cancelButton = document.getElementById('cancel-button');
+                if (cancelButton) {
+                    cancelButton.addEventListener('click', function(e) {
+                        e.preventDefault(); // Mencegah navigasi langsung
+
+                        const files = pond.getFiles();
+                        if (files.length === 0) {
+                            // Jika tidak ada file di FilePond, langsung navigasi
+                            window.location.href = this.href;
+                            return;
+                        }
+
+                        // Ambil file pertama (karena ini bukan multiple upload)
+                        const file = files[0];
+                        // serverId berisi path yang dikembalikan oleh server saat upload
+                        const serverId = file.serverId;
+
+                        if (!serverId) {
+                            // File belum selesai diunggah atau gagal, langsung navigasi
+                            window.location.href = this.href;
+                            return;
+                        }
+
+                        // Kirim permintaan DELETE secara manual untuk menghapus file di server
+                        fetch('{{ route("users.revert") }}', {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: serverId
+                        }).finally(() => {
+                            window.location.href = this.href;
+                        });
+                    });
+                }
             });
         </script>
     @endpush
