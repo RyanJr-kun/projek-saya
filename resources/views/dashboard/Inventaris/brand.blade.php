@@ -16,13 +16,13 @@
         <x-breadcrumb :items="$breadcrumbItems" />
 
     @endsection
-    {{-- notif-success --}}
+    {{-- notif --}}
     @if (session()->has('success') || session()->has('error'))
         @php
             $toastType = session()->has('success') ? 'success' : 'error';
             $toastMessage = session('success') ?? session('error');
             $toastHeaderBg = $toastType === 'success' ? 'bg-success' : 'bg-warning';
-            $toastIcon = $toastType === 'success' ? 'fa fa-thumbs-up' : 'bi bi-exclamation-triangle';
+            $toastIcon = $toastType === 'success' ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-exclamation-triangle';
         @endphp
         <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
             <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -40,109 +40,104 @@
     @endif
 
     <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
-        <div class="row ">
-            <div class="col-12 ">
-                <div class="card mb-4 ">
-                    <div class="card-header pb-0 p-3 mb-3">
-                        <div class="d-flex flex-sm-row justify-content-sm-center align-items-sm-center">
-                            <div class="mb-0">
-                                <h5 class="mb-0">Data Brand</h5>
-                                    <p class="text-sm mb-0">
-                                    Kelola Data Brandmu
-                                </p>
-                            </div>
-                            <div class="ms-auto my-auto mt-lg-0">
-                                <div class="ms-auto mb-0">
-                                    {{-- triger-modal --}}
-                                    <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Brand</button>
-                                </div>
-                            </div>
-                        </div>
+        <div class="card mb-4 ">
+            <div class="card-header pb-0 p-3 mb-3">
+                <div class="d-flex flex-sm-row justify-content-sm-center align-items-sm-center">
+                    <div class="mb-0">
+                        <h5 class="mb-0">Data Brand</h5>
+                            <p class="text-sm mb-0">
+                            Kelola Data Brandmu
+                        </p>
                     </div>
-                    <div class="card-body px-0 pt-0 pb-2">
-                        <div class="filter-container">
-                            <div class="row g-3 align-items-center justify-content-between">
-                                <!-- Filter Pencarian Brand -->
-                                <div class="col-5 col-lg-3 ms-3">
-                                    <input type="text" id="searchInput" class="form-control" placeholder="cari Brand ...">
-                                </div>
-                                <!-- Filter Dropdown Status -->
-                                <div class="col-5 col-lg-2 me-3">
-                                    <select id="statusFilter" class="form-select">
-                                        <option value="">Semua Status</option>
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="ms-auto my-auto mt-lg-0">
+                        <div class="ms-auto mb-0">
+                            {{-- triger-modal --}}
+                            <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Brand</button>
                         </div>
-                    <div class="table-responsive p-0 mt-4">
-                        <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah Produk</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Dibuat Tanggal</th>
-                                <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="isiTable">
-                            @foreach ($brands as $brand)
-                            <tr>
-                            <td>
-                                <div title="foto & nama brand" class="d-flex ms-2 px-2 py-1 align-items-center">
-                                    @if ($brand->img_brand)
-                                        <img src="{{ asset('storage/' . $brand->img_brand) }}" class="avatar avatar-sm me-3" alt="{{ $brand->nama }}">
-                                    @else
-                                        <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
-                                    @endif
-                                    <h6 class="mb-0 text-sm">{{ $brand->nama }}</h6>
-                                </div>
-                            </td>
-                            <td>
-                                <p class="text-xs text-dark fw-bold mb-0">{{ $brand->produks_count }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs text-dark fw-bold mb-0">{{ $brand->created_at->translatedFormat('d M Y') }}</p>
-                            </td>
-
-                            <td class="align-middle text-center text-sm">
-                                @if ($brand->status)
-                                    <span class="badge badge-success">Aktif</span>
-                                @else
-                                    <span class="badge badge-secondary">Tidak Aktif</span>
-                                @endif
-                            </td>
-
-                            <td class="align-middle">
-
-                                <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editModal"
-                                    data-url="{{ route('brand.getjson', $brand->slug) }}"
-                                    data-update-url="{{ route('brand.update', $brand->slug) }}"
-                                    title="Edit brand">
-                                    <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                </a>
-                                <a href="#" class="text-dark delete-user-btn"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteConfirmationModal"
-                                    data-brand-slug="{{ $brand->slug }}"
-                                    data-brand-name="{{ $brand->nama }}"
-                                    title="Hapus Unit">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                        </table>
-                        <div class="my-3 ms-3">{{ $brands->onEachSide(1)->links() }}</div>
-                    </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="card-body px-0 pt-0 pb-2">
+                <div class="filter-container">
+                    <div class="row g-3 align-items-center justify-content-between">
+                        <!-- Filter Pencarian Brand -->
+                        <div class="col-5 col-lg-3 ms-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="cari Brand ...">
+                        </div>
+                        <!-- Filter Dropdown Status -->
+                        <div class="col-5 col-lg-2 me-3">
+                            <select id="statusFilter" class="form-select">
+                                <option value="">Semua Status</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            <div class="table-responsive p-0 mt-4">
+                <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
+                <thead>
+                    <tr class="table-secondary">
+                        <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
+                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah Produk</th>
+                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Dibuat Tanggal</th>
+                        <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
+                        <th class="text-dark"></th>
+                    </tr>
+                </thead>
+                <tbody id="isiTable">
+                    @foreach ($brands as $brand)
+                    <tr>
+                    <td>
+                        <div title="foto & nama brand" class="d-flex ms-2 px-2 py-1 align-items-center">
+                            @if ($brand->img_brand)
+                                <img src="{{ asset('storage/' . $brand->img_brand) }}" class="avatar avatar-sm me-3" alt="{{ $brand->nama }}">
+                            @else
+                                <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
+                            @endif
+                            <h6 class="mb-0 text-sm">{{ $brand->nama }}</h6>
+                        </div>
+                    </td>
+                    <td>
+                        <p class="text-xs text-dark fw-bold mb-0">{{ $brand->produks_count }}</p>
+                    </td>
+                    <td>
+                        <p class="text-xs text-dark fw-bold mb-0">{{ $brand->created_at->translatedFormat('d M Y') }}</p>
+                    </td>
 
+                    <td class="align-middle text-center text-sm">
+                        @if ($brand->status)
+                            <span class="badge badge-success">Aktif</span>
+                        @else
+                            <span class="badge badge-secondary">Tidak Aktif</span>
+                        @endif
+                    </td>
+
+                    <td class="align-middle">
+
+                        <a href="#" class="text-dark fw-bold px-3 text-xs"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editModal"
+                            data-url="{{ route('brand.getjson', $brand->slug) }}"
+                            data-update-url="{{ route('brand.update', $brand->slug) }}"
+                            title="Edit brand">
+                            <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
+                        </a>
+                        <a href="#" class="text-dark delete-user-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteConfirmationModal"
+                            data-brand-slug="{{ $brand->slug }}"
+                            data-brand-name="{{ $brand->nama }}"
+                            title="Hapus Unit">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                </table>
+                <div class="my-3 ms-3">{{ $brands->onEachSide(1)->links() }}</div>
+            </div>
+            </div>
+        </div>
         {{-- modal-create --}}
         <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -180,7 +175,7 @@
 
                             <div class="modal-footer border-0 pb-0 mt-3">
                                 <button type="button" id="submit-create-button" class="btn btn-info btn-sm">Buat Brand</button>
-                                <button type="button" id="cancel-create-button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
+                                <button type="button" id="cancel-create-button" class="btn btn-danger btn-sm">Batalkan</button>
                             </div>
                         </form>
                     </div>
@@ -223,8 +218,8 @@
                                 </div>
                             </div>
                             <div class="modal-footer border-0 pb-0 mt-3">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
-                                <button type="button" id="cancel-edit-button" class="btn btn-danger btn-sm" onclick="location.reload();">Batalkan</button>
+                                <button type="submit" class="btn btn-info btn-sm" id="submit-edit-button">Simpan Perubahan</button>
+                                <button type="button" id="cancel-edit-button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
                     </div>
@@ -319,41 +314,6 @@
                     createModalInstance.show();
                 }
 
-                // Logika tombol batalkan di modal create
-                const cancelCreateBtn = createModal.querySelector('#cancel-create-button');
-                if (cancelCreateBtn) {
-                    cancelCreateBtn.addEventListener('click', function(e) {
-                        e.preventDefault(); // Mencegah navigasi langsung
-
-                        const files = pond.getFiles();
-                        if (files.length === 0) {
-                            // Jika tidak ada file di FilePond, langsung navigasi
-                            window.location.href = this.href;
-                            return;
-                        }
-                        // Ambil file pertama (karena ini bukan multiple upload)
-                        const file = files[0];
-                        // serverId berisi path yang dikembalikan oleh server saat upload
-                        const serverId = file.serverId;
-
-                        if (!serverId) {
-                            // File belum selesai diunggah atau gagal, langsung navigasi
-                            window.location.href = this.href;
-                            return;
-                        }
-
-                        // Kirim permintaan DELETE secara manual untuk menghapus file di server
-                        fetch('{{ route("brand.revert") }}', {
-                            method: 'DELETE',
-                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: serverId
-                        }).finally(() => {
-                            window.location.href = this.href;
-                        });
-                    });
-                }
-
-
                 // Logika submit form create via AJAX
                 const createForm = document.getElementById('createBrandForm');
                 const submitCreateBtn = document.getElementById('submit-create-button');
@@ -400,6 +360,30 @@
                 }
             }
 
+            // Logika tombol batalkan di modal create untuk membersihkan form dan FilePond
+                const cancelCreateBtn = createModal.querySelector('#cancel-create-button');
+                if (cancelCreateBtn) {
+                    cancelCreateBtn.addEventListener('click', function(e) {
+                        e.preventDefault(); // Mencegah penutupan modal otomatis oleh data-bs-dismiss
+
+                        const createForm = document.getElementById('createBrandForm');
+                        const modalInstance = bootstrap.Modal.getInstance(createModal);
+
+                        // 1. Reset nilai input pada form ke nilai defaultnya
+                        createForm.reset();
+
+                        // 2. Hapus semua pesan error validasi
+                        createForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                        createForm.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+                        // 3. Hapus file dari FilePond (ini juga akan memicu revert di server)
+                        //    dan tutup modal setelah selesai.
+                        createPond.removeFiles().then(() => {
+                            modalInstance.hide();
+                        });
+                    });
+                }
+
             // --- MODAL EDIT ---
             const editModal = document.getElementById('editModal');
             let editPond = null; // Untuk menyimpan instance FilePond modal edit
@@ -426,20 +410,10 @@
                             inputSlug.value = data.slug;
                             inputStatus.checked = data.status == 1;
 
-                            // Hancurkan instance FilePond lama jika ada
-                            if (editPond) {
-                                editPond.destroy();
-                            }
-
                             const pondFiles = [];
-                          if (data.img_brand) {
-                                pondFiles.push({
-                                    source: data.img_brand,
-                                    options: {
-                                        type: 'local',
-                                        metadata: { poster: `/storage/${data.img_brand}` }
-                                    }
-                                });
+                            if (data.img_brand) {
+                                // Cukup berikan URL lengkap ke gambar yang ada, FilePond akan menampilkannya.
+                                pondFiles.push(`/storage/${data.img_brand}`);
                             }
 
                             // Buat instance FilePond baru untuk modal edit
@@ -467,6 +441,28 @@
                                     }
                                 }
                             });
+
+                            // --- Fitur Keamanan: Nonaktifkan tombol simpan saat upload ---
+                            const submitEditBtn = editForm.querySelector('#submit-edit-button');
+                            const pondEditInput = document.querySelector('#img_brand_edit');
+
+                            pondEditInput.addEventListener('FilePond:addfile', (e) => {
+                                // Nonaktifkan tombol saat file ditambahkan dan mulai diunggah
+                                submitEditBtn.disabled = true;
+                                submitEditBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengunggah...`;
+                            });
+
+                            pondEditInput.addEventListener('FilePond:processfile', (e) => {
+                                // Aktifkan kembali setelah proses selesai (berhasil atau gagal)
+                                submitEditBtn.disabled = false;
+                                submitEditBtn.innerHTML = 'Simpan Perubahan';
+                            });
+
+                            pondEditInput.addEventListener('FilePond:removefile', (e) => {
+                                // Aktifkan kembali jika file dibatalkan/dihapus
+                                submitEditBtn.disabled = false;
+                                submitEditBtn.innerHTML = 'Simpan Perubahan';
+                            });
                         })
                         .catch(error => console.error('Error fetching brand data:', error));
                 });
@@ -482,28 +478,41 @@
                 const cancelEditBtn = editModal.querySelector('#cancel-edit-button');
                 if (cancelEditBtn) {
                     cancelEditBtn.addEventListener('click', function(e) {
-                        e.preventDefault(); // Mencegah navigasi langsung
+                        e.preventDefault(); // Mencegah penutupan modal otomatis jika ada data-bs-dismiss
+
                         // Cari file yang BARU diunggah oleh pengguna dan sudah selesai diproses
-                        const newFile = pond.getFiles().find(file =>
+                        const newFile = editPond.getFiles().find(file =>
                             file.origin === FilePond.FileOrigin.INPUT &&
                             file.status === FilePond.FileStatus.PROCESSING_COMPLETE
                         );
+
+                        const modalInstance = bootstrap.Modal.getInstance(editModal);
+
                         if (newFile && newFile.serverId) {
                             // Jika ada file baru yang sudah diunggah, hapus dulu dari server
-                            fetch('{{ route("produk.revert") }}', {
+                            fetch('{{ route("brand.revert") }}', {
                                 method: 'DELETE',
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                 },
                                 body: newFile.serverId
                             }).finally(() => {
-                                window.location.href = this.href;
+                                modalInstance.hide();
                             });
                         } else {
-                            window.location.href = this.href;
+                            modalInstance.hide();
                         }
                     });
                 }
+
+                // Tambahkan event listener untuk membersihkan FilePond saat modal ditutup.
+                // Ini penting untuk mencegah state gambar dari edit sebelumnya terbawa.
+                editModal.addEventListener('hidden.bs.modal', function () {
+                    if (editPond) {
+                        editPond.destroy();
+                        editPond = null; // Pastikan instance lama benar-benar dihapus
+                    }
+                });
             }
 
             // --- MODAL DELETE ---

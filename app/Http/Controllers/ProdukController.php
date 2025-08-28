@@ -8,11 +8,8 @@ use App\Models\Produk;
 use App\Models\Garansi;
 use Illuminate\Http\Request;
 use App\Models\KategoriProduk;
-use App\Models\TempFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
 
@@ -52,12 +49,12 @@ class ProdukController extends Controller
             'slug' => 'required|string|unique:produks,slug',
             'barcode' => 'nullable|string|unique:produks,barcode',
             'sku' => 'required|string|unique:produks,sku',
-            'kategori' => 'required|exists:kategori_produks,id', // 'kategori' sesuai nama di form
+            'kategori' => 'required|exists:kategori_produks,id', 
             'brand' => 'required|exists:brands,id',
             'unit' => 'required|exists:units,id',
             'deskripsi' => 'nullable|string',
-            'harga' => 'required|numeric', // 'harga' dari form single product
-            'qty' => 'required|integer', // 'qty' dari form single product
+            'harga' => 'required|numeric',
+            'qty' => 'required|integer',
             'garansi' => 'required|exists:garansis,id',
             'stok_minimum' => 'required|integer',
             'img_produk' => 'nullable|string',
@@ -189,7 +186,7 @@ class ProdukController extends Controller
     {
         if ($request->hasFile('img_produk')) {
             $request->validate([
-                'img_produk' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+                'img_produk' => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
             ]);
             $file = $request->file('img_produk');
             // Simpan ke storage/app/public/tmp/produk

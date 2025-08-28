@@ -13,7 +13,7 @@ class KategoriProdukController extends Controller
    public function index() {
     return view('dashboard.inventaris.kategoriproduk', [
         'title' => 'Data Kategori Produk',
-        'kategoris'=>KategoriProduk::withCount('produks')->latest()->paginate(15),
+        'kategoris'=>KategoriProduk::withCount('produks')->latest()->paginate(10),
     ]);
     }
 
@@ -31,26 +31,28 @@ class KategoriProdukController extends Controller
    public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'img_kategori' => 'nullable|image|mimes:jpeg,png|max:1024',
+            'img_kategori' => 'nullable|string',
             'nama' => 'required|max:255|unique:kategori_produks',
             'slug' => 'required|max:255|unique:kategori_produks',
             'status' => 'nullable|boolean',
         ]);
 
-        // Pindahkan gambar dari temp ke folder produk
-        if ($request->img_kategori) {
-            $tempPath = $request->img_kategori;
-            if (Storage::disk('public')->exists($tempPath)) {
-                $newPath = str_replace('tmp/kategori-images/', 'kategori-images/', $tempPath);
-                Storage::disk('public')->move($tempPath, $newPath);
-                $validatedData['img_kategori'] = $newPath;
+       // Jika ada file yang diunggah melalui FilePond
+        if ($request->filled('img_kategori')) {
+            $sourcePath = $request->input('img_kategori'); // Path dari folder tmp
+            $fileName = basename($sourcePath);
+            $destinationPath = 'kategori-images/' . $fileName;
+
+            // Pindahkan file dari tmp ke direktori tujuan
+            if (Storage::disk('public')->exists($sourcePath)) {
+                Storage::disk('public')->move($sourcePath, $destinationPath);
+                $validatedData['img_kategori'] = $destinationPath; // Simpan path baru
             }
         }
 
         $validatedData['status'] = $request->has('status');
-
         KategoriProduk::create($validatedData);
-        return redirect('/kategoriproduk')->with('success', 'Kategori produk baru berhasil ditambahkan');
+        return redirect()->route('kategoriproduk.index')->with('success', 'Kategori produk baru berhasil ditambahkan!');
     }
 
     /**
@@ -60,17 +62,17 @@ class KategoriProdukController extends Controller
         //
     }
 
-    public function getKategoriJson(KategoriProduk $kategoriproduk)
-    {
-        return response()->json($kategoriproduk);
-    }
-
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(KategoriProduk $kategoriproduk)
     {
-        return redirect()->route('kategoriproduk.index');
+        //
+    }
+
+    public function getKategoriJson(KategoriProduk $kategoriproduk)
+    {
+        return response()->json($kategoriproduk);
     }
 
     /**
@@ -79,7 +81,7 @@ class KategoriProdukController extends Controller
     public function update(Request $request, KategoriProduk $kategoriproduk)
     {
         $rules = [
-            'img_kategori' => 'nullable|image|mimes:jpeg,png|max:1024',
+            'img_kategori' => 'nullable|string',
             'nama' => ['required', 'max:255', Rule::unique('kategori_produks')->ignore($kategoriproduk->id)],
             'slug' => ['required', 'max:255', Rule::unique('kategori_produks')->ignore($kategoriproduk->id)],
             'status' => 'nullable|boolean',
@@ -87,12 +89,29 @@ class KategoriProdukController extends Controller
 
         $validatedData = $request->validate($rules);
 
-         if ($request->file('img_kategori')) {
-            if ($kategoriproduk->img_kategori) {
-                Storage::disk('public')->delete($kategoriproduk->img_kategori);
+        // Cek apakah ada file baru yang diunggah
+        if ($request->filled('img_kategori')) {
+            $sourcePath = $request->input('img_kategori');
+
+            // Pastikan ini adalah file baru dari tmp, bukan path file lama
+            if (strpos($sourcePath, 'tmp/') === 0 && Storage::disk('public')->exists($sourcePath)) {
+                // Hapus gambar lama jika ada
+                if ($kategoriproduk->img_kategori) {
+                    Storage::disk('public')->delete($kategoriproduk->img_kategori);
+                }
+
+                // Pindahkan gambar baru dari tmp ke lokasi permanen
+                $fileName = basename($sourcePath);
+                $destinationPath = 'kategori-images/' . $fileName;
+                Storage::disk('public')->move($sourcePath, $destinationPath);
+                $validatedData['img_kategori'] = $destinationPath;
             }
-            $path = $request->file('img_kategori')->store('kategori-images', 'public');
-            $validatedData['img_kategori'] = $path;
+        // Menangani kasus jika pengguna menghapus gambar yang ada melalui FilePond
+        } elseif ($request->exists('img_kategori') && $request->input('img_kategori') === null) {
+            if ($kategoriproduk->img_kategori && Storage::disk('public')->exists($kategoriproduk->img_kategori)) {
+                Storage::disk('public')->delete($kategoriproduk->img_kategori);
+                $validatedData['img_kategori'] = null;
+            }
         }
 
 
@@ -120,6 +139,42 @@ class KategoriProdukController extends Controller
     {
         $slug = SlugService::createSlug(KategoriProduk::class, 'slug', $request->nama );
         return response()->json(['slug' => $slug]);
+    }
+
+    /**
+     * Menangani unggahan file sementara dari FilePond.
+     */
+    public function upload(Request $request)
+    {
+        if ($request->hasFile('img_kategori')) {
+            $request->validate([
+                'img_kategori' => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
+            ]);
+
+            $file = $request->file('img_kategori');
+            // Simpan file ke direktori 'tmp' di dalam 'storage/app/public'
+            $path = $file->store('tmp/kategori-images', 'public');
+
+            // Kembalikan path file sebagai plain text
+            return $path;
+        }
+
+        // Jika tidak ada file, kembalikan response error
+        return response()->json(['error' => 'No file uploaded.'], 400);
+    }
+
+    /**
+     * Menangani pembatalan unggahan file dari FilePond.
+     */
+    public function revert(Request $request)
+    {
+        $filePath = $request->getContent();
+        if ($filePath && Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
+            return response()->noContent();
+        }
+
+        return response()->json(['error' => 'File not found.'], 404);
     }
 
 }

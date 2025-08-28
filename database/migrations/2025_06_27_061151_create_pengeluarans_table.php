@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('pengeluarans', function (Blueprint $table) {
             $table->id();
-            $table->date('tanggal_pengeluaran');
-            $table->text('deskripsi');
+            $table->date('tanggal');
             $table->decimal('jumlah', 15, 2);
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('kategori_pengeluaran_id')->constrained('kategori_pengeluarans')->onDelete('restrict');
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('kategori_pengeluaran_id')->constrained();
+            $table->string('referensi');
+            $table->string('keterangan');
+            $table->text('deskripsi')->nullable();
             $table->timestamps();
         });
     }

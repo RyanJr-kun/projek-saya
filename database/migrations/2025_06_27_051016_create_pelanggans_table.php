@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('nama', 255);
             $table->string('kontak', 20)->unique();
             $table->string('email')->unique()->nullable();
-            $table->text('note')->nullable();
+            $table->text('alamat')->nullable();
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

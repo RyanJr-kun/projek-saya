@@ -147,14 +147,8 @@
                         }
                     },
                     files: [
-                        @if($user->img_user)
-                        {
-                            source: '{{ $user->img_user }}', // Path di storage
-                            options: {
-                                type: 'local', // Menandakan file sudah ada di server
-                                metadata: { poster: '{{ asset('storage/' . $user->img_user) }}' } // URL untuk preview
-                            }
-                        }
+                        @if($user->img_user && Storage::disk('public')->exists($user->img_user))
+                        '{{ asset('storage/' . $user->img_user) }}'
                         @endif
                     ]
                 });

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Pemasukan;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Models\KategoriPemasukan;
+use Illuminate\Support\Facades\Auth;
 
 class PemasukanController extends Controller
 {
@@ -14,7 +17,8 @@ class PemasukanController extends Controller
     {
         return view('dashboard.pemasukan.index', [
         'title' => 'Pemasukan',
-        'pemasukan' => Pemasukan::latest()->get()
+        'pemasukans' => Pemasukan::latest()->paginate(15),
+        'kategoris' => KategoriPemasukan::all()
         ]);
     }
 
@@ -31,7 +35,19 @@ class PemasukanController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validateData = $request->validate([
+            'kategori_pemasukan_id' => 'required|exists:kategori_pemasukans,id',
+            'tanggal' => 'required|date_format:Y-m-d|before_or_equal:today',
+            'jumlah' => 'required|numeric|min:0',
+            'referensi' => 'nullable|string|max:100|unique:pemasukans',
+            'keterangan' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string|max:1000',
+        ]);
+
+        $validateData['user_id'] = Auth::id();
+
+        Pemasukan::create($validateData);
+        return redirect()->route('pemasukan.index')->with('success', 'Pemasukan baru berhasil ditambahkan.');
     }
 
     /**
@@ -53,9 +69,27 @@ class PemasukanController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    public function getjson(Pemasukan $pemasukan)
+    {
+        return response()->json($pemasukan);
+    }
+
     public function update(Request $request, Pemasukan $pemasukan)
     {
-        //
+        $rules = [
+            'kategori_pemasukan_id' => 'required|exists:kategori_pemasukans,id',
+            'tanggal' => 'required|date_format:Y-m-d|before_or_equal:today',
+            'jumlah' => 'required|numeric|min:0',
+            'referensi' => ['nullable', 'string', 'max:100', Rule::unique('pemasukans')->ignore($pemasukan->id)],
+            'keterangan' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string|max:1000',
+        ];
+
+        $validateData = $request->validate($rules);
+        $validateData['user_id'] = Auth::id();
+
+        $pemasukan->update($validateData);
+        return redirect()->route('pemasukan.index')->with('success', 'Pemasukan Berhasil Diperbarui!');
     }
 
     /**

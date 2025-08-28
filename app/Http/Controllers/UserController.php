@@ -156,7 +156,7 @@ class UserController extends Controller
     {
         if ($request->hasFile('img_user')) {
             $request->validate([
-                'img_user' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+                'img_user' => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
             ]);
             $file = $request->file('img_user');
             // Simpan ke storage/app/public/tmp/user-images
@@ -167,7 +167,7 @@ class UserController extends Controller
         // Jika gagal
         return response('Gagal mengunggah.', 500);
     }
-    
+
     /**
      * Menangani pembatalan unggahan file dari FilePond.
      */

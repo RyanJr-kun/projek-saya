@@ -117,19 +117,6 @@
             {{ $slot }}
         </main>
         <x-footer></x-footer>
-        {{-- Script untuk scrollbar (khusus Windows) --}}
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Inisialisasi scrollbar untuk sidebar di Windows
-                if (navigator.platform.indexOf('Win') > -1) {
-                    const scrollbar = document.querySelector('#sidenav-scrollbar');
-                    // Pastikan library Scrollbar sudah di-load, misalnya via app.js
-                    if (scrollbar && typeof Scrollbar !== 'undefined') {
-                        Scrollbar.init(scrollbar, { damping: '0.5' });
-                    }
-                }
-            });
-        </script>
         @stack('scripts')
 
     </body>

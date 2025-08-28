@@ -2,11 +2,11 @@
 
     {{-- logo --}}
     <div class="sidenav-header">
-      <i class="bi bi-x-lg p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
       <a class="navbar-brand m-0" href="/dashboard" target="_blank">
         <img src="{{ asset('assets/img/logo.svg') }}" width="40px" height="40px" class="navbar-brand-img h-100" alt="main_logo">
         <span class="ms-1 font-weight-bold">Computer POS</span>
       </a>
+      <i class="bi bi-x-lg p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-xl-none" aria-hidden="true" id="iconSidenav"></i>
     </div>
     <hr class="horizontal dark my-2">
 
@@ -88,7 +88,6 @@
                 </div>
             </li>
             <hr class="horizontal dark my-2">
-
             {{--inventaris --}}
             <li class="nav-item">
                 <p class="ps-4 mb-0 text-uppercase text-xs font-weight-bolder">Inventaris</p>
@@ -99,22 +98,6 @@
                     <i class="bi bi-box-fill text-dark text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Produk</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('stokrendah*') ? 'active' : '' }}" href="#stokrendah">
-                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                    <i class="bi bi-graph-down text-dark text-sm opacity-10"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Stok Rendah</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('pergerakanstok*') ? 'active' : '' }}" href="#pergerakanstok">
-                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                    <i class="bi bi-stack text-dark text-sm opacity-10"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Pergerakan Stok</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -150,7 +133,26 @@
                 </a>
             </li>
             <hr class="horizontal dark my-2">
-
+            <li class="nav-item">
+                <p class="ps-4 mb-0 text-uppercase text-xs font-weight-bolder">Stok</p>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('stokrendah*') ? 'active' : '' }}" href="#stokrendah">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-graph-down text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Stok Rendah</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('pergerakanstok*') ? 'active' : '' }}" href="#pergerakanstok">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-stack text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Stok Opname</span>
+                </a>
+            </li>
+            <hr class="horizontal dark my-2">
             {{-- Administrasi --}}
             <li class="nav-item">
                 <p class="ps-4 mb-0 text-uppercase text-xs font-weight-bolder">Administrasi</p>

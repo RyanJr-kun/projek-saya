@@ -37,10 +37,10 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
+            'img_brand' => 'nullable|string',
             'nama' => 'required|max:255|unique:brands',
-            'slug' => 'required|unique:brands',
-            'status' => 'nullable',
-            'img_brand' => 'nullable|string', // Validasi sebagai string (path dari FilePond)
+            'slug' => 'required|max:255|unique:brands',
+            'status' => 'nullable|boolean',
         ]);
 
         // Jika ada file yang diunggah melalui FilePond
@@ -57,10 +57,8 @@ class BrandController extends Controller
         }
 
         $validatedData['status'] = $request->has('status');
-
         Brand::create($validatedData);
-
-        return response()->json(['message' => 'Brand baru berhasil ditambahkan!'], 201);
+        return redirect()->route('brand.index')->with('success', 'Brand baru berhasil ditambahkan!');
     }
 
     /**
@@ -71,16 +69,17 @@ class BrandController extends Controller
         //
     }
 
-    public function getBrandJson(Brand $brand)
-    {
-        return response()->json($brand);
-    }
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Brand $brand)
     {
-        return redirect()->route('brand.index');
+        //
+    }
+
+     public function getBrandJson(Brand $brand)
+    {
+        return response()->json($brand);
     }
 
     /**
@@ -90,10 +89,10 @@ class BrandController extends Controller
     public function update(Request $request, Brand $brand)
     {
         $rules = [
-            'nama' => 'required|max:255|unique:brands,nama,' . $brand->id,
-            'slug' => 'required|unique:brands,slug,' . $brand->id,
-            'status' => 'nullable',
             'img_brand' => 'nullable|string',
+            'nama' => ['required', 'max:255', Rule::unique('brands')->ignore($brand->id)],
+            'slug' => ['required', 'max:255', Rule::unique('brands')->ignore($brand->id)],
+            'status' => 'nullable|boolean',
         ];
 
         $validatedData = $request->validate($rules);
@@ -124,9 +123,7 @@ class BrandController extends Controller
         }
 
         $validatedData['status'] = $request->has('status');
-
         $brand->update($validatedData);
-
         return redirect()->route('brand.index')->with('success', 'Data brand berhasil diperbarui!');
     }
 
@@ -158,7 +155,7 @@ class BrandController extends Controller
     {
         if ($request->hasFile('img_brand')) {
             $request->validate([
-                'img_brand' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+                'img_brand' => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
             ]);
 
             $file = $request->file('img_brand');

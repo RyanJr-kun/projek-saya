@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 class CleanTemporaryUploads extends Command
 {
@@ -29,33 +28,35 @@ class CleanTemporaryUploads extends Command
     {
         $this->info('Starting cleanup of temporary upload directories...');
 
-        // Ambil daftar direktori dari file konfigurasi
-        $directories = config('uploads.temporary_directories', []);
-        $cutoff = now()->subHours(24); // Tentukan batas waktu (misal: 24 jam)
-        $deletedCount = 0;
+        $directories = config('uploads.temporary_directories');
+        if (empty($directories)) {
+            $this->warn('No temporary directories configured in config/uploads.php. Exiting.');
+            return;
+        }
+
+        $cutoff = now()->subDay()->getTimestamp();
+        $totalDeleted = 0;
 
         foreach ($directories as $directory) {
-            if (!Storage::disk('public')->exists($directory)) {
-                continue;
-            }
-
             $files = Storage::disk('public')->files($directory);
+            $deletedCount = 0;
 
             foreach ($files as $file) {
-                // Jangan hapus file .gitignore
+                // Jangan hapus file .gitignore jika ada
                 if (basename($file) === '.gitignore') {
                     continue;
                 }
 
-                if (Storage::disk('public')->lastModified($file) < $cutoff->getTimestamp()) {
+                if (Storage::disk('public')->lastModified($file) < $cutoff) {
                     Storage::disk('public')->delete($file);
                     $deletedCount++;
-                    $this->line("Deleted: {$file}");
                 }
             }
+
+            $totalDeleted += $deletedCount;
+            $this->line("Cleaned {$deletedCount} old files from '{$directory}'.");
         }
 
-        $this->info("Cleanup complete. Deleted {$deletedCount} old temporary files.");
-        return 0;
+        $this->info("Cleanup complete. Total files deleted: {$totalDeleted}.");
     }
 }

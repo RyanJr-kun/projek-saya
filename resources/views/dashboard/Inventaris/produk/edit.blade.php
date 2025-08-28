@@ -20,7 +20,7 @@
     @endsection
 
     {{-- Form Isian --}}
-    <form method="post" action="{{ route('produk.update', $produk->slug) }}">
+    <form method="post" action="{{ route('produk.update', $produk->slug) }}" enctype="multipart/form-data">
         @method('put')
         @csrf
         {{-- informasi produk --}}
@@ -175,7 +175,7 @@
 
         {{-- button submit --}}
         <div class="d-flex justify-content-end mt-3 me-4">
-            <button type="submit" class="btn btn-info">Edit Produk</button>
+            <button type="submit" class="btn btn-info" id="submit-edit-produk">Edit Produk</button>
             <a href="{{ route('produk.index') }}" id="cancel-button" class="btn btn-danger ms-3">Batalkan</a>
         </div>
     </form>
@@ -249,17 +249,33 @@
                         }
                     },
                     files: [
-                        @if($produk->img_produk)
-                        {
-                            source: '{{ $produk->img_produk }}', // Path di storage
-                            options: {
-                                type: 'local', // Menandakan file sudah ada di server
-                                metadata: { poster: '{{ asset('storage/' . $produk->img_produk) }}' } // URL untuk preview
-                            }
-                        }
+                        @if($produk->img_produk && Storage::disk('public')->exists($produk->img_produk))
+                        '{{ asset('storage/' . $produk->img_produk) }}'
                         @endif
                     ]
                 });
+
+                // --- Fitur Keamanan: Nonaktifkan tombol simpan saat upload ---
+                const submitBtn = document.getElementById('submit-edit-produk');
+
+                inputElement.addEventListener('FilePond:addfile', (e) => {
+                    // Nonaktifkan tombol saat file ditambahkan dan mulai diunggah
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengunggah...`;
+                });
+
+                inputElement.addEventListener('FilePond:processfile', (e) => {
+                    // Aktifkan kembali setelah proses selesai (berhasil atau gagal)
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Edit Produk';
+                });
+
+                inputElement.addEventListener('FilePond:removefile', (e) => {
+                    // Aktifkan kembali jika file dibatalkan/dihapus
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Edit Produk';
+                });
+
                 const cancelButton = document.getElementById('cancel-button');
                 if (cancelButton) {
                     cancelButton.addEventListener('click', function(e) {

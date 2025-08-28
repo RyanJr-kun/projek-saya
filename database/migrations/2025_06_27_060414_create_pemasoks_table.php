@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->text('alamat')->nullable();
             $table->text('note')->nullable();
+            $table->boolean('status')->default(true); 
             $table->timestamps();
         });
     }

@@ -13,9 +13,8 @@ return [
     */
     'temporary_directories' => [
         'tmp/brand-images',
-        'tmp/produk-images',
+        'tmp/produk',
         'tmp/user-images',
         // Tambahkan direktori sementara lainnya di sini di masa depan
     ],
 ];
-

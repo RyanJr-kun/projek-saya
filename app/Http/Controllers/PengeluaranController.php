@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\pengeluaran;
 use Illuminate\Http\Request;
+use App\Models\KategoriPengeluaran;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class PengeluaranController extends Controller
 {
@@ -14,7 +17,8 @@ class PengeluaranController extends Controller
     {
         return view('dashboard.pengeluaran.index',[
             'title' => 'Pengeluaran',
-            'pengeluaran' => Pengeluaran::latest()->get()
+            'pengeluarans' => Pengeluaran::latest()->paginate(15),
+            'kategoris' => KategoriPengeluaran::all()
         ]);
     }
 
@@ -31,7 +35,19 @@ class PengeluaranController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validateData = $request->validate([
+            'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluarans,id',
+            'tanggal' => 'required|date_format:Y-m-d|before_or_equal:today',
+            'jumlah' => 'required|numeric|min:0',
+            'referensi' => 'nullable|string|max:100|unique:pengeluarans',
+            'keterangan' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string|max:1000',
+        ]);
+
+        $validateData['user_id'] = Auth::id();
+
+        Pengeluaran::create($validateData);
+        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran baru berhasil ditambahkan.');
     }
 
     /**
@@ -50,12 +66,30 @@ class PengeluaranController extends Controller
         //
     }
 
+    public function getjson(Pengeluaran $pengeluaran)
+    {
+        return response()->json($pengeluaran);
+    }
+
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Pengeluaran $pengeluaran)
     {
-        //
+        $rules = [
+            'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluarans,id',
+            'tanggal' => 'required|date_format:Y-m-d|before_or_equal:today',
+            'jumlah' => 'required|numeric|min:0',
+            'referensi' => ['nullable', 'string', 'max:100', Rule::unique('pengeluarans')->ignore($pengeluaran->id)],
+            'keterangan' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string|max:1000',
+        ];
+
+        $validateData = $request->validate($rules);
+        $validateData['user_id'] = Auth::id();
+        
+        $pengeluaran->update($validateData);
+        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran Berhasil Diperbarui!');
     }
 
     /**
@@ -63,6 +97,7 @@ class PengeluaranController extends Controller
      */
     public function destroy(Pengeluaran $pengeluaran)
     {
-        //
+        $pengeluaran->delete();
+        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran Berhasil Dihapus!');
     }
 }

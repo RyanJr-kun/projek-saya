@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Validation\Rule; // Import Rule untuk validasi unique saat update
 use App\Models\Pemasok;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class PemasokController extends Controller
     {
         return view('dashboard.pembelian.pemasok',[
             'title' => 'Pemasok',
-            'pemasok' => Pemasok::latest()->get()
+            'pemasoks' => Pemasok::latest()->paginate(10),
         ]);
     }
 
@@ -31,7 +32,19 @@ class PemasokController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'kontak' => 'required|string|max:20|unique:pemasoks,kontak',
+            'email' => 'nullable|email|unique:pemasoks,email',
+            'alamat' => 'nullable|string',
+            'note' => 'nullable|string',
+            'status' => 'nullable|boolean',
+        ]);
+
+        $validatedData['status'] = $request->has('status');
+
+        Pemasok::create($validatedData);
+        return redirect()->route('pemasok.index')->with('success', 'Pemasok baru berhasil ditambahkan!');
     }
 
     /**
@@ -43,7 +56,17 @@ class PemasokController extends Controller
     }
 
     /**
+     * Get JSON data for a specific resource.
+     * Digunakan oleh modal edit untuk mengisi form.
+     */
+    public function getjson(Pemasok $pemasok)
+    {
+        return response()->json($pemasok);
+    }
+
+    /**
      * Show the form for editing the specified resource.
+     * Karena edit ditangani oleh modal di halaman index, metode ini hanya redirect.
      */
     public function edit(Pemasok $pemasok)
     {
@@ -55,7 +78,20 @@ class PemasokController extends Controller
      */
     public function update(Request $request, Pemasok $pemasok)
     {
-        //
+        $rules = [
+            'nama' => 'required|string|max:255',
+            'kontak' => ['required', 'string', 'max:20', Rule::unique('pemasoks', 'kontak')->ignore($pemasok->id)],
+            'email' => ['nullable', 'email', Rule::unique('pemasoks', 'email')->ignore($pemasok->id)],
+            'alamat' => 'nullable|string',
+            'status' => 'nullable|boolean',
+            'note' => 'nullable|string',
+        ];
+
+        $validatedData = $request->validate($rules);
+        $validatedData['status'] = $request->has('status');
+        
+        $pemasok->update($validatedData);
+        return redirect()->route('pemasok.index')->with('success', 'Data pemasok berhasil diperbarui!');
     }
 
     /**
@@ -63,6 +99,12 @@ class PemasokController extends Controller
      */
     public function destroy(Pemasok $pemasok)
     {
-        //
+        // Periksa apakah ada transaksi pembelian yang terkait dengan pemasok ini
+        if ($pemasok->pembelians()->count() > 0) {
+            return back()->with('error', 'Pemasok tidak dapat dihapus karena masih memiliki transaksi pembelian terkait!');
+        }
+
+        $pemasok->delete();
+        return redirect()->route('pemasok.index')->with('success', 'Pemasok berhasil dihapus!');
     }
 }

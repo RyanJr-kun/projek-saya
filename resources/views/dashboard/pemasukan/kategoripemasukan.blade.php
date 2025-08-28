@@ -31,96 +31,91 @@
     @endif
 
     <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
-        <div class="row ">
-            <div class="col-12 ">
-                <div class="card mb-4 ">
-                    <div class="card-header pb-0 px-3 pt-2 mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">Kategori Pemasukan</h6>
-                                    <p class="text-sm mb-0">
-                                    Kelola data Kategorimu
-                                </p>
-                            </div>
-                            <div class="ms-md-auto mt-2">
-                                {{-- triger-modal-create --}}
-                                <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import">
-                                    <i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Kategori
-                                </button>
-                            </div>
-                        </div>
+        <div class="card mb-4 ">
+            <div class="card-header pb-0 px-3 pt-2 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">Kategori Pemasukan</h6>
+                            <p class="text-sm mb-0">
+                            Kelola data Kategorimu
+                        </p>
                     </div>
-                    <div class="card-body px-0 pt-0 pb-2">
-                        <div class="filter-container">
-                            <div class="row g-3 align-items-center justify-content-between">
-                                <div class="col-5 col-lg-3 ms-3">
-                                    <input type="text" id="searchInput" class="form-control" placeholder="cari kategori ...">
-                                </div>
-                                <div class="col-5 col-lg-2 me-3">
-                                    <select id="posisiFilter" class="form-select">
-                                        <option value="">semua status</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-responsive p-0 my-3">
-                            <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                                <thead>
-                                    <tr class="table-secondary">
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder">Kategori</th>
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Deskripsi</th>
-                                        <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
-                                        <th class="text-dark"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="isiTable">
-                                    @foreach ($kategoris as $kategori)
-                                    <tr>
-                                        <td>
-                                            <p title="kategori" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $kategori->nama }}</p>
-                                        </td>
-
-                                        <td>
-                                            <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ Str::limit(strip_tags($kategori->deskripsi), 60) }}</p>
-                                        </td>
-
-                                        <td class="align-middle text-center text-sm">
-                                            @if ($kategori->status)
-                                                <span class="badge badge-success">Aktif</span>
-                                            @else
-                                                <span class="badge badge-secondary">Tidak Aktif</span>
-                                            @endif
-                                        </td>
-
-                                        <td class="text-center">
-                                            <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#editModal"
-                                                data-url="{{ route('kategoripemasukan.getjson', $kategori->slug) }}"
-                                                data-update-url="{{ route('kategoripemasukan.update', $kategori->slug) }}"
-                                                title="Edit kategori">
-                                                <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                            </a>
-                                            <a href="#" class="text-dark delete-user-btn me-md-4"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteConfirmationModal"
-                                                data-kategori-slug="{{ $kategori->slug }}"
-                                                data-kategori-name="{{ $kategori->nama }}"
-                                                title="Hapus kategori">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                            <div class="my-3 ms-3">{{ $kategoris->onEachSide(1)->links() }}</div>
-                        </div>
+                    <div class="ms-md-auto mt-2">
+                        {{-- triger-modal-create --}}
+                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import">
+                            <i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Kategori
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="card-body px-0 pt-0 pb-2">
+                <div class="filter-container">
+                    <div class="row g-3 align-items-center justify-content-between">
+                        <div class="col-5 col-lg-3 ms-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="cari kategori ...">
+                        </div>
+                        <div class="col-5 col-lg-2 me-3">
+                            <select id="posisiFilter" class="form-select">
+                                <option value="">semua status</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive p-0 my-3">
+                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
+                        <thead>
+                            <tr class="table-secondary">
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Kategori</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Deskripsi</th>
+                                <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
+                                <th class="text-dark"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="isiTable">
+                            @foreach ($kategoris as $kategori)
+                            <tr>
+                                <td>
+                                    <p title="kategori" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $kategori->nama }}</p>
+                                </td>
 
+                                <td>
+                                    <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ Str::limit(strip_tags($kategori->deskripsi), 60) }}</p>
+                                </td>
+
+                                <td class="align-middle text-center text-sm">
+                                    @if ($kategori->status)
+                                        <span class="badge badge-success">Aktif</span>
+                                    @else
+                                        <span class="badge badge-secondary">Tidak Aktif</span>
+                                    @endif
+                                </td>
+
+                                <td class="text-center">
+                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editModal"
+                                        data-url="{{ route('kategoripemasukan.getjson', $kategori->slug) }}"
+                                        data-update-url="{{ route('kategoripemasukan.update', $kategori->slug) }}"
+                                        title="Edit kategori">
+                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
+                                    </a>
+                                    <a href="#" class="text-dark delete-user-btn me-md-4"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteConfirmationModal"
+                                        data-kategori-slug="{{ $kategori->slug }}"
+                                        data-kategori-name="{{ $kategori->nama }}"
+                                        title="Hapus kategori">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="my-3 ms-3">{{ $kategoris->onEachSide(1)->links() }}</div>
+                </div>
+            </div>
+        </div>
         {{-- modal-create --}}
         <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
