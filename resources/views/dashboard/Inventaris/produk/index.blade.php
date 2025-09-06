@@ -11,22 +11,6 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    @if (session()->has('success'))
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-success text-white">
-                    <span class="alert-icon text-light me-2"><i class="fa fa-thumbs-up"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ session('success') }}
-                </div>
-            </div>
-        </div>
-    @endif
-
     <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
         <div class="card mb-4 ">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
@@ -95,9 +79,7 @@
                     <table class="table table-hover align-items-center pb-3" id="tableData">
                         <thead>
                             <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">
-                                    <input type="checkbox" id="check-all" class="me-4">SKU</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama Produk</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Produk</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kategori</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Brand</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Harga</th>
@@ -108,21 +90,24 @@
                             </tr>
                         </thead>
                         <tbody id="isiTable">
-                            @foreach ($produk as $produks)
+                            @forelse ($produk as $produks)
                             <tr>
-                                <td class="ps-4">
-                                    <input name="checkboxSKU" type="checkbox" class="check-item me-4 dark mb-0">
-                                    <span title="SKU" class="text-xs text-dark fw-bold mb-0 text-sm">{{ $produks->sku }}</span>
-                                </td>
-
                                 <td>
-                                    <div title="gambar & nama produk" class="d-flex align-items-center px-2 py-1">
-                                        @if ($produks->img_produk)
-                                            <img src="{{ asset('storage/' . $produks->img_produk) }}" class="avatar avatar-sm me-3" alt="{{ $produks->nama_produk }}">
-                                        @else
-                                            <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
-                                        @endif
-                                        <h6 class="mb-0 text-sm">{{ $produks->nama_produk }}</h6>
+                                    <div title="gambar & nama produk" class="d-flex px-2 py-1">
+                                        <div>
+                                            @if ($produks->img_produk)
+                                                <img src="{{ asset('storage/' . $produks->img_produk) }}" class="avatar avatar-lg me-3" alt="{{ $produks->nama_produk }}">
+                                            @else
+                                                <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
+                                            @endif
+                                        </div>
+                                        <div class="d-flex flex-column justify-content-start">
+                                            <h6 class="mb-0 text-sm">{{ $produks->nama_produk }}</h6>
+                                            <p title="SKU" class="text-xs fw-bold mb-0 text-sm">SKU : {{ $produks->sku }}
+                                            </p>
+                                            <p title="Barcode" class="text-xs fw-bold mb-0 text-sm">Barcode : {{ $produks->barcode }}
+                                            </p>
+                                        </div>
                                     </div>
                                 </td>
 
@@ -166,7 +151,11 @@
                                     </a>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center py-3">Tidak ada data produk.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                     <div class="my-3 ms-3">{{ $produk->onEachSide(1)->links() }}</div>
@@ -194,50 +183,6 @@
         </div>
     </div>
     @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-            // 1. Ambil semua elemen yang dibutuhkan
-            const checkAll = document.getElementById('check-all');
-            const checkItems = document.querySelectorAll('.check-item');
-
-            // 2. Fungsi saat "Check All" di-klik
-            checkAll.addEventListener('change', function () {
-                // Ulangi semua checkbox item
-                checkItems.forEach(item => {
-                    // Set status centang item sama dengan status "Check All"
-                    item.checked = this.checked;
-
-                    // Tambah atau hapus class 'row-checked' pada baris (tr)
-                    const row = item.closest('tr');
-                    if (this.checked) {
-                        row.classList.add('row-checked');
-                    } else {
-                        row.classList.remove('row-checked');
-                    }
-                });
-            });
-
-            // 3. Fungsi saat salah satu item di-klik
-            checkItems.forEach(item => {
-                item.addEventListener('change', function () {
-                    const row = this.closest('tr');
-
-                    // Tambah atau hapus class 'row-checked' berdasarkan status centang
-                    if (this.checked) {
-                        row.classList.add('row-checked');
-                    } else {
-                        row.classList.remove('row-checked');
-                    }
-
-                    // Cek apakah semua item sudah dicentang
-                    // Jika ya, maka centang juga "Check All"
-                    const allChecked = Array.from(checkItems).every(i => i.checked);
-                    checkAll.checked = allChecked;
-                });
-            });
-
-            });
-        </script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 //serch
@@ -316,12 +261,6 @@
                         damping: '0.5'
                     }
                     Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-                }
-                //notif toast
-                var toastElement = document.getElementById('successToast');
-                if (toastElement) {
-                    var toast = new bootstrap.Toast(toastElement);
-                    toast.show();
                 }
             });
         </script>

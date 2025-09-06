@@ -6,7 +6,9 @@ use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use RealRashid\SweetAlert\Facades\Alert;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
+
 
 class BrandController extends Controller
 {
@@ -37,7 +39,8 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'img_brand' => 'nullable|string',
+            // Menambahkan validasi untuk memastikan path gambar adalah dari FilePond
+            'img_brand' => 'nullable|string|starts_with:tmp/',
             'nama' => 'required|max:255|unique:brands',
             'slug' => 'required|max:255|unique:brands',
             'status' => 'nullable|boolean',
@@ -53,12 +56,21 @@ class BrandController extends Controller
             if (Storage::disk('public')->exists($sourcePath)) {
                 Storage::disk('public')->move($sourcePath, $destinationPath);
                 $validatedData['img_brand'] = $destinationPath; // Simpan path baru
+            } else {
+                // Hapus path jika file tidak ditemukan untuk mencegah error
+                unset($validatedData['img_brand']);
             }
         }
 
         $validatedData['status'] = $request->has('status');
         Brand::create($validatedData);
-        return redirect()->route('brand.index')->with('success', 'Brand baru berhasil ditambahkan!');
+        Alert::success('Berhasil', 'Brand Baru Berhasil Ditambahkan.');
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Brand created successfully.']);
+        }
+
+        return redirect()->route('brand.index');
     }
 
     /**
@@ -124,7 +136,8 @@ class BrandController extends Controller
 
         $validatedData['status'] = $request->has('status');
         $brand->update($validatedData);
-        return redirect()->route('brand.index')->with('success', 'Data brand berhasil diperbarui!');
+        Alert::success('Berhasil', 'Data Brand Berhasil Diperbarui.');
+        return redirect()->route('brand.index');
     }
 
     /**
@@ -133,13 +146,15 @@ class BrandController extends Controller
     public function destroy(Brand $brand)
     {
         if ($brand->produks()->count() > 0) {
-        return back()->with('error', 'brand tidak dapat dihapus karena masih memiliki produk terkait!');
+        Alert::error('Gagal','brand tidak dapat dihapus karena masih memiliki produk terkait!');
+        return back();
     }
         if ($brand->img_brand) {
         Storage::disk('public')->delete($brand->img_brand);
     }
         $brand->delete();
-        return redirect()->route('brand.index')->with('success', 'Data Brand berhasil dihapus!');
+        Alert::success('Berhasil', 'Data Brand Berhasil Dihapus.');
+        return redirect()->route('brand.index');
     }
 
     public function chekSlug(Request $request)

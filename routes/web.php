@@ -10,10 +10,12 @@ use App\Http\Controllers\GaransiController;
 use App\Http\Controllers\PemasokController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\PemasukanController;
+use App\Http\Controllers\StokController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\KategoriPemasukanController;
 use App\Http\Controllers\KategoriPengeluaranController;
+use App\Http\Controllers\PenjualanController;
 
 //Autentikasi
 Route::get('login', [LoginController::class, 'index'])->name('login')->middleware('guest');
@@ -85,6 +87,11 @@ Route::get('/pemasok/{pemasok}/json', [PemasokController::class, 'getjson'])->mi
 Route::resource('pemasok', PemasokController::class)->middleware('auth');
 
 //transaksi penjualan
+Route::resource('/penjualan', PenjualanController::class)->middleware('auth');
+
+//transaksi pembelian
+Route::resource('/fakturpembejual', PenjualanController::class)->middleware('auth');
+
 Route::get('/pelanggan/{pelanggan}/json', [PelangganController::class, 'getjson'])->middleware('auth')->name('pelanggan.getjson');
 Route::resource('pelanggan', PelangganController::class)->middleware('auth');
 
@@ -117,3 +124,6 @@ Route::get('/dashboard/kategoripemasukan/chekSlug', [KategoriPemasukanController
 //Laba Bersih
 
 //Stok
+Route::get('/stok/rendah', [StokController::class, 'index'])
+     ->middleware('auth')
+     ->name('stok.rendah');

@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('item_penjualan', function (Blueprint $table) {
-            $table->id();
-            // Penghubung ke Kepala Nota (Tabel Penjualan)
+        Schema::create('item_penjualans', function (Blueprint $table) {
+             $table->id();
             $table->foreignId('penjualan_id')->constrained('penjualans')->onDelete('cascade');
-            // Penghubung ke Katalog Produk (Tabel Produk)
             $table->foreignId('produk_id')->constrained('produks')->onDelete('restrict');
-            // Detail Item yang Dijual
             $table->unsignedInteger('jumlah');
-            $table->decimal('harga', 15, 2); // Harga jual per item pada saat transaksi
+            $table->decimal('harga', 15, 2);
             $table->decimal('diskon_item', 15, 2)->default(0);
-            $table->decimal('subtotal', 15, 2); // Total per baris (kuantitas * harga)
+            $table->decimal('subtotal', 15, 2);
             $table->timestamps();
         });
     }
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('item_penjualan');
+        Schema::dropIfExists('item_penjualans');
     }
 };

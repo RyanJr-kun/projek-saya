@@ -1,11 +1,11 @@
 <x-layout>
-    {{-- breadcrumb --}}
+
     @push('styles')
         <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
         <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
         <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
     @endpush
-
+    
     @section('breadcrumb')
         @php
         $breadcrumbItems = [
@@ -16,28 +16,6 @@
         <x-breadcrumb :items="$breadcrumbItems" />
 
     @endsection
-    {{-- notif --}}
-    @if (session()->has('success') || session()->has('error'))
-        @php
-            $toastType = session()->has('success') ? 'success' : 'error';
-            $toastMessage = session('success') ?? session('error');
-            $toastHeaderBg = $toastType === 'success' ? 'bg-success' : 'bg-warning';
-            $toastIcon = $toastType === 'success' ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-exclamation-triangle';
-        @endphp
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header {{ $toastHeaderBg }} text-white">
-                    <span class="alert-icon text-light me-2"><i class="{{ $toastIcon }}"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ $toastMessage }}
-                </div>
-            </div>
-        </div>
-    @endif
 
     <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
         <div class="card mb-4 ">
@@ -247,347 +225,337 @@
             </div>
         </div>
     </div>
-@push('scripts')
-    {{-- FilePond Scripts --}}
-    <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
-    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // --- FILEPOND SETUP ---
-            FilePond.registerPlugin(
-                FilePondPluginImagePreview,
-                FilePondPluginFileValidateSize,
-                FilePondPluginImageCrop,
-                FilePondPluginFileValidateType,
-                FilePondPluginImageTransform
-            );
 
-            // Setup FilePond untuk modal create
-            const createPond = FilePond.create(document.querySelector('#img_brand_create'), {
-                labelIdle: `Seret & Lepas atau <span class="filepond--label-action">Cari</span>`,
-                // Aktifkan pratinjau gambar
-                allowImagePreview: true,
-                // Aktifkan validasi ukuran file
-                allowFileSizeValidation: true,
-                maxFileSize: '2MB',
-                // Aktifkan crop gambar
-                allowImageCrop: true,
-                imageCropAspectRatio: '1:1',
-                // stylePanelAspectRatio: '1:1',
-                labelMaxFileSizeExceeded: 'Ukuran file terlalu besar',
-                labelMaxFileSize: 'Ukuran file maksimum adalah 2MB',
-                acceptedFileTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
-                labelFileTypeNotAllowed: 'Jenis file tidak valid. Hanya PNG, JPG, WEBP, dan SVG yang diizinkan.',
-                server: {
-                    process: {
-                        url: '/dashboard/brand/upload', // Pastikan route ini ada
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                    },
-                        revert: {
-                            url: '/dashboard/brand/revert',
+    @push('scripts')
+        {{-- FilePond Scripts --}}
+        <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // --- FILEPOND SETUP ---
+                FilePond.registerPlugin(
+                    FilePondPluginImagePreview,
+                    FilePondPluginFileValidateSize,
+                    FilePondPluginImageCrop,
+                    FilePondPluginFileValidateType,
+                    FilePondPluginImageTransform
+                );
+
+                // Setup FilePond untuk modal create
+                const createPond = FilePond.create(document.querySelector('#img_brand_create'), {
+                    labelIdle: `Seret & Lepas atau <span class="filepond--label-action">Cari</span>`,
+                    // Aktifkan pratinjau gambar
+                    allowImagePreview: true,
+                    // Aktifkan validasi ukuran file
+                    allowFileSizeValidation: true,
+                    maxFileSize: '2MB',
+                    // Aktifkan crop gambar
+                    allowImageCrop: true,
+                    imageCropAspectRatio: '1:1',
+                    // stylePanelAspectRatio: '1:1',
+                    labelMaxFileSizeExceeded: 'Ukuran file terlalu besar',
+                    labelMaxFileSize: 'Ukuran file maksimum adalah 2MB',
+                    acceptedFileTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+                    labelFileTypeNotAllowed: 'Jenis file tidak valid. Hanya PNG, JPG, WEBP, dan SVG yang diizinkan.',
+                    server: {
+                        process: {
+                            url: '/dashboard/brand/upload', // Pastikan route ini ada
                             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                        }
-                }
-            });
-
-            // --- MODAL CREATE ---
-            const createModal = document.getElementById('import');
-            if (createModal) {
-                const namaInput = createModal.querySelector('#nama');
-                const slugInput = createModal.querySelector('#slug');
-
-                // Event listener untuk slug otomatis
-                namaInput.addEventListener('change', function() {
-                    fetch(`/dashboard/brand/chekSlug?nama=${namaInput.value}`)
-                        .then(response => response.json())
-                        .then(data => slugInput.value = data.slug);
-                });
-
-                // Tampilkan modal jika ada error validasi dari server
-                const hasError = document.querySelector('.is-invalid');
-                if (hasError) {
-                    var createModalInstance = new bootstrap.Modal(createModal);
-                    createModalInstance.show();
-                }
-
-                // Logika submit form create via AJAX
-                const createForm = document.getElementById('createBrandForm');
-                const submitCreateBtn = document.getElementById('submit-create-button');
-
-                if (submitCreateBtn) {
-                    submitCreateBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const formData = new FormData(createForm);
-
-                        // Reset error states
-                        createForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-                        createForm.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-
-                        fetch('{{ route("brand.store") }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json' // Penting untuk memberitahu Laravel kita mau JSON
-                            },
-                            body: formData
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                // Jika berhasil, reload halaman untuk melihat data baru
-                                window.location.reload();
-                            } else if (response.status === 422) {
-                                // Jika ada error validasi
-                                return response.json().then(data => {
-                                    Object.keys(data.errors).forEach(key => {
-                                        const input = createForm.querySelector(`[name="${key}"]`);
-                                        const errorDiv = createForm.querySelector(`#${key}-error`);
-                                        if (input) {
-                                            input.classList.add('is-invalid');
-                                        }
-                                        if (errorDiv) {
-                                            errorDiv.textContent = data.errors[key][0];
-                                        }
-                                    });
-                                });
+                        },
+                            revert: {
+                                url: '/dashboard/brand/revert',
+                                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                             }
-                        })
-                        .catch(error => console.error('An unexpected error occurred:', error));
-                    });
-                }
-            }
-
-            // Logika tombol batalkan di modal create untuk membersihkan form dan FilePond
-                const cancelCreateBtn = createModal.querySelector('#cancel-create-button');
-                if (cancelCreateBtn) {
-                    cancelCreateBtn.addEventListener('click', function(e) {
-                        e.preventDefault(); // Mencegah penutupan modal otomatis oleh data-bs-dismiss
-
-                        const createForm = document.getElementById('createBrandForm');
-                        const modalInstance = bootstrap.Modal.getInstance(createModal);
-
-                        // 1. Reset nilai input pada form ke nilai defaultnya
-                        createForm.reset();
-
-                        // 2. Hapus semua pesan error validasi
-                        createForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-                        createForm.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
-
-                        // 3. Hapus file dari FilePond (ini juga akan memicu revert di server)
-                        //    dan tutup modal setelah selesai.
-                        createPond.removeFiles().then(() => {
-                            modalInstance.hide();
-                        });
-                    });
-                }
-
-            // --- MODAL EDIT ---
-            const editModal = document.getElementById('editModal');
-            let editPond = null; // Untuk menyimpan instance FilePond modal edit
-
-            if (editModal) {
-                const editForm = editModal.querySelector('#editBrandForm');
-                const inputNama = editModal.querySelector('#edit_nama');
-                const inputSlug = editModal.querySelector('#edit_slug');
-                const inputStatus = editModal.querySelector('#edit_status');
-
-                // Event listener untuk menampilkan modal edit
-                editModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const dataUrl = button.getAttribute('data-url');
-                    const updateUrl = button.getAttribute('data-update-url');
-
-                    editForm.action = updateUrl;
-
-                    fetch(dataUrl)
-                        .then(response => response.json())
-                        .then(data => {
-                            // Isi form dengan data yang ada
-                            inputNama.value = data.nama;
-                            inputSlug.value = data.slug;
-                            inputStatus.checked = data.status == 1;
-
-                            const pondFiles = [];
-                            if (data.img_brand) {
-                                // Cukup berikan URL lengkap ke gambar yang ada, FilePond akan menampilkannya.
-                                pondFiles.push(`/storage/${data.img_brand}`);
-                            }
-
-                            // Buat instance FilePond baru untuk modal edit
-                            editPond = FilePond.create(document.querySelector('#img_brand_edit'), {
-                                labelIdle: `Seret & Lepas atau <span class="filepond--label-action">Cari</span>`,
-                                files: pondFiles,
-                                allowImagePreview: true,
-                                allowFileSizeValidation: true,
-                                maxFileSize: '2MB',
-                                allowImageCrop: true,
-                                imageCropAspectRatio: '1:1',
-                                // stylePanelAspectRatio: '1:1',
-                                acceptedFileTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
-                                labelFileTypeNotAllowed: 'Jenis file tidak valid.',
-                                labelMaxFileSizeExceeded: 'Ukuran file terlalu besar',
-                                labelMaxFileSize: 'Ukuran file maksimum adalah 2MB',
-                                server: {
-                                    process: {
-                                        url: '/dashboard/brand/upload', // Pastikan route ini ada
-                                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                                    },
-                                    revert: {
-                                        url: '/dashboard/brand/revert',
-                                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                                    }
-                                }
-                            });
-
-                            // --- Fitur Keamanan: Nonaktifkan tombol simpan saat upload ---
-                            const submitEditBtn = editForm.querySelector('#submit-edit-button');
-                            const pondEditInput = document.querySelector('#img_brand_edit');
-
-                            pondEditInput.addEventListener('FilePond:addfile', (e) => {
-                                // Nonaktifkan tombol saat file ditambahkan dan mulai diunggah
-                                submitEditBtn.disabled = true;
-                                submitEditBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengunggah...`;
-                            });
-
-                            pondEditInput.addEventListener('FilePond:processfile', (e) => {
-                                // Aktifkan kembali setelah proses selesai (berhasil atau gagal)
-                                submitEditBtn.disabled = false;
-                                submitEditBtn.innerHTML = 'Simpan Perubahan';
-                            });
-
-                            pondEditInput.addEventListener('FilePond:removefile', (e) => {
-                                // Aktifkan kembali jika file dibatalkan/dihapus
-                                submitEditBtn.disabled = false;
-                                submitEditBtn.innerHTML = 'Simpan Perubahan';
-                            });
-                        })
-                        .catch(error => console.error('Error fetching brand data:', error));
+                    }
                 });
 
-                // Event listener untuk slug otomatis di modal edit
-                inputNama.addEventListener('change', function() {
-                    fetch(`/dashboard/brand/chekSlug?nama=${inputNama.value}`)
-                        .then(response => response.json())
-                        .then(data => inputSlug.value = data.slug);
-                });
+                // --- MODAL CREATE ---
+                const createModal = document.getElementById('import');
+                if (createModal) {
+                    const namaInput = createModal.querySelector('#nama');
+                    const slugInput = createModal.querySelector('#slug');
 
-                // Logika tombol batalkan di modal edit
-                const cancelEditBtn = editModal.querySelector('#cancel-edit-button');
-                if (cancelEditBtn) {
-                    cancelEditBtn.addEventListener('click', function(e) {
-                        e.preventDefault(); // Mencegah penutupan modal otomatis jika ada data-bs-dismiss
+                    // Event listener untuk slug otomatis
+                    namaInput.addEventListener('change', function() {
+                        fetch(`/dashboard/brand/chekSlug?nama=${namaInput.value}`)
+                            .then(response => response.json())
+                            .then(data => slugInput.value = data.slug);
+                    });
 
-                        // Cari file yang BARU diunggah oleh pengguna dan sudah selesai diproses
-                        const newFile = editPond.getFiles().find(file =>
-                            file.origin === FilePond.FileOrigin.INPUT &&
-                            file.status === FilePond.FileStatus.PROCESSING_COMPLETE
-                        );
+                    // Tampilkan modal jika ada error validasi dari server
+                    const hasError = document.querySelector('.is-invalid');
+                    if (hasError) {
+                        var createModalInstance = new bootstrap.Modal(createModal);
+                        createModalInstance.show();
+                    }
 
-                        const modalInstance = bootstrap.Modal.getInstance(editModal);
+                    // Logika submit form create via AJAX
+                    const createForm = document.getElementById('createBrandForm');
+                    const submitCreateBtn = document.getElementById('submit-create-button');
 
-                        if (newFile && newFile.serverId) {
-                            // Jika ada file baru yang sudah diunggah, hapus dulu dari server
-                            fetch('{{ route("brand.revert") }}', {
-                                method: 'DELETE',
+                    if (submitCreateBtn) {
+                        submitCreateBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(createForm);
+
+                            // Reset error states
+                            createForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                            createForm.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+                            fetch('{{ route("brand.store") }}', {
+                                method: 'POST',
                                 headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json' // Penting untuk memberitahu Laravel kita mau JSON
                                 },
-                                body: newFile.serverId
-                            }).finally(() => {
+                                body: formData
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    // Jika berhasil, reload halaman untuk melihat data baru
+                                    window.location.reload();
+                                } else if (response.status === 422) {
+                                    // Jika ada error validasi, tampilkan pesan error di form.
+                                    response.json().then(data => {
+                                        Object.keys(data.errors).forEach(key => {
+                                            const input = createForm.querySelector(`[name="${key}"]`);
+                                            const errorDiv = createForm.querySelector(`#${key}-error`);
+                                            if (input) input.classList.add('is-invalid');
+                                            if (errorDiv) errorDiv.textContent = data.errors[key][0];
+                                        });
+                                    });
+                                } else {
+                                    alert('Terjadi kesalahan pada server. Silakan coba lagi.');
+                                }
+                            })
+                            .catch(error => console.error('An unexpected network error occurred:', error));
+                        });
+                    }
+                }
+
+                // Logika tombol batalkan di modal create untuk membersihkan form dan FilePond
+                    const cancelCreateBtn = createModal.querySelector('#cancel-create-button');
+                    if (cancelCreateBtn) {
+                        cancelCreateBtn.addEventListener('click', function(e) {
+                            e.preventDefault(); // Mencegah penutupan modal otomatis oleh data-bs-dismiss
+
+                            const createForm = document.getElementById('createBrandForm');
+                            const modalInstance = bootstrap.Modal.getInstance(createModal);
+
+                            // 1. Reset nilai input pada form ke nilai defaultnya
+                            createForm.reset();
+
+                            // 2. Hapus semua pesan error validasi
+                            createForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                            createForm.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+
+                            // 3. Hapus file dari FilePond (ini juga akan memicu revert di server)
+                            //    dan tutup modal setelah selesai.
+                            createPond.removeFiles().then(() => {
                                 modalInstance.hide();
                             });
-                        } else {
-                            modalInstance.hide();
+                        });
+                    }
+
+                // --- MODAL EDIT ---
+                const editModal = document.getElementById('editModal');
+                let editPond = null; // Untuk menyimpan instance FilePond modal edit
+
+                if (editModal) {
+                    const editForm = editModal.querySelector('#editBrandForm');
+                    const inputNama = editModal.querySelector('#edit_nama');
+                    const inputSlug = editModal.querySelector('#edit_slug');
+                    const inputStatus = editModal.querySelector('#edit_status');
+
+                    // Event listener untuk menampilkan modal edit
+                    editModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        const dataUrl = button.getAttribute('data-url');
+                        const updateUrl = button.getAttribute('data-update-url');
+
+                        editForm.action = updateUrl;
+
+                        fetch(dataUrl)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Isi form dengan data yang ada
+                                inputNama.value = data.nama;
+                                inputSlug.value = data.slug;
+                                inputStatus.checked = data.status == 1;
+
+                                const pondFiles = [];
+                                if (data.img_brand) {
+                                    // Cukup berikan URL lengkap ke gambar yang ada, FilePond akan menampilkannya.
+                                    pondFiles.push(`/storage/${data.img_brand}`);
+                                }
+
+                                // Buat instance FilePond baru untuk modal edit
+                                editPond = FilePond.create(document.querySelector('#img_brand_edit'), {
+                                    labelIdle: `Seret & Lepas atau <span class="filepond--label-action">Cari</span>`,
+                                    files: pondFiles,
+                                    allowImagePreview: true,
+                                    allowFileSizeValidation: true,
+                                    maxFileSize: '2MB',
+                                    allowImageCrop: true,
+                                    imageCropAspectRatio: '1:1',
+                                    // stylePanelAspectRatio: '1:1',
+                                    acceptedFileTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+                                    labelFileTypeNotAllowed: 'Jenis file tidak valid.',
+                                    labelMaxFileSizeExceeded: 'Ukuran file terlalu besar',
+                                    labelMaxFileSize: 'Ukuran file maksimum adalah 2MB',
+                                    server: {
+                                        process: {
+                                            url: '/dashboard/brand/upload', // Pastikan route ini ada
+                                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                        },
+                                        revert: {
+                                            url: '/dashboard/brand/revert',
+                                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                        }
+                                    }
+                                });
+
+                                // --- Fitur Keamanan: Nonaktifkan tombol simpan saat upload ---
+                                const submitEditBtn = editForm.querySelector('#submit-edit-button');
+                                const pondEditInput = document.querySelector('#img_brand_edit');
+
+                                pondEditInput.addEventListener('FilePond:addfile', (e) => {
+                                    // Nonaktifkan tombol saat file ditambahkan dan mulai diunggah
+                                    submitEditBtn.disabled = true;
+                                    submitEditBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengunggah...`;
+                                });
+
+                                pondEditInput.addEventListener('FilePond:processfile', (e) => {
+                                    // Aktifkan kembali setelah proses selesai (berhasil atau gagal)
+                                    submitEditBtn.disabled = false;
+                                    submitEditBtn.innerHTML = 'Simpan Perubahan';
+                                });
+
+                                pondEditInput.addEventListener('FilePond:removefile', (e) => {
+                                    // Aktifkan kembali jika file dibatalkan/dihapus
+                                    submitEditBtn.disabled = false;
+                                    submitEditBtn.innerHTML = 'Simpan Perubahan';
+                                });
+                            })
+                            .catch(error => console.error('Error fetching brand data:', error));
+                    });
+
+                    // Event listener untuk slug otomatis di modal edit
+                    inputNama.addEventListener('change', function() {
+                        fetch(`/dashboard/brand/chekSlug?nama=${inputNama.value}`)
+                            .then(response => response.json())
+                            .then(data => inputSlug.value = data.slug);
+                    });
+
+                    // Logika tombol batalkan di modal edit
+                    const cancelEditBtn = editModal.querySelector('#cancel-edit-button');
+                    if (cancelEditBtn) {
+                        cancelEditBtn.addEventListener('click', function(e) {
+                            e.preventDefault(); // Mencegah penutupan modal otomatis jika ada data-bs-dismiss
+
+                            // Cari file yang BARU diunggah oleh pengguna dan sudah selesai diproses
+                            const newFile = editPond.getFiles().find(file =>
+                                file.origin === FilePond.FileOrigin.INPUT &&
+                                file.status === FilePond.FileStatus.PROCESSING_COMPLETE
+                            );
+
+                            const modalInstance = bootstrap.Modal.getInstance(editModal);
+
+                            if (newFile && newFile.serverId) {
+                                // Jika ada file baru yang sudah diunggah, hapus dulu dari server
+                                fetch('{{ route("brand.revert") }}', {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    },
+                                    body: newFile.serverId
+                                }).finally(() => {
+                                    modalInstance.hide();
+                                });
+                            } else {
+                                modalInstance.hide();
+                            }
+                        });
+                    }
+
+                    // Tambahkan event listener untuk membersihkan FilePond saat modal ditutup.
+                    // Ini penting untuk mencegah state gambar dari edit sebelumnya terbawa.
+                    editModal.addEventListener('hidden.bs.modal', function () {
+                        if (editPond) {
+                            editPond.destroy();
+                            editPond = null; // Pastikan instance lama benar-benar dihapus
                         }
                     });
                 }
 
-                // Tambahkan event listener untuk membersihkan FilePond saat modal ditutup.
-                // Ini penting untuk mencegah state gambar dari edit sebelumnya terbawa.
-                editModal.addEventListener('hidden.bs.modal', function () {
-                    if (editPond) {
-                        editPond.destroy();
-                        editPond = null; // Pastikan instance lama benar-benar dihapus
-                    }
-                });
-            }
+                // --- MODAL DELETE ---
+                const deleteModal = document.getElementById('deleteConfirmationModal');
+                if (deleteModal) {
+                    deleteModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        const brandSlug = button.getAttribute('data-brand-slug');
+                        const brandName = button.getAttribute('data-brand-name');
+                        const modalBodyName = deleteModal.querySelector('#brandNameToDelete');
+                        const deleteForm = deleteModal.querySelector('#deleteBrandForm');
 
-            // --- MODAL DELETE ---
-            const deleteModal = document.getElementById('deleteConfirmationModal');
-            if (deleteModal) {
-                deleteModal.addEventListener('show.bs.modal', function (event) {
-                    const button = event.relatedTarget;
-                    const brandSlug = button.getAttribute('data-brand-slug');
-                    const brandName = button.getAttribute('data-brand-name');
-                    const modalBodyName = deleteModal.querySelector('#brandNameToDelete');
-                    const deleteForm = deleteModal.querySelector('#deleteBrandForm');
-
-                    modalBodyName.textContent = brandName;
-                    deleteForm.action = `/brand/${brandSlug}`;
-                });
-            }
-
-            // --- FITUR LAIN (Filter, Toast, Scrollbar) ---
-            // Filter tabel
-            const searchInput = document.getElementById('searchInput');
-            const statusFilter = document.getElementById('statusFilter');
-            const tableBody = document.getElementById('isiTable');
-            const rows = tableBody.getElementsByTagName('tr');
-
-            function populateStatusFilter() {
-                const statuses = ['Aktif', 'Tidak Aktif'];
-                while (statusFilter.options.length > 1) {
-                    statusFilter.remove(1);
+                        modalBodyName.textContent = brandName;
+                        deleteForm.action = `/brand/${brandSlug}`;
+                    });
                 }
-                statuses.forEach(status => {
-                    const option = document.createElement('option');
-                    option.value = status;
-                    option.textContent = status;
-                    statusFilter.appendChild(option);
-                });
-            }
+                // Filter tabel
+                const searchInput = document.getElementById('searchInput');
+                const statusFilter = document.getElementById('statusFilter');
+                const tableBody = document.getElementById('isiTable');
+                const rows = tableBody.getElementsByTagName('tr');
 
-            function filterTable() {
-                const searchText = searchInput.value.toLowerCase();
-                const statusValue = statusFilter.value;
+                function populateStatusFilter() {
+                    const statuses = ['Aktif', 'Tidak Aktif'];
+                    while (statusFilter.options.length > 1) {
+                        statusFilter.remove(1);
+                    }
+                    statuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = status;
+                        statusFilter.appendChild(option);
+                    });
+                }
 
-                for (let i = 0; i < rows.length; i++) {
-                    const row = rows[i];
-                    const namaCell = row.cells[0];
-                    const statusCell = row.cells[3]; // Status ada di kolom ke-4 (index 3)
+                function filterTable() {
+                    const searchText = searchInput.value.toLowerCase();
+                    const statusValue = statusFilter.value;
 
-                    if (namaCell && statusCell) {
-                        const namaText = namaCell.textContent.toLowerCase().trim();
-                        const statusText = statusCell.textContent.trim();
-                        const namaMatch = namaText.includes(searchText);
-                        const statusMatch = (statusValue === "" || statusText === statusValue);
-                        row.style.display = (namaMatch && statusMatch) ? "" : "none";
+                    for (let i = 0; i < rows.length; i++) {
+                        const row = rows[i];
+                        const namaCell = row.cells[0];
+                        const statusCell = row.cells[3]; // Status ada di kolom ke-4 (index 3)
+
+                        if (namaCell && statusCell) {
+                            const namaText = namaCell.textContent.toLowerCase().trim();
+                            const statusText = statusCell.textContent.trim();
+                            const namaMatch = namaText.includes(searchText);
+                            const statusMatch = (statusValue === "" || statusText === statusValue);
+                            row.style.display = (namaMatch && statusMatch) ? "" : "none";
+                        }
                     }
                 }
-            }
 
-            if(searchInput && statusFilter && tableBody) {
-                populateStatusFilter();
-                searchInput.addEventListener('keyup', filterTable);
-                statusFilter.addEventListener('change', filterTable);
-            }
+                if(searchInput && statusFilter && tableBody) {
+                    populateStatusFilter();
+                    searchInput.addEventListener('keyup', filterTable);
+                    statusFilter.addEventListener('change', filterTable);
+                }
 
-            // toast notif success
-            const notificationToastEl = document.getElementById('notificationToast');
-            if (notificationToastEl) {
-                const toast = new bootstrap.Toast(notificationToastEl);
-                toast.show();
-            }
-
-            // Scrollbar
-            const win = navigator.platform.indexOf('Win') > -1;
-            if (win && document.querySelector('#sidenav-scrollbar')) {
-                Scrollbar.init(document.querySelector('#sidenav-scrollbar'), { damping: '0.5' });
-            }
-        });
-    </script>
-@endpush
+                // Scrollbar
+                const win = navigator.platform.indexOf('Win') > -1;
+                if (win && document.querySelector('#sidenav-scrollbar')) {
+                    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), { damping: '0.5' });
+                }
+            });
+        </script>
+    @endpush
 </x-layout>

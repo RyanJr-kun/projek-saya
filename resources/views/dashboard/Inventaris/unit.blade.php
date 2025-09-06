@@ -9,22 +9,6 @@
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
-    {{-- notif-success --}}
-    @if (session()->has('success'))
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-success text-white">
-                    <span class="alert-icon text-light me-2"><i class="fa fa-thumbs-up"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ session('success') }}
-                </div>
-            </div>
-        </div>
-    @endif
 
     <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
         <div class="row ">
@@ -257,7 +241,7 @@
         </div>
     </div>
 @push('scripts')
-<script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter'); // Ganti nama variabel agar lebih jelas
@@ -308,10 +292,7 @@
 
             searchInput.addEventListener('keyup', filterTable);
             statusFilter.addEventListener('change', filterTable);
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+
             // scrollbar
             var win = navigator.platform.indexOf('Win') > -1;
             if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -319,12 +300,6 @@
                     damping: '0.5'
                 }
                 Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-            }
-            // toast notif
-            var toastElement = document.getElementById('successToast');
-            if (toastElement) {
-                var toast = new bootstrap.Toast(toastElement);
-                toast.show();
             }
             // slug
             const nama = document.querySelector('#nama ')

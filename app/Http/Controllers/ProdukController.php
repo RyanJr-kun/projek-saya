@@ -11,6 +11,7 @@ use App\Models\KategoriProduk;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use RealRashid\SweetAlert\Facades\Alert;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
 
 class ProdukController extends Controller
@@ -49,7 +50,7 @@ class ProdukController extends Controller
             'slug' => 'required|string|unique:produks,slug',
             'barcode' => 'nullable|string|unique:produks,barcode',
             'sku' => 'required|string|unique:produks,sku',
-            'kategori' => 'required|exists:kategori_produks,id', 
+            'kategori' => 'required|exists:kategori_produks,id',
             'brand' => 'required|exists:brands,id',
             'unit' => 'required|exists:units,id',
             'deskripsi' => 'nullable|string',
@@ -79,7 +80,8 @@ class ProdukController extends Controller
         unset($validatedData['kategori'], $validatedData['brand'], $validatedData['unit'], $validatedData['garansi']);
 
         Produk::create($validatedData);
-        return redirect('/produk')->with('success', 'Produk baru berhasil ditambahkan.');
+        Alert::success('Berhasil', 'Produk Baru Berhasil Ditambahkan.');
+        return redirect()->route('produk.index');
     }
 
 
@@ -160,7 +162,8 @@ class ProdukController extends Controller
         unset($validatedData['kategori'], $validatedData['brand'], $validatedData['unit'], $validatedData['garansi']);
 
         $produk->update($validatedData);
-        return redirect('/produk')->with('success', 'Data Produk berhasil diperbarui!');
+        Alert::success('Berhasil', 'Data Produk Berhasil Diperbarui.');
+        return redirect()->route('produk.index');
     }
 
     /**
@@ -173,7 +176,8 @@ class ProdukController extends Controller
         }
 
         $produk->delete();
-        return redirect()->route('produk.index')->with('success', 'Data Produk berhasil dihapus!');
+        Alert::success('Berhasil', 'Data Produk Berhasil Dihapus.');
+        return redirect()->route('produk.index');
     }
 
     public function chekSlug(Request $request)

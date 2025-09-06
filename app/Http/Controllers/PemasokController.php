@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Validation\Rule; // Import Rule untuk validasi unique saat update
 use App\Models\Pemasok;
+use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 
 class PemasokController extends Controller
@@ -44,7 +45,8 @@ class PemasokController extends Controller
         $validatedData['status'] = $request->has('status');
 
         Pemasok::create($validatedData);
-        return redirect()->route('pemasok.index')->with('success', 'Pemasok baru berhasil ditambahkan!');
+        Alert::success('Berhasil', 'Pemasok baru berhasil ditambahkan!');
+        return redirect()->route('pemasok.index');
     }
 
     /**
@@ -89,9 +91,10 @@ class PemasokController extends Controller
 
         $validatedData = $request->validate($rules);
         $validatedData['status'] = $request->has('status');
-        
+
         $pemasok->update($validatedData);
-        return redirect()->route('pemasok.index')->with('success', 'Data pemasok berhasil diperbarui!');
+        Alert::success('Berhasil', 'Data pemasok berhasil diperbarui!');
+        return redirect()->route('pemasok.index');
     }
 
     /**
@@ -101,10 +104,12 @@ class PemasokController extends Controller
     {
         // Periksa apakah ada transaksi pembelian yang terkait dengan pemasok ini
         if ($pemasok->pembelians()->count() > 0) {
-            return back()->with('error', 'Pemasok tidak dapat dihapus karena masih memiliki transaksi pembelian terkait!');
+            Alert::error('Gagal', 'Pemasok tidak dapat dihapus karena masih memiliki transaksi pembelian terkait!');
+            return back();
         }
 
         $pemasok->delete();
-        return redirect()->route('pemasok.index')->with('success', 'Pemasok berhasil dihapus!');
+        Alert::success('Berhasil', 'Pemasok berhasil dihapus!');
+        return redirect()->route('pemasok.index');
     }
 }

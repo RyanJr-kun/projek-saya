@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pelanggan;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Validation\Rule;
 
 class PelangganController extends Controller
@@ -39,10 +40,22 @@ class PelangganController extends Controller
             'alamat' => 'nullable|string',
         ]);
 
-        $validatedData['status'] = $request->boolean('status');
+        if ($request->wantsJson()) {
+            $validatedData['status'] = true;
+        } else {
+            $validatedData['status'] = $request->boolean('status');
+        }
 
-        Pelanggan::create($validatedData);
-        return redirect()->route('pelanggan.index')->with('success', 'Pelanggan baru berhasil ditambahkan!');
+        $pelanggan = Pelanggan::create($validatedData);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'message' => 'Pelanggan baru berhasil ditambahkan!',
+                'pelanggan' => $pelanggan
+            ], 201);
+        }
+        Alert::success('Berhasil', 'Pelanggan baru berhasil ditambahkan!');
+        return redirect()->route('pelanggan.index');
     }
 
     /**
@@ -79,10 +92,11 @@ class PelangganController extends Controller
         ];
 
         $validatedData = $request->validate($rules);
-        $validatedData['status'] = $request->boolean('status'); 
+        $validatedData['status'] = $request->boolean('status');
 
         $pelanggan->update($validatedData);
-        return redirect()->route('pelanggan.index')->with('success', 'Data pelanggan berhasil diperbarui!');
+        Alert::success('Berhasil', 'Data pelanggan berhasil diperbarui!');
+        return redirect()->route('pelanggan.index');
     }
 
     /**
@@ -90,13 +104,13 @@ class PelangganController extends Controller
      */
     public function destroy(Pelanggan $pelanggan)
     {
-       // Periksa apakah ada transaksi penjualan yang terkait dengan pelanggan ini
         if ($pelanggan->penjualans()->count() > 0) {
-            return back()->with('error', 'Pelanggan tidak dapat dihapus karena masih memiliki transaksi penjualan terkait!');
+            Alert::error('Gagal', 'Pelanggan tidak dapat dihapus karena masih memiliki transaksi penjualan terkait!');
+            return back();
         }
 
         $pelanggan->delete();
-        return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil dihapus!');
-
+        Alert::success('Berhasil', 'Pelanggan berhasil dihapus!');
+        return redirect()->route('pelanggan.index');
     }
 }

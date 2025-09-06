@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -63,7 +64,8 @@ class UserController extends Controller
         $validatedData['password'] = bcrypt($validatedData['password']);
 
         User::create($validatedData);
-        return redirect('/users')->with('success', 'Pembuatan User Baru Berhasil!!');
+        Alert::success('Berhasil', 'User Baru Berhasil Ditambahkan.');
+        return redirect()->route('users.index');
     }
 
     /**
@@ -134,7 +136,8 @@ class UserController extends Controller
             unset($validatedData['password']);
         }
         $user->update($validatedData);
-        return redirect('/users')->with('success', 'Data User Berhasil Diperbarui!');
+        Alert::success('Berhasil', 'Data Pengguna Berhasil Diperbarui.');
+        return redirect()->route('users.index');
     }
 
     /**
@@ -146,7 +149,8 @@ class UserController extends Controller
         Storage::disk('public')->delete($user->img_user);
          }
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'Data Pengguna berhasil dihapus!');
+        Alert::success('Berhasil', 'Data Pengguna Berhasil Dihapus.');
+        return redirect()->route('users.index');
     }
 
     /**

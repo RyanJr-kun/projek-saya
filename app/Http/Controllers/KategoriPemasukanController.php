@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\KategoriPemasukan;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Validation\Rule;
 
@@ -48,7 +49,8 @@ class KategoriPemasukanController extends Controller
         ];
 
         KategoriPemasukan::create($dataToStore);
-        return redirect('/kategoripemasukan')->with('success', 'Pembuatan kategori pemasukan baru berhasil!');
+        Alert::success('Berhasil', 'Kategori Pemasukan Baru Berhasil Ditambahkan!');
+        return redirect()->route('kategoripemasukan.index');
     }
 
     /**
@@ -91,7 +93,8 @@ class KategoriPemasukanController extends Controller
             'status' => $request->has('status')
         ];
         $kategoripemasukan->update($dataToUpdate);
-        return redirect()->route('kategoripemasukan.index')->with('success', 'Kategori Pemasukan Berhasil Diperbarui!');
+        Alert::success('Berhasil', 'Kategori Pemasukan Berhasil Diperbarui!');
+        return redirect()->route('kategoripemasukan.index');
     }
 
     /**
@@ -100,10 +103,12 @@ class KategoriPemasukanController extends Controller
     public function destroy(KategoriPemasukan $kategoripemasukan)
     {
         if ($kategoripemasukan->pemasukans()->count() > 0) {
-        return back()->with('error', 'Kategori Tidak Dapat Dihapus Karena Masih Memiliki Transaksi Terkait!');
+        Alert::error('Gagal', 'Kategori Pemasukan Tidak Dapat Dihapus Karena Masih Memiliki Transaksi Terkait!');
+        return back();
     }
         $kategoripemasukan->delete();
-        return redirect()->route('kategoripemasukan.index')->with('success', 'Kategori Pemasukan Berhasil Dihapus!');
+        Alert::success('Berhasil', 'Kategori Pemasukan Berhasil Dihapus!');
+        return redirect()->route('kategoripemasukan.index');
     }
 
     public function chekSlug(Request $request)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\pengeluaran;
 use Illuminate\Http\Request;
 use App\Models\KategoriPengeluaran;
+use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
@@ -47,7 +48,8 @@ class PengeluaranController extends Controller
         $validateData['user_id'] = Auth::id();
 
         Pengeluaran::create($validateData);
-        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran baru berhasil ditambahkan.');
+        Alert::success('Berhasil', 'Pengeluaran baru berhasil ditambahkan!');
+        return redirect()->route('pengeluaran.index');
     }
 
     /**
@@ -87,9 +89,10 @@ class PengeluaranController extends Controller
 
         $validateData = $request->validate($rules);
         $validateData['user_id'] = Auth::id();
-        
+
         $pengeluaran->update($validateData);
-        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran Berhasil Diperbarui!');
+        Alert::success('Berhasil', 'Pengeluaran Berhasil Diperbarui!');
+        return redirect()->route('pengeluaran.index');
     }
 
     /**
@@ -98,6 +101,7 @@ class PengeluaranController extends Controller
     public function destroy(Pengeluaran $pengeluaran)
     {
         $pengeluaran->delete();
-        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran Berhasil Dihapus!');
+        Alert::success('Berhasil', 'Pengeluaran Berhasil Dihapus!');
+        return redirect()->route('pengeluaran.index');
     }
 }

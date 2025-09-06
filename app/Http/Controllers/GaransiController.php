@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Garansi;
 use Illuminate\Http\Request;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
+use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Validation\Rule;
 
 class GaransiController extends Controller
@@ -59,7 +60,8 @@ class GaransiController extends Controller
         ];
 
         Garansi::create($dataToStore);
-        return redirect()->route('garansi.index')->with('success', 'Garansi baru berhasil dibuat!');
+        Alert::success('Berhasil', 'Garansi Baru Berhasil Ditambahkan.');
+        return redirect()->route('garansi.index');
     }
 
     /**
@@ -114,7 +116,8 @@ class GaransiController extends Controller
         ];
 
         $garansi->update($dataToUpdate);
-        return redirect()->route('garansi.index')->with('success', 'Data garansi berhasil diperbarui!');
+        Alert::success('Berhasil', 'Garansi Berhasil Diperbarui.');
+        return redirect()->route('garansi.index');
     }
 
 
@@ -124,10 +127,12 @@ class GaransiController extends Controller
     public function destroy(Garansi $garansi)
     {
         if ($garansi->produks()->count() > 0) {
-        return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki produk terkait!');
+        Alert::error('Gagal', 'Garansi tidak dapat dihapus karena masih memiliki produk terkait!');
+        return back();
     }
         $garansi->delete();
-        return redirect()->route('garansi.index')->with('success', 'Kategori produk berhasil dihapus!');
+        Alert::success('Berhasil', 'Garansi Berhasil Dihapus.');
+        return redirect()->route('garansi.index');
     }
 
     public function chekSlug(Request $request)

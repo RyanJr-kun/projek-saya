@@ -18,7 +18,7 @@
     </head>
 
     <body class="g-sidenav-show bg-gray-100">
-        <div style="height: 80px;" class="bg-blue position-absolute w-100"></div>
+        <div class="min-height-300 bg-dark  position-absolute w-100"></div>
         <x-aside></x-aside>
         <main class="main-content position-relative border-radius-lg ">
             <nav class="navbar navbar-main navbar-expand-lg px-0 px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
@@ -117,8 +117,7 @@
             {{ $slot }}
         </main>
         <x-footer></x-footer>
+        @include('sweetalert::alert')
         @stack('scripts')
-
     </body>
-
 </html>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\KategoriPengeluaran;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
 use Illuminate\Validation\Rule;
 
@@ -48,7 +49,8 @@ class KategoriPengeluaranController extends Controller
         ];
 
         KategoriPengeluaran::create($dataToStore);
-        return redirect('/kategoripengeluaran')->with('success', 'Pembuatan Kategori Pengeluaran Baru Berhasil!');
+        Alert::success('Berhasil', 'Kategori Pengeluaran Baru Berhasil Ditambahkan!');
+        return redirect()->route('kategoripengeluaran.index');
     }
 
     /**
@@ -69,7 +71,7 @@ class KategoriPengeluaranController extends Controller
 
     public function edit(KategoriPengeluaran $kategoripengeluaran)
     {
-        return redirect()->route('kategoripengeluaran.index');
+        //
     }
 
     /**
@@ -91,7 +93,8 @@ class KategoriPengeluaranController extends Controller
             'status' => $request->has('status')
         ];
         $kategoripengeluaran->update($dataToUpdate);
-        return redirect()->route('kategoripengeluaran.index')->with('success', 'Kategori Pengeluaran Berhasil Diperbarui!');
+        Alert::success('Berhasil', 'Kategori Pengeluaran Berhasil Diperbarui!');
+        return redirect()->route('kategoripengeluaran.index');
     }
 
     /**
@@ -100,10 +103,12 @@ class KategoriPengeluaranController extends Controller
     public function destroy(KategoriPengeluaran $kategoripengeluaran)
     {
         if ($kategoripengeluaran->pengeluarans()->count() > 0) {
-        return back()->with('error', 'Kategori Tidak Dapat Dihapus Karena Masih Memiliki Transaksi Terkait!');
+            Alert::error('Gagal', 'Kategori Pengeluaran Tidak Dapat Dihapus Karena Masih Memiliki Transaksi Terkait!');
+            return back();
     }
         $kategoripengeluaran->delete();
-        return redirect()->route('kategoripengeluaran.index')->with('success', 'Kategori Pengeluaran Berhasil Dihapus!');
+        Alert::success('Berhasil', 'Kategori Pengeluaran Berhasil Dihapus!');
+        return redirect()->route('kategoripengeluaran.index');
     }
 
     public function chekSlug(Request $request)

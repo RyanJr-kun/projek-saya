@@ -5,6 +5,7 @@ use App\Models\KategoriProduk;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use RealRashid\SweetAlert\Facades\Alert;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
 
 
@@ -52,7 +53,8 @@ class KategoriProdukController extends Controller
 
         $validatedData['status'] = $request->has('status');
         KategoriProduk::create($validatedData);
-        return redirect()->route('kategoriproduk.index')->with('success', 'Kategori produk baru berhasil ditambahkan!');
+        Alert::success('Berhasil', 'Kategori Baru Berhasil Ditambahkan.');
+        return redirect()->route('kategoriproduk.index');
     }
 
     /**
@@ -117,7 +119,8 @@ class KategoriProdukController extends Controller
 
         $validatedData['status'] = $request->has('status');
         $kategoriproduk->update($validatedData);
-        return redirect()->route('kategoriproduk.index')->with('success', 'Kategori produk berhasil diperbarui!');
+        Alert::success('Berhasil', 'Data Kategori Produk Berhasil Diperbarui.');
+        return redirect()->route('kategoriproduk.index');
     }
 
     /**
@@ -126,13 +129,15 @@ class KategoriProdukController extends Controller
     public function destroy(KategoriProduk $kategoriproduk)
     {
         if ($kategoriproduk->produks()->count() > 0) {
-        return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki produk terkait!');
+        Alert::error('Gagal','Kategori Produk tidak dapat dihapus karena masih memiliki produk terkait!');
+        return back();
     }
         if ($kategoriproduk->img_kategori) {
         Storage::disk('public')->delete($kategoriproduk->img_kategori);
     }
         $kategoriproduk->delete();
-        return redirect()->route('kategoriproduk.index')->with('success', 'Kategori produk berhasil dihapus!');
+        Alert::success('Berhasil', 'Data Kategori Produk Berhasil Dihapus.');
+        return redirect()->route('kategoriproduk.index');
     }
 
     public function chekSlug(Request $request)

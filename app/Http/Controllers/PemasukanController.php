@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pemasukan;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\KategoriPemasukan;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,7 +48,8 @@ class PemasukanController extends Controller
         $validateData['user_id'] = Auth::id();
 
         Pemasukan::create($validateData);
-        return redirect()->route('pemasukan.index')->with('success', 'Pemasukan baru berhasil ditambahkan.');
+        Alert::success('Berhasil', 'Pemasukan baru berhasil ditambahkan!');
+        return redirect()->route('pemasukan.index');
     }
 
     /**
@@ -89,7 +91,8 @@ class PemasukanController extends Controller
         $validateData['user_id'] = Auth::id();
 
         $pemasukan->update($validateData);
-        return redirect()->route('pemasukan.index')->with('success', 'Pemasukan Berhasil Diperbarui!');
+        Alert::success('Berhasil', 'Pemasukan Berhasil Diperbarui!');
+        return redirect()->route('pemasukan.index');
     }
 
     /**
@@ -97,6 +100,8 @@ class PemasukanController extends Controller
      */
     public function destroy(Pemasukan $pemasukan)
     {
-        //
+        $pemasukan->delete();
+        Alert::success('Berhasil', 'Pemasukan Berhasil Dihapus!');
+        return redirect()->route('pemasukan.index');
     }
 }

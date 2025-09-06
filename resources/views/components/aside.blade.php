@@ -16,7 +16,7 @@
 
             {{-- Dashboard --}}
             <li class="nav-item">
-                <a class="nav-link hover {{ request()->is('dashboard') ? 'active' : '' }} " href="/dashboard">
+                <a class="nav-link hover {{ request()->is('dashboard') ? 'active' : '' }} " href="{{ route('dashboard') }}">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="bi bi-tv text-dark text-sm opacity-10"></i>
                     </div>
@@ -35,13 +35,13 @@
                 <div class="collapse " id="penjualan">
                     <ul class="nav ms-4">
                         <li class="nav-item ">
-                            <a class="nav-link {{ request()->is('kasir*') ? 'active' : '' }}" href="/kasir">
-                            <span class="sidenav-mini-icon"> K </span>
-                            <span class="sidenav-normal"> Kasir </span>
+                            <a class="nav-link {{ request()->routeIs('penjualan.create') ? 'active' : '' }}" href="{{ route('penjualan.create') }}">
+                                <span class="bi bi-bag-dash sidenav-mini-icon"> K </span>
+                                <span class="sidenav-normal"> Kasir </span>
                             </a>
                         </li>
                         <li class="nav-item ">
-                            <a class="nav-link {{ request()->is('invoicejual*') ? 'active' : '' }}" href="/invoicejual">
+                            <a class="nav-link {{ (request()->is('penjualan') || request()->is('penjualan/*')) && !request()->is('penjualan/create') ? 'active' : '' }}" href="{{ route('penjualan.index') }}">
                             <span class="sidenav-mini-icon"> I </span>
                             <span class="sidenav-normal"> Invoice Penjualan </span>
                             </a>
@@ -137,7 +137,7 @@
                 <p class="ps-4 mb-0 text-uppercase text-xs font-weight-bolder">Stok</p>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('stokrendah*') ? 'active' : '' }}" href="#stokrendah">
+                <a class="nav-link {{ request()->routeIs('stok.rendah') ? 'active' : '' }}" href="{{ route('stok.rendah') }}">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="bi bi-graph-down text-dark text-sm opacity-10"></i>
                     </div>
@@ -145,7 +145,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('pergerakanstok*') ? 'active' : '' }}" href="#pergerakanstok">
+                <a class="nav-link {{ request()->is('stok-opname*') ? 'active' : '' }}" href="#pergerakanstok">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="bi bi-stack text-dark text-sm opacity-10"></i>
                     </div>

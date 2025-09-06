@@ -13,23 +13,6 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    {{-- notif-success --}}
-    @if (session()->has('success'))
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-success text-white">
-                    <span class="alert-icon text-light me-2"><i class="fa fa-thumbs-up"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ session('success') }}
-                </div>
-            </div>
-        </div>
-    @endif
-
     <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
         <div class="card mb-4 ">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
@@ -443,12 +426,6 @@
                         damping: '0.5'
                     }
                     Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-                }
-                // toast notif
-                var toastElement = document.getElementById('successToast');
-                if (toastElement) {
-                    var toast = new bootstrap.Toast(toastElement);
-                    toast.show();
                 }
                 // slug
                 const nama = document.querySelector('#nama ')
