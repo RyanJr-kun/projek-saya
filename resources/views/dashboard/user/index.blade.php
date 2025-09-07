@@ -140,6 +140,25 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                const deleteModal = document.getElementById('deleteConfirmationModal');
+                if (deleteModal) {
+                    deleteModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+
+                        // Ambil 'username' dari atribut data-*
+                        const userUsername = button.getAttribute('data-user-username'); // <-- DIUBAH DI SINI
+                        const userName = button.getAttribute('data-user-name');
+
+                        const modalBodyName = deleteModal.querySelector('#userNameToDelete');
+                        const deleteForm = deleteModal.querySelector('#deleteUserForm');
+
+                        modalBodyName.textContent = userName;
+
+                        // Atur action form menggunakan username
+                        deleteForm.action = `/users/${userUsername}`; // <-- DIUBAH DI SINI
+                    });
+                }
+
                 const searchInput = document.getElementById('searchInput');
                 const posisiFilter = document.getElementById('posisiFilter');
                 const tableBody = document.getElementById('isiTable');
@@ -206,41 +225,6 @@
             // Tambahkan event listener ke input pencarian dan dropdown
             searchInput.addEventListener('keyup', filterTable);
             posisiFilter.addEventListener('change', filterTable);
-            });
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // scrollbar
-                var win = navigator.platform.indexOf('Win') > -1;
-                if (win && document.querySelector('#sidenav-scrollbar')) {
-                    var options = {
-                        damping: '0.5'
-                    }
-                    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-                }
-                
-            });
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const deleteModal = document.getElementById('deleteConfirmationModal');
-                if (deleteModal) {
-                    deleteModal.addEventListener('show.bs.modal', function (event) {
-                        const button = event.relatedTarget;
-
-                        // Ambil 'username' dari atribut data-*
-                        const userUsername = button.getAttribute('data-user-username'); // <-- DIUBAH DI SINI
-                        const userName = button.getAttribute('data-user-name');
-
-                        const modalBodyName = deleteModal.querySelector('#userNameToDelete');
-                        const deleteForm = deleteModal.querySelector('#deleteUserForm');
-
-                        modalBodyName.textContent = userName;
-
-                        // Atur action form menggunakan username
-                        deleteForm.action = `/users/${userUsername}`; // <-- DIUBAH DI SINI
-                    });
-                }
             });
         </script>
     @endpush

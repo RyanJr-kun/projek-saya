@@ -30,15 +30,15 @@
                 <div class="card-body p-3" style="max-height: 300vh; overflow-y: auto;">
                     <div class="row" id="product-list">
                         @forelse ($produks as $produk)
-                            <div class="col-md-6 col-xl-4 mb-4">
+                            <div class="col-md-4 col-xl-3 mb-3 product-card">
                                 <div class="card h-100">
-                                    <img class="card-img-top" src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : 'https://placehold.co/600x400/e9ecef/344767?text=' . urlencode($produk->nama_produk) }}" alt="Gambar Produk">
-                                    <div class="card-body px-3 py-2">
-                                        <h6 class="mb-0 product-name">{{ $produk->nama_produk }}</h6>
-                                        <p class="text-sm mb-1">Stok: <span class="font-weight-bold">{{ $produk->qty }}</span></p>
-                                        <p class="font-weight-bold text-lg mb-0">{{ $produk->harga }}</p>
+                                    <img class="card-img-top" src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('public/img/produk.webv') . urlencode($produk->nama_produk) }}" alt="Gambar Produk">
+                                    <div class="card-body p-2">
+                                        <h6 class="mb-0 product-name text-sm">{{ $produk->nama_produk }}</h6>
+                                        <p class="text-xs mb-1">Stok: <span class="font-weight-bold">{{ $produk->qty }}</span></p>
+                                        <p class="font-weight-bold text-md mb-0">{{ $produk->harga_formatted }}</p>
                                     </div>
-                                    <div class="card-footer pt-0 px-3 pb-2">
+                                    <div class="card-footer p-2 pt-0">
                                         <button class="btn btn-sm btn-primary w-100 mb-0 add-to-cart-btn"
                                             data-id="{{ $produk->id }}"
                                             data-nama="{{ $produk->nama_produk }}"
@@ -72,7 +72,7 @@
                                 <p class="text-sm mb-0">Invoice: <span class="font-weight-bold">{{ $nomer_invoice }}</span></p>
                                 <input type="hidden" name="nomer_invoice" value="{{ $nomer_invoice }}">
                             </div>
-                            <span class="badge bg-gradient-success" id="cart-item-count">
+                            <span class="badge badge-md badge-success" id="cart-item-count">
                                 <i class="fas fa-shopping-cart me-1"></i> 0 Item
                             </span>
                         </div>
@@ -206,6 +206,7 @@
 
                 // --- DOM ELEMENTS ---
                 const productList = document.getElementById('product-list');
+                const allProductCards = document.querySelectorAll('.product-card'); // Ambil semua kartu produk
                 const cartContainer = document.getElementById('cart-items-container');
                 const cartEmptyMsg = document.getElementById('cart-empty-message');
                 const cartItemCount = document.getElementById('cart-item-count');
@@ -322,7 +323,7 @@
 
                 const filterProducts = () => {
                     const searchTerm = productSearchInput.value.toLowerCase();
-                    document.querySelectorAll('.product-card').forEach(card => {
+                    allProductCards.forEach(card => {
                         const productName = card.querySelector('.product-name').textContent.toLowerCase();
                         card.style.display = productName.includes(searchTerm) ? 'block' : 'none';
                     });

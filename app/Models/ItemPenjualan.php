@@ -2,29 +2,25 @@
 
 namespace App\Models;
 
-use App\Models\Produk;
-use App\Models\Penjualan;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ItemPenjualan extends Model
 {
-    protected $guarded = ['id'];
+    use HasFactory;
 
-    /**
-     * Relasi "belongsTo": Item ini milik satu Penjualan (faktur).
-     */
+    protected $table = 'item_penjualans';
+    protected $guarded = ['id'];
+    public $timestamps = false;
+
     public function penjualan(): BelongsTo
     {
         return $this->belongsTo(Penjualan::class);
     }
 
-    /**
-     * Relasi "belongsTo": Item ini mengacu pada satu Produk.
-     */
     public function produk(): BelongsTo
     {
         return $this->belongsTo(Produk::class);
     }
-
 }

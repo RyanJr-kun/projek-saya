@@ -96,9 +96,10 @@ class PenjualanController extends Controller
                 }
 
                 // Asumsi diskon dan pajak dari request, atau bisa dihitung di sini
-                $diskon = $request->input('diskon', 0);
-                $pajak = $request->input('pajak', 0); // atau ($subtotal - $diskon) * 0.11
-                $total_akhir = ($subtotal - $diskon) + $pajak;
+                $diskon = (float) $request->input('diskon', 0);
+                $pajak_persen = (float) $request->input('pajak', 11); // Default 11% jika tidak ada
+                $pajak_amount = ($subtotal - $diskon) * ($pajak_persen / 100);
+                $total_akhir = ($subtotal - $diskon) + $pajak_amount;
 
                 // 3. Simpan data ke tabel 'penjualans'
                 $penjualan = Penjualan::create([
@@ -107,7 +108,7 @@ class PenjualanController extends Controller
                     'pelanggan_id' => $validatedData['pelanggan_id'],
                     'subtotal' => $subtotal,
                     'diskon' => $diskon,
-                    'pajak' => $pajak,
+                    'pajak' => $pajak_amount,
                     'total_akhir' => $total_akhir,
                     'status' => 'LUNAS', // Default atau dari input
                     'metode_pembayaran' => $validatedData['metode_pembayaran'],
@@ -177,6 +178,26 @@ class PenjualanController extends Controller
      */
     public function destroy(Penjualan $penjualan)
     {
-        //
+        try {
+            DB::transaction(function () use ($penjualan) {
+                // 1. Kembalikan stok untuk setiap item dalam penjualan
+                foreach ($penjualan->items as $item) {
+                    Produk::where('id', $item->produk_id)->increment('qty', $item->jumlah);
+                }
+
+                // 2. Hapus data penjualan (relasi di database akan menghapus item terkait)
+                // 2. Hapus item terkait secara eksplisit untuk memastikan tidak ada data yatim
+                $penjualan->items()->delete();
+                // 3. Hapus data penjualan utama
+                $penjualan->delete();
+            });
+
+            Alert::success('Berhasil', 'Transaksi penjualan berhasil dihapus dan stok telah dikembalikan.');
+            return redirect()->route('penjualan.index');
+
+        } catch (\Exception $e) {
+            Alert::error('Gagal', 'Terjadi kesalahan saat menghapus transaksi: ' . $e->getMessage());
+            return back();
+        }
     }
 }

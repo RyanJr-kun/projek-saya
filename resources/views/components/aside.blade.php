@@ -26,13 +26,14 @@
 
             {{-- penjualan --}}
             <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#penjualan" class="nav-link {{ request()->is('kasir*','pelanggan*','invoicejual*') ? 'active' : '' }}" aria-controls="penjualan" role="button" aria-expanded="false">
+                @php $isPenjualanActive = request()->routeIs('penjualan.*', 'pelanggan.*'); @endphp
+                <a data-bs-toggle="collapse" href="#penjualan" class="nav-link {{ $isPenjualanActive ? 'active' : '' }}" aria-controls="penjualan" role="button" aria-expanded="{{ $isPenjualanActive ? 'true' : 'false' }}">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="bi bi-bag-dash text-dark text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Penjualan</span>
                 </a>
-                <div class="collapse " id="penjualan">
+                <div class="collapse {{ $isPenjualanActive ? 'show' : '' }}" id="penjualan">
                     <ul class="nav ms-4">
                         <li class="nav-item ">
                             <a class="nav-link {{ request()->routeIs('penjualan.create') ? 'active' : '' }}" href="{{ route('penjualan.create') }}">
@@ -41,13 +42,13 @@
                             </a>
                         </li>
                         <li class="nav-item ">
-                            <a class="nav-link {{ (request()->is('penjualan') || request()->is('penjualan/*')) && !request()->is('penjualan/create') ? 'active' : '' }}" href="{{ route('penjualan.index') }}">
+                            <a class="nav-link {{ request()->routeIs('penjualan.index', 'penjualan.show') ? 'active' : '' }}" href="{{ route('penjualan.index') }}">
                             <span class="sidenav-mini-icon"> I </span>
                             <span class="sidenav-normal"> Invoice Penjualan </span>
                             </a>
                         </li>
                         <li class="nav-item ">
-                            <a class="nav-link {{ request()->is('pelanggan*') ? 'active' : '' }}" href="/pelanggan">
+                            <a class="nav-link {{ request()->routeIs('pelanggan.*') ? 'active' : '' }}" href="{{ route('pelanggan.index') }}">
                             <span class="sidenav-mini-icon"> P </span>
                             <span class="sidenav-normal"> Pelanggan </span>
                             </a>
@@ -241,8 +242,8 @@
                     </ul>
                 </div>
             </li>
+            @if (Auth::user()->role_id == 1)
             <hr class="horizontal dark my-2">
-
             {{-- Autentikasi --}}
             <li class="nav-item">
             <p class=" ps-4 mb-0 text-uppercase text-xs font-weight-bolder">Autentikasi</p>
@@ -255,6 +256,7 @@
                     <span class="nav-link-text ms-1">Users</span>
                 </a>
             </li>
+            @endif
         </ul>
     </div>
 </aside>
