@@ -5,7 +5,7 @@
         <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
         <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
     @endpush
-    
+
     @section('breadcrumb')
         @php
         $breadcrumbItems = [
@@ -17,8 +17,8 @@
 
     @endsection
 
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
-        <div class="card mb-4 ">
+    <div class="container-fluid p-3">
+        <div class="card mb-4">
             <div class="card-header pb-0 p-3 mb-3">
                 <div class="d-flex flex-sm-row justify-content-sm-center align-items-sm-center">
                     <div class="mb-0">
@@ -550,11 +550,6 @@
                     statusFilter.addEventListener('change', filterTable);
                 }
 
-                // Scrollbar
-                const win = navigator.platform.indexOf('Win') > -1;
-                if (win && document.querySelector('#sidenav-scrollbar')) {
-                    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), { damping: '0.5' });
-                }
             });
         </script>
     @endpush

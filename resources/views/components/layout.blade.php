@@ -20,8 +20,10 @@
     <body class="g-sidenav-show bg-gray-100">
         <div class="min-height-300 bg-dark  position-absolute w-100"></div>
         <x-aside></x-aside>
-        <main class="main-content position-relative border-radius-lg ">
-            <nav class="navbar navbar-main navbar-expand-lg px-0 px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
+        {{-- Wrapper for main content and footer to enable sticky footer --}}
+        <div class="main-content position-relative border-radius-lg d-flex flex-column min-vh-100">
+            <main>
+                <nav class="navbar navbar-main navbar-expand-lg px-0 px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
                 <div class="container-fluid py-0 px-3">
                     @yield('breadcrumb')
                     <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-4" id="navbar">
@@ -113,22 +115,23 @@
                         </ul>
                     </div>
                 </div>
-            </nav>
-            {{ $slot }}
-        </main>
-        <footer class="footer ms-lg-12 ps-lg-4 mb-3">
-            <div class="container-fluid">
-            <div class="row align-items-start">
-                <div class="col-lg-6">
-                <div class="copyright text-start text-sm text-muted text-lg-start">
-                    © {{ date('Y') }},
-                    made with <i class="bi bi-heart-fill text-dark"></i> by
-                    <a href="/" class="font-weight-bold">Ryan Junior</a>
+                </nav>
+                {{ $slot }}
+            </main>
+            <footer class="footer ps-lg-4 mt-auto mb-3">
+            <div class="container-fluid ">
+                <div class="row align-items-start">
+                    <div class="col-lg-6">
+                        <div class="copyright text-start text-sm text-muted text-lg-start">
+                            © {{ date('Y') }},
+                            made with <i class="bi bi-heart-fill text-dark"></i> by
+                            <a href="/" class="font-weight-bold">Ryan Junior</a>
+                        </div>
+                    </div>
                 </div>
-                </div>
-            </div>
             </div>
         </footer>
+        </div>
         @include('sweetalert::alert')
         @stack('scripts')
     </body>

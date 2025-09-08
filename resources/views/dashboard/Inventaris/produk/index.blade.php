@@ -11,68 +11,62 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
-        <div class="card mb-4 ">
-            <div class="card-header pb-0 px-3 pt-2 mb-3">
-                <div class="d-flex justify-content-between align-items-center">
+    <div class="container-fluid p-3">
+        <div class="card">
+            <div class="card-header pb-0">
+                <div class="d-flex justify-content-between align-items-center mt-n3">
                     <div>
                         <h5 class="mb-0">Data Produk</h5>
                             <p class="text-sm mb-0">
                             Kelola Data Produkmu
                         </p>
                     </div>
-                    <div class="ms-auto my-auto mt-md-0 mb-3">
-                        <div>
-                            <div class="d-none d-md-block mt-2">
-                                <a href="#Export-Pdf" type="button" class="btn btn-outline-danger me-2 p-2 mb-0" title="Export PDF">
-                                    <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20">
-                                </a>
-                                <a href="#Export-Excel" class="btn btn-outline-success p-2 me-2 export mb-0" data-type="csv" type="button" title="Export Excel">
-                                    <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20">
-                                </a>
-                                <a href="{{ route('produk.create') }}">
-                                    <button class="btn btn-outline-info mb-0">
-                                        <i class="bi bi-plus-lg cursor-pointer pe-2"></i>Buat produk
-                                    </button>
-                                </a>
-                            </div>
-                            <div class="dropdown d-block d-md-none mt-3 ">
-                                <button class="btn btn-outline-info dropdown-toggle mb-0" type="button" id="aksiMobile" data-bs-toggle="dropdown" aria-expanded="false">Pilih Aksi</button>
-                                <ul class="dropdown-menu" aria-labelledby="aksiMobile">
-                                    <li>
-                                        <a class="dropdown-item" href="#Export-Pdf">
-                                            <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20" class="me-2">Export PDF
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item export" href="#Export-Excel" data-type="csv">
-                                            <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20" class="me-2">Export Excel
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item text-success" href="{{ route('produk.create') }}">
-                                            <i class="bi bi-plus-lg  cursor-pointer pe-2"></i>Buat Produk
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
+                    <div class="mb-3">
+                        <div class="d-none d-md-block mt-2">
+                            <a href="#Export-Pdf" type="button" class="btn btn-outline-danger me-2 p-2 mb-0" title="Export PDF">
+                                <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20">
+                            </a>
+                            <a href="#Export-Excel" class="btn btn-outline-success p-2 me-2 export mb-0" data-type="csv" type="button" title="Export Excel">
+                                <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20">
+                            </a>
+                            <a href="{{ route('produk.create') }}">
+                                <button class="btn btn-outline-info mb-0">
+                                    <i class="bi bi-plus-lg cursor-pointer pe-2"></i>Buat produk
+                                </button>
+                            </a>
+                        </div>
+                        <div class="dropdown d-block d-md-none mt-3 ">
+                            <button class="btn btn-info dropdown-toggle mb-0" type="button" id="aksiMobile" data-bs-toggle="dropdown" aria-expanded="false">Pilih Aksi</button>
+                            <ul class="dropdown-menu" aria-labelledby="aksiMobile">
+                                <li>
+                                    <a class="dropdown-item" href="#Export-Pdf">
+                                        <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20" class="me-2">Export PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item export" href="#Export-Excel" data-type="csv">
+                                        <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20" class="me-2">Export Excel
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-success" href="{{ route('produk.create') }}">
+                                        <i class="bi bi-plus-lg  cursor-pointer pe-2"></i>Buat Produk
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
-                <div class="filter-container mb-3">
-                    <div class="row g-3 align-items-center justify-content-between">
-                        <!-- Filter Pencarian Nama -->
-                        <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari produk ...">
-                        </div>
-                        <!-- Filter Dropdown Posisi -->
-                        <div class="col-5 col-lg-2 me-3">
-                            <select id="posisiFilter" class="form-select">
-                                <option value="">Semua kategori</option>
-                            </select>
-                        </div>
+                <div class="row justify-content-between px-4 mb-3">
+                    <div class="col-md-3 col-6">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Cari Produk...">
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <select id="posisiFilter" class="form-select">
+                            <option value="">Semua Kategori</option>
+                        </select>
                     </div>
                 </div>
                 <div class="table-responsive p-0 mt-4">
@@ -153,7 +147,7 @@
                             </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-3">Tidak ada data produk.</td>
+                                    <td colspan="9" class="text-center py-3 text-dark text-sm">Tidak ada data produk.</td>
                                 </tr>
                             @endforelse
                         </tbody>

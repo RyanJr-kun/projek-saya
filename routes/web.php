@@ -23,14 +23,6 @@ Route::get('login', [LoginController::class, 'index'])->name('login')->middlewar
 Route::post('login', [LoginController::class, 'authenticate']);
 Route::post('logout',[LoginController::class, 'logout'])->name('logout');
 
-//users
-Route::middleware(['admin', 'auth'])->group(function () {
-    Route::resource('users', UserController::class)->parameter('users', 'user:username');
-    Route::post('/dashboard/users/upload', [UserController::class, 'upload'])->name('users.upload');
-    Route::delete('/dashboard/users/revert', [UserController::class, 'revert'])->name('users.revert');
-});
-
-
 // market-beranda
 Route::get('/', function () {
     return view('Market.beranda', [
@@ -38,85 +30,83 @@ Route::get('/', function () {
     ]);
 });
 
-//dashboard
-Route::get('/dashboard', function () {
-    return view('dashboard.index', [
-        'title'=>'Dashboard',
-    ]);
-})->middleware('auth')->name('dashboard');
+Route::middleware(['auth'])->group(function () {
+    //dashboard
+    Route::get('/dashboard', function () {
+        return view('dashboard.index', [
+            'title'=>'Dashboard',
+        ]);
+    })->name('dashboard');
 
-//manajemen Inventaris
+    //produk
+    Route::resource('produk', ProdukController::class);
+    Route::get('/dashboard/produk/chekSlug', [ProdukController::class, 'chekSlug']);
+    Route::post('/dashboard/produk/upload', [ProdukController::class, 'upload'])->name('produk.upload');
+    Route::delete('/dashboard/produk/revert', [ProdukController::class, 'revert'])->name('produk.revert');
 
-//produk
-Route::resource('produk', ProdukController::class)->middleware('auth');
-Route::get('/dashboard/produk/chekSlug', [ProdukController::class, 'chekSlug'])->middleware('auth');
-Route::post('/dashboard/produk/upload', [ProdukController::class, 'upload'])->name('produk.upload')->middleware('auth');
-Route::delete('/dashboard/produk/revert', [ProdukController::class, 'revert'])->name('produk.revert')->middleware('auth');
+    //kategori produk
+    Route::get('/kategoriproduk/{kategoriproduk}/json', [KategoriProdukController::class, 'getKategoriJson'])->name('kategoriproduk.getjson');
+    Route::resource('kategoriproduk', KategoriProdukController::class)->except('show','create','edit');
+    Route::get('/dashboard/kategoriproduk/chekSlug', [KategoriProdukController::class, 'chekSlug']);
+    Route::post('/dashboard/kategoriproduk/upload', [KategoriProdukController::class, 'upload'])->name('kategoriproduk.upload');
+    Route::delete('/dashboard/kategoriproduk/revert', [KategoriProdukController::class, 'revert'])->name('kategoriproduk.revert');
 
-//kategori produk
-Route::get('/kategoriproduk/{kategoriproduk}/json', [KategoriProdukController::class, 'getKategoriJson'])
-     ->middleware('auth')
-     ->name('kategoriproduk.getjson');
-Route::resource('kategoriproduk', KategoriProdukController::class)->except('show','create','edit')->middleware('auth');
-Route::get('/dashboard/kategoriproduk/chekSlug', [KategoriProdukController::class, 'chekSlug'])->middleware('auth');
-Route::post('/dashboard/kategoriproduk/upload', [KategoriProdukController::class, 'upload'])->name('kategoriproduk.upload')->middleware('auth');
-Route::delete('/dashboard/kategoriproduk/revert', [KategoriProdukController::class, 'revert'])->name('kategoriproduk.revert')->middleware('auth');
+    //brand
+    Route::get('/brand/{brand}/json', [BrandController::class, 'getBrandJson'])->name('brand.getjson');
+    Route::resource('brand', BrandController::class)->except('show','create','edit');
+    Route::get('/dashboard/brand/chekSlug', [BrandController::class, 'chekSlug']);
+    Route::post('/dashboard/brand/upload', [BrandController::class, 'upload'])->name('brand.upload');
+    Route::delete('/dashboard/brand/revert', [BrandController::class, 'revert'])->name('brand.revert');
 
-//brand
-Route::get('/brand/{brand}/json', [BrandController::class, 'getBrandJson'])
-     ->middleware('auth')
-     ->name('brand.getjson');
-Route::resource('brand', BrandController::class)->except('show','create','edit')->middleware('auth');
-Route::get('/dashboard/brand/chekSlug', [BrandController::class, 'chekSlug'])->middleware('auth');
-Route::post('/dashboard/brand/upload', [BrandController::class, 'upload'])->name('brand.upload')->middleware('auth');
-Route::delete('/dashboard/brand/revert', [BrandController::class, 'revert'])->name('brand.revert')->middleware('auth');
+    //unit
+    Route::get('/unit/{unit}/json', [UnitController::class, 'getUnitJson'])
 
-//unit
-Route::get('/unit/{unit}/json', [UnitController::class, 'getUnitJson'])
-     ->middleware('auth')
-     ->name('unit.getjson');
-Route::resource('unit', UnitController::class)->except('show','create','edit')->middleware('auth');
-Route::get('/dashboard/unit/chekSlug', [UnitController::class, 'chekSlug'])->middleware('auth');
+         ->name('unit.getjson');
+    Route::resource('unit', UnitController::class)->except('show','create','edit');
+    Route::get('/dashboard/unit/chekSlug', [UnitController::class, 'chekSlug']);
 
-//garansi
-Route::get('/garansi/{garansi}/json', [GaransiController::class, 'getGaransiJson'])->middleware('auth')->name('garansi.getjson');
-Route::resource('garansi', GaransiController::class)->except('show','create','edit')->middleware('auth');
-Route::get('/dashboard/garansi/chekSlug', [GaransiController::class, 'chekSlug'])->middleware('auth');
+    //garansi
+    Route::get('/garansi/{garansi}/json', [GaransiController::class, 'getGaransiJson'])->name('garansi.getjson');
+    Route::resource('garansi', GaransiController::class)->except('show','create','edit');
+    Route::get('/dashboard/garansi/chekSlug', [GaransiController::class, 'chekSlug']);
 
-//transaksi penjualan
-Route::resource('/penjualan', PenjualanController::class)->middleware('auth');
+    //transaksi penjualan
+    Route::resource('/penjualan', PenjualanController::class);
+    Route::get('/pelanggan/{pelanggan}/json', [PelangganController::class, 'getjson'])->name('pelanggan.getjson');
+    Route::resource('pelanggan', PelangganController::class)->except('show','create','edit');
+    
+    //pengeluaran.
+    Route::get('/pengeluaran/{pengeluaran}/json', [PengeluaranController::class, 'getjson'])->name('pengeluaran.getjson');
+    Route::resource('pengeluaran',PengeluaranController::class)->except('show','create','edit');
 
-Route::get('/pemasok/{pemasok}/json', [PemasokController::class, 'getjson'])->middleware('auth')->name('pemasok.getjson');
-Route::resource('pemasok', PemasokController::class)->except('show','create','edit')->middleware('auth');
+    // kategori pengeluaran
+    Route::get('/kategoripengeluaran/{kategoripengeluaran}/json', [KategoriPengeluaranController::class, 'getKategoriJson'])->name('kategoripengeluaran.getjson');
+    Route::resource('kategoripengeluaran',KategoriPengeluaranController::class)->except('show','create','edit');
+    Route::get('/dashboard/kategoripengeluaran/chekSlug', [KategoriPengeluaranController::class, 'chekSlug']);
 
-//transaksi pembelian
-Route::resource('/pembelian', PembelianController::class)->middleware('auth');
+    //pemasukan
+    Route::get('/pemasukan/{pemasukan}/json', [PemasukanController::class, 'getjson'])->name('pemasukan.getjson');
+    Route::resource('pemasukan',PemasukanController::class)->except('show','create','edit');
 
-Route::get('/pelanggan/{pelanggan}/json', [PelangganController::class, 'getjson'])->middleware('auth')->name('pelanggan.getjson');
-Route::resource('pelanggan', PelangganController::class)->except('show','create','edit')->middleware('auth');
+    // kategori pemasukan
+    Route::get('/kategoripemasukan/{kategoripemasukan}/json', [KategoriPemasukanController::class, 'getKategoriJson'])->name('kategoripemasukan.getjson');
+    Route::resource('kategoripemasukan',KategoriPemasukanController::class)->except('show','create','edit');
+    Route::get('/dashboard/kategoripemasukan/chekSlug', [KategoriPemasukanController::class, 'chekSlug']);
 
-//pengeluaran.
-Route::get('/pengeluaran/{pengeluaran}/json', [PengeluaranController::class, 'getjson'])->middleware('auth')->name('pengeluaran.getjson');
-Route::resource('pengeluaran',PengeluaranController::class)->except('show','create','edit')->middleware('auth');
+    //Stok
+    Route::get('/stok/rendah', [StokController::class, 'index'])->name('stok.rendah');
+});
 
-// kategori pengeluaran
-Route::get('/kategoripengeluaran/{kategoripengeluaran}/json', [KategoriPengeluaranController::class, 'getKategoriJson'])->middleware('auth')->name('kategoripengeluaran.getjson');
-Route::resource('kategoripengeluaran',KategoriPengeluaranController::class)->except('show','create','edit')->middleware('auth');
-Route::get('/dashboard/kategoripengeluaran/chekSlug', [KategoriPengeluaranController::class, 'chekSlug'])->middleware('auth');
+Route::middleware(['admin', 'auth'])->group(function () {
+    // Pembelian & Pemasok
+    Route::resource('/pembelian', PembelianController::class);
+    Route::get('/pemasok/{pemasok}/json', [PemasokController::class, 'getjson'])->name('pemasok.getjson');
+    Route::resource('pemasok', PemasokController::class)->except('show','create','edit');
+
+    //users
+    Route::resource('users', UserController::class)->except('show')->parameter('users', 'user:username');
+    Route::post('/dashboard/users/upload', [UserController::class, 'upload'])->name('users.upload');
+    Route::delete('/dashboard/users/revert', [UserController::class, 'revert'])->name('users.revert');
+});
 
 
-//pemasukan
-Route::get('/pemasukan/{pemasukan}/json', [PemasukanController::class, 'getjson'])->middleware('auth')->name('pemasukan.getjson');
-Route::resource('pemasukan',PemasukanController::class)->except('show','create','edit')->middleware('auth');
-
-// kategori pemasukan
-Route::get('/kategoripemasukan/{kategoripemasukan}/json', [KategoriPemasukanController::class, 'getKategoriJson'])
-     ->middleware('auth')
-     ->name('kategoripemasukan.getjson');
-Route::resource('kategoripemasukan',KategoriPemasukanController::class)->except('show','create','edit')->middleware('auth');
-Route::get('/dashboard/kategoripemasukan/chekSlug', [KategoriPemasukanController::class, 'chekSlug'])->middleware('auth');
-
-//Stok
-Route::get('/stok/rendah', [StokController::class, 'index'])
-     ->middleware('auth')
-     ->name('stok.rendah');

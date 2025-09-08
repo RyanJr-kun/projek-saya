@@ -10,7 +10,7 @@
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto">
+    <div class="container-fluid p-3">
         <div class="card">
             <div class="card-header pb-0">
                 <div class="d-md-flex d-block justify-content-between align-items-center">
@@ -39,9 +39,7 @@
                                     <tr><td class="fw-bold">Stok Minimum</td><td>: {{ $produk->stok_minimum }}</td></tr>
                                     <tr><td class="fw-bold">Garansi</td><td>: {{ $produk->garansi?->nama ?? 'Tidak ada garansi' }}</td></tr>
                                     <tr><td class="fw-bold">Dibuat oleh</td><td>: {{ $produk->user->nama }}</td></tr>
-                                    <tr>
-                                        <td class="fw-bold align-text-top">Deskripsi</td>
-                                        <td class="align-text-top">: {!! $produk->deskripsi ?? '-' !!}</td>
+                                    <tr><td class="fw-bold align-text-top">Deskripsi</td><td class="align-text-top">: {!! $produk->deskripsi ?? '-' !!}</td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -13,9 +13,9 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
-        <div class="card mb-4 ">
-            <div class="card-header pb-0 px-3 pt-2 mb-3">
+    <div class="container-fluid p-3 ">
+        <div class="card">
+            <div class="card-header pb-0">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-0">Data Garansi</h5>

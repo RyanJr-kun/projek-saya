@@ -168,7 +168,7 @@
 
         <div class="d-flex justify-content-end mt-3 me-4">
             <button id="saveBtn" type="submit" class="btn btn-info">Buat Produk</button>
-            <a href="{{ route('produk.index') }}" id="cancel-button" class="btn btn-danger ms-3">Batalkan</a>
+            <a href="{{ route('produk.index') }}" id="cancel-button" class="btn btn-outline-danger ms-3">Batalkan</a>
         </div>
     </form>
 

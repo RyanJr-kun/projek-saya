@@ -105,7 +105,7 @@
                 {{-- Tombol Aksi --}}
                 <div class="d-flex justify-content-end pt-3 mt-3">
                     <button type="submit" class="btn btn-info">Buat User</button>
-                    <a href="{{ route('users.index') }}" id="cancel-button" class="btn btn-danger ms-3">Batalkan</a>
+                    <a href="{{ route('users.index') }}" id="cancel-button" class="btn btn-outline-danger ms-3">Batalkan</a>
                 </div>
             </form>
         </div>
