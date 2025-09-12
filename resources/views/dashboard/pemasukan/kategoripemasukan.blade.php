@@ -6,44 +6,25 @@
     @section('breadcrumb')
         @php
         $breadcrumbItems = [
-            ['name' => 'Page', 'url' => '/dashboard'],
+            ['name' => 'Page', 'url' => '#'],
             ['name' => 'Manajemen Kategori', 'url' => route('kategoripemasukan.index')],
         ];
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    {{-- notif-success --}}
-    @if (session()->has('success'))
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-success text-white">
-                    <span class="alert-icon text-light me-2"><i class="fa fa-thumbs-up"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ session('success') }}
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
+    <div class="container-fluid p-3 ">
         <div class="card mb-4 ">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-0">Kategori Pemasukan</h6>
-                            <p class="text-sm mb-0">
-                            Kelola data Kategorimu
-                        </p>
+                        <h6 class="mb-n1">Kategori Pemasukan</h6>
+                        <p class="text-sm mb-0">Kelola data Kategorimu</p>
                     </div>
                     <div class="ms-md-auto mt-2">
                         {{-- triger-modal-create --}}
                         <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import">
-                            <i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Kategori
+                            <i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i> Kategori
                         </button>
                     </div>
                 </div>
@@ -61,7 +42,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 my-3">
+                <div class="table-responsive p-0 mt-3">
                     <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
                         <thead>
                             <tr class="table-secondary">
@@ -72,7 +53,7 @@
                             </tr>
                         </thead>
                         <tbody id="isiTable">
-                            @foreach ($kategoris as $kategori)
+                            @forelse ($kategoris as $kategori)
                             <tr>
                                 <td>
                                     <p title="kategori" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $kategori->nama }}</p>
@@ -109,7 +90,13 @@
                                     </a>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-3 ">
+                                        <p class=" text-dark text-sm fw-bold mb-0">Belum ada data Kategori Pemasukan.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                     <div class="my-3 ms-3">{{ $kategoris->onEachSide(1)->links() }}</div>
@@ -157,7 +144,7 @@
                             </div>
 
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Buat Kategori</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Buat Kategori</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -204,7 +191,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Simpan Perubahan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -401,21 +388,9 @@
                         importModal.show();
                     }
 
-                // scrollbar
-                var win = navigator.platform.indexOf('Win') > -1;
-                if (win && document.querySelector('#sidenav-scrollbar')) {
-                    var options = {
-                        damping: '0.5'
-                    }
-                    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-                }
 
-                // toast notif
-                var toastElement = document.getElementById('successToast');
-                if (toastElement) {
-                    var toast = new bootstrap.Toast(toastElement);
-                    toast.show();
-                }
+
+
             });
         </script>
     @endpush

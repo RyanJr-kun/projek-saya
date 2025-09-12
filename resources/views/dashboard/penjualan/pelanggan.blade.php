@@ -1,51 +1,27 @@
 <x-layout>
-    {{-- breadcrumb --}}
-        @section('breadcrumb')
-            @php
-            // Definisikan item breadcrumb dalam bentuk array
-            $breadcrumbItems = [
-                ['name' => 'Dashboard', 'url' => '/dashboard'],
-                ['name' => 'Manajemen Pelanggan', 'url' => route('pelanggan.index')],
-            ];
-            @endphp
-            <x-breadcrumb :items="$breadcrumbItems" />
-        @endsection
-    {{-- notif --}}
-        @if (session()->has('success') || session()->has('error'))
-            @php
-                $toastType = session()->has('success') ? 'success' : 'error';
-                $toastMessage = session('success') ?? session('error');
-                $toastHeaderBg = $toastType === 'success' ? 'bg-success' : 'bg-warning';
-                $toastIcon = $toastType === 'success' ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-exclamation-triangle';
-            @endphp
-            <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header {{ $toastHeaderBg }} text-white">
-                    <span class="alert-icon text-light me-2"><i class="{{ $toastIcon }}"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ $toastMessage }}
-                </div>
-            </div>
-        </div>
-        @endif
-        <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto">
-        <div class="card mb-4 ">
+    @section('breadcrumb')
+        @php
+        // Definisikan item breadcrumb dalam bentuk array
+        $breadcrumbItems = [
+            ['name' => 'Dashboard', 'url' => '#'],
+            ['name' => 'Manajemen Pelanggan', 'url' => route('pelanggan.index')],
+        ];
+        @endphp
+        <x-breadcrumb :items="$breadcrumbItems" />
+    @endsection
+
+    <div class="container-fluid p-3">
+        <div class="card mb-4">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-0">Manajemen Pelanggan</h6>
-                            <p class="text-sm mb-0">
-                            Kelola data pelangganmu.
-                        </p>
+                        <h6 class="mb-n1">List Pelanggan</h6>
+                        <p class="text-sm mb-0">Kelola data pelangganmu.</p>
                     </div>
-                    <div class="ms-md-auto mt-2">
+                    <div class="ms-md-auto mt-2" >
                         {{-- triger-modal-create --}}
                         <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#createModal">
-                            <i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Pelanggan
+                            <i class="fa fa-plus cursor-pointer pe-2"></i>Pelanggan
                         </button>
                     </div>
                 </div>
@@ -63,7 +39,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 my-3">
+                <div class="table-responsive p-0 mt-3">
                     <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
                         <thead>
                             <tr class="table-secondary">
@@ -76,7 +52,7 @@
                             </tr>
                         </thead>
                         <tbody id="isiTable">
-                            @foreach ($pelanggans as $pelanggan)
+                            @forelse ($pelanggans as $pelanggan)
                             <tr>
                                 <td>
                                     <p title="Nama Pelanggan" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $pelanggan->nama }}</p>
@@ -118,7 +94,13 @@
                                     </a>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-3 ">
+                                        <p class=" text-dark text-sm fw-bold mb-0">Belum ada data Pelanggan.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                     <div class="my-3 ms-3">
@@ -171,7 +153,7 @@
                                 <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Buat Pelanggan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Buat Pelanggan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -213,7 +195,7 @@
                                 <input id="edit_status" class="form-check-input" type="checkbox" name="status" value="1" >
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Simpan Perubahan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -343,13 +325,6 @@
             if (hasError) {
                 var createModal = new bootstrap.Modal(document.getElementById('createModal'));
                 createModal.show();
-            }
-
-            // toast notif success
-            const notificationToastEl = document.getElementById('notificationToast');
-            if (notificationToastEl) {
-                const toast = new bootstrap.Toast(notificationToastEl);
-                toast.show();
             }
             // Scrollbar
             const win = navigator.platform.indexOf('Win') > -1;

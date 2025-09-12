@@ -35,6 +35,7 @@ class PemasokController extends Controller
     {
         $validatedData = $request->validate([
             'nama' => 'required|string|max:255',
+            'perusahaan' => 'required|string|max:255',
             'kontak' => 'required|string|max:20|unique:pemasoks,kontak',
             'email' => 'nullable|email|unique:pemasoks,email',
             'alamat' => 'nullable|string',
@@ -43,8 +44,16 @@ class PemasokController extends Controller
         ]);
 
         $validatedData['status'] = $request->has('status');
+        $pemasok = Pemasok::create($validatedData);
 
-        Pemasok::create($validatedData);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pemasok baru berhasil ditambahkan!',
+                'data'    => $pemasok
+            ], 201);
+        }
+
         Alert::success('Berhasil', 'Pemasok baru berhasil ditambahkan!');
         return redirect()->route('pemasok.index');
     }
@@ -82,6 +91,7 @@ class PemasokController extends Controller
     {
         $rules = [
             'nama' => 'required|string|max:255',
+            'perusahaan' => 'required|string|max:255',
             'kontak' => ['required', 'string', 'max:20', Rule::unique('pemasoks', 'kontak')->ignore($pemasok->id)],
             'email' => ['nullable', 'email', Rule::unique('pemasoks', 'email')->ignore($pemasok->id)],
             'alamat' => 'nullable|string',

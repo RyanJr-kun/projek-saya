@@ -4,44 +4,21 @@
         @php
         // Definisikan item breadcrumb dalam bentuk array
         $breadcrumbItems = [
-            ['name' => 'Page', 'url' => '/dashboard'],
+            ['name' => 'Page', 'url' => '#'],
             ['name' => 'Manajemen Pemasok', 'url' => route('pemasok.index')],
         ];
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
-    {{-- notif --}}
-    @if (session()->has('success') || session()->has('error'))
-        @php
-            $toastType = session()->has('success') ? 'success' : 'error';
-            $toastMessage = session('success') ?? session('error');
-            $toastHeaderBg = $toastType === 'success' ? 'bg-success' : 'bg-warning';
-            $toastIcon = $toastType === 'success' ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-exclamation-triangle';
-        @endphp
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header {{ $toastHeaderBg }} text-white">
-                    <span class="alert-icon text-light me-2"><i class="{{ $toastIcon }}"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ $toastMessage }}
-                </div>
-            </div>
-        </div>
-    @endif
 
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto">
-        <div class="card mb-4 ">
+
+    <div class="container-fluid p-3">
+        <div class="card mb-4">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-0">Manajemen Pemasok</h6>
-                            <p class="text-sm mb-0">
-                            Kelola data pemasokmu.
-                        </p>
+                        <h6 class="mb-n1">List Pemasok</h6>
+                        <p class="text-sm mb-0">Kelola data pemasokmu.</p>
                     </div>
                     <div class="ms-md-auto mt-2">
                         {{-- triger-modal-create --}}
@@ -64,11 +41,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 my-3">
+                <div class="table-responsive p-0 mt-3">
                     <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
                         <thead>
                             <tr class="table-secondary">
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Perusahaan</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kontak</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Alamat</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Catatan</th>
@@ -77,10 +55,13 @@
                             </tr>
                         </thead>
                         <tbody id="isiTable">
-                            @foreach ($pemasoks as $pemasok)
+                            @forelse ($pemasoks as $pemasok)
                             <tr>
                                 <td>
-                                    <p title="Nama Pemasok" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $pemasok->nama }}</p>
+                                    <p title="Nama Pemasok" class="ms-3 text-uppercase text-xs text-dark fw-bold mb-0">{{ $pemasok->nama }}</p>
+                                </td>
+                                <td>
+                                    <p title="Nama Perusahaan" class="text-uppercase text-xs text-dark fw-bold mb-0">{{ $pemasok->perusahaan }}</p>
                                 </td>
                                 <td>
                                     <div class="d-block">
@@ -122,7 +103,13 @@
                                     </a>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center py-3 ">
+                                        <p class=" text-dark text-sm fw-bold mb-0">Belum ada data pemasok.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                     <div class="my-3 ms-3">
@@ -142,47 +129,56 @@
                     <div class="modal-body">
                         <form action="{{ route('pemasok.store') }}" method="post">
                             @csrf
-                            <div class="mb-2">
-                                <label for="nama" class="form-label">Nama</label>
-                                <input id="nama" name="nama" type="text" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
-                                @error('nama')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="nama" class="form-label">Nama</label>
+                                    <input id="nama" name="nama" type="text" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
+                                    @error('nama')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="perusahaan" class="form-label">Perusahaan</label>
+                                    <input id="perusahaan" name="perusahaan" type="text" class="form-control @error('perusahaan') is-invalid @enderror" value="{{ old('perusahaan') }}" required>
+                                    @error('perusahaan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="kontak" class="form-label">Kontak</label>
+                                    <input id="kontak" name="kontak" type="text" class="form-control @error('kontak') is-invalid @enderror" value="{{ old('kontak') }}" required>
+                                    @error('kontak')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="example@gmail.com" value="{{ old('email') }}">
+                                    @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-12">
+                                    <label for="alamat" class="form-label">Alamat</label>
+                                    <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror" rows="2">{{ old('alamat') }}</textarea>
+                                    @error('alamat')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-12">
+                                    <label for="note" class="form-label">Catatan (Opsional)</label>
+                                    <textarea id="note" name="note" class="form-control @error('note') is-invalid @enderror" rows="2">{{ old('note') }}</textarea>
+                                    @error('note')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                            <div class="mb-1">
-                                <label for="kontak" class="form-label">Kontak</label>
-                                <input id="kontak" name="kontak" type="text" class="form-control @error('kontak') is-invalid @enderror" value="{{ old('kontak') }}" required>
-                                @error('kontak')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="mb-1">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="example@gmail.com" value="{{ old('email') }}">
-                                @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="mb-1">
-                                <label for="alamat" class="form-label">Alamat</label>
-                                <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror" rows="3">{{ old('alamat') }}</textarea>
-                                @error('alamat')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="mb-1">
-                                <label for="note" class="form-label">Catatan (Opsional)</label>
-                                <textarea id="note" name="note" class="form-control @error('note') is-invalid @enderror" rows="2">{{ old('note') }}</textarea>
-                                @error('note')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="justify-content-end form-check form-switch form-check-reverse mb-2">
+                            <div class="justify-content-end form-check form-switch form-check-reverse my-2">
                                 <label class="me-auto fw-bold form-check-label" for="status">Status</label>
                                 <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Buat Pemasok</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Buat Pemasok</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -228,7 +224,7 @@
                                 <input id="edit_status" class="form-check-input" type="checkbox" name="status" value="1" >
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Simpan Perubahan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -360,13 +356,6 @@
             if (hasError) {
                 var createModal = new bootstrap.Modal(document.getElementById('createModal'));
                 createModal.show();
-            }
-
-            // --- TOAST NOTIFICATION ---
-            var toastElement = document.getElementById('successToast');
-            if (toastElement) {
-                var toast = new bootstrap.Toast(toastElement);
-                toast.show();
             }
         });
     </script>

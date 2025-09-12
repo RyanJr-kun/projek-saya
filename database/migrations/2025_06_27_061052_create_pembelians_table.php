@@ -13,11 +13,20 @@ return new class extends Migration
     {
         Schema::create('pembelians', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pemasok_id')->constrained('pemasoks');
-            $table->date('tanggal_pembelian');
-            $table->foreignId('item_pembelian_id');
-            $table->decimal('jumlah_total', 15, 2);
             $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('pemasok_id')->constrained('pemasoks');
+            $table->string('referensi', 50)->unique();
+            $table->date('tanggal_pembelian');
+            $table->decimal('subtotal', 15, 2);
+            $table->decimal('diskon', 15, 2)->default(0);
+            $table->decimal('pajak', 15, 2)->default(0);
+            $table->decimal('ongkir', 15, 2)->default(0);
+            $table->decimal('total_akhir', 15, 2);
+            $table->decimal('jumlah_dibayar', 15, 2)->default(0);
+            $table->decimal('sisa_hutang', 15, 2)->default(0);
+            $table->enum('status_barang', ['Diterima','Belum Diterima'])->default('Diterima');
+            $table->enum('status_pembayaran', ['Lunas','Lunas Sebagian','Belum Lunas'])->default('Lunas');
+            $table->text('catatan')->nullable();
             $table->timestamps();
         });
     }

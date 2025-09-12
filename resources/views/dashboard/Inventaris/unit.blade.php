@@ -12,21 +12,25 @@
 
     <div class="container-fluid p-3 ">
         <div class="card">
-            <div class="card-header d-flex pb-0">
-                <div class="mb-3 mt-n2">
-                    <h5 class="mb-n1">Data Unit</h5>
-                    <p class="text-sm mb-0">Kelola Data Unit Produkmu</p>
-                </div>
-                <div class="ms-auto mt-n2">
+            <div class="card-header pb-0 px-3 pt-2 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-n1">Data Unit</h6>
+                        <p class="text-sm mb-0">Kelola Data Unit Produkmu</p>
+                    </div>
+                    <div class="ms-auto mt-2">
                         {{-- triger-modal --}}
-                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Unit</button>
+                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import">
+                            <i class="fa fa-plus cursor-pointer pe-2"></i>Unit
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
                 <div class="filter-container">
                     <div class="row g-3 align-items-center justify-content-between">
                         <!-- Filter Pencarian Unit -->
-                        <div class="col-5 col-lg-3 ms-4">
+                        <div class="col-5 col-lg-3 ms-3">
                             <input type="text" id="searchInput" class="form-control" placeholder="cari Unit ...">
                         </div>
                         <!-- Filter Dropdown Status -->
@@ -37,8 +41,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 mt-4">
-                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
+                <div class="table-responsive p-0 mt-3">
+                    <table class="table table-hover align-items-center mb-0" id="tableData">
                     <thead>
                         <tr class="table-secondary">
                         <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
@@ -148,7 +152,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Buat Unit</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Buat Unit</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -200,7 +204,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Simpan Perubahan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>

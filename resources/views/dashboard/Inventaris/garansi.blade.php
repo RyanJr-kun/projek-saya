@@ -1,7 +1,4 @@
 <x-layout>
-    @push('styles')
-        <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
-    @endpush
     {{-- breadcrumb --}}
     @section('breadcrumb')
         @php
@@ -13,17 +10,17 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    <div class="container-fluid p-3 ">
+    <div class="container-fluid p-3">
         <div class="card">
-            <div class="card-header pb-0">
+            <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-0">Data Garansi</h5>
+                    <div class="mb-0">
+                        <h6 class="mb-n1">Data Garansi</h6>
                             <p class="text-sm mb-0">
                             Kelola data garansimu
                         </p>
                     </div>
-                    <div class="ms-md-auto mt-2">
+                    <div class="ms-auto mt-2">
                         {{-- triger-modal-create --}}
                         <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Garansi</button>
                     </div>
@@ -43,7 +40,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 my-3">
+                <div class="table-responsive p-0 mt-3">
                     <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
                         <thead>
                             <tr class="table-secondary">
@@ -158,7 +155,7 @@
                                 <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Buat Garansi</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Buat Garansi</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -214,7 +211,7 @@
                                 <input id="edit_status" class="form-check-input" type="checkbox" name="status" value="1">
                             </div>
                             <div class="modal-footer border-0 pb-0 mt-2">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Simpan Perubahan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -244,7 +241,6 @@
         </div>
     </div>
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // QUILL

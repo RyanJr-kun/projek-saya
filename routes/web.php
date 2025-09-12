@@ -38,6 +38,11 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('dashboard');
 
+    Route::prefix('get-data')->as('get-data.')->group(function () {
+        Route::get('produk', [ProdukController::class, 'getData'])->name('produk');
+        Route::get('cek-stok-produk', [ProdukController::class, 'cekStok'])->name('cek-stok');
+    });
+
     //produk
     Route::resource('produk', ProdukController::class);
     Route::get('/dashboard/produk/chekSlug', [ProdukController::class, 'chekSlug']);
@@ -74,7 +79,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('/penjualan', PenjualanController::class);
     Route::get('/pelanggan/{pelanggan}/json', [PelangganController::class, 'getjson'])->name('pelanggan.getjson');
     Route::resource('pelanggan', PelangganController::class)->except('show','create','edit');
-    
+
     //pengeluaran.
     Route::get('/pengeluaran/{pengeluaran}/json', [PengeluaranController::class, 'getjson'])->name('pengeluaran.getjson');
     Route::resource('pengeluaran',PengeluaranController::class)->except('show','create','edit');
@@ -100,6 +105,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['admin', 'auth'])->group(function () {
     // Pembelian & Pemasok
     Route::resource('/pembelian', PembelianController::class);
+
     Route::get('/pemasok/{pemasok}/json', [PemasokController::class, 'getjson'])->name('pemasok.getjson');
     Route::resource('pemasok', PemasokController::class)->except('show','create','edit');
 
@@ -108,5 +114,3 @@ Route::middleware(['admin', 'auth'])->group(function () {
     Route::post('/dashboard/users/upload', [UserController::class, 'upload'])->name('users.upload');
     Route::delete('/dashboard/users/revert', [UserController::class, 'revert'])->name('users.revert');
 });
-
-

@@ -10,7 +10,7 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    <div class="container-fluid d-flex flex-column min-vh-90 my-4">
+    <div class="container-fluid p-3">
         <div class="row">
             <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
                 <div class="card">
@@ -95,7 +95,7 @@
         </div>
         <div class="row mt-4">
             <div class="col-lg-7 mb-lg-0 mb-4">
-                <div class="card z-index-2 h-100">
+                <div class="card z-index-2 ">
                     <div class="card-header pb-0 pt-3 bg-transparent">
                         <h6 class="text-capitalize">Sales overview</h6>
                         <p class="text-sm mb-0">

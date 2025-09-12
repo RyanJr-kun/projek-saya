@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Unit;
 use App\Models\Brand;
+use App\Models\Pajak;
 use App\Models\Produk;
 use App\Models\Garansi;
 use Illuminate\Http\Request;
 use App\Models\KategoriProduk;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use RealRashid\SweetAlert\Facades\Alert;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
 
@@ -32,12 +33,15 @@ class ProdukController extends Controller
     public function create()
     {
         return view('dashboard.inventaris.produk.create',[
-            'kategoris' => KategoriProduk::all(),
-            'brands' => Brand::all(),
-            'units' => Unit::all(),
-            'garansis' => Garansi::all(),
+            'kategori' => KategoriProduk::all(),
+            'brand' => Brand::all(),
+            'unit' => Unit::all(),
+            'garansi' => Garansi::all(),
+            'pajak' => Pajak::all(),
         ]);
     }
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -54,10 +58,12 @@ class ProdukController extends Controller
             'brand' => 'required|exists:brands,id',
             'unit' => 'required|exists:units,id',
             'deskripsi' => 'nullable|string',
-            'harga' => 'required|numeric',
+            'harga_jual' => 'required|numeric',
+            'harga_beli' => 'required|numeric',
             'qty' => 'required|integer',
             'garansi' => 'required|exists:garansis,id',
             'stok_minimum' => 'required|integer',
+            'pajak' => 'required|exists:pajaks,id',
             'img_produk' => 'nullable|string',
         ]);
 
@@ -65,6 +71,7 @@ class ProdukController extends Controller
         $validatedData['kategori_produk_id'] = $validatedData['kategori'];
         $validatedData['brand_id'] = $validatedData['brand'];
         $validatedData['unit_id'] = $validatedData['unit'];
+        $validatedData['pajak_id'] = $validatedData['pajak'];
         $validatedData['garansi_id'] = $validatedData['garansi'];
 
         // Pindahkan gambar dari temp ke folder produk
@@ -77,7 +84,7 @@ class ProdukController extends Controller
             }
         }
 
-        unset($validatedData['kategori'], $validatedData['brand'], $validatedData['unit'], $validatedData['garansi']);
+        unset($validatedData['kategori'], $validatedData['brand'], $validatedData['unit'], $validatedData['garansi'],$validatedData['pajak']);
 
         Produk::create($validatedData);
         Alert::success('Berhasil', 'Produk Baru Berhasil Ditambahkan.');
@@ -91,7 +98,8 @@ class ProdukController extends Controller
     public function show(Produk $produk)
     {
        return view('dashboard.inventaris.produk.show',[
-            'produk' => $produk
+            // Eager load relationships to prevent N+1 query issues
+            'produk' => $produk->load(['kategori_produk', 'brand', 'unit', 'garansi', 'user', 'pajak'])
         ]);
     }
 
@@ -106,6 +114,7 @@ class ProdukController extends Controller
             'brands' => Brand::all(),
             'units' => Unit::all(),
             'garansis' => Garansi::all(),
+            'pajak' => Pajak::all(),
         ]);
     }
 
@@ -120,8 +129,10 @@ class ProdukController extends Controller
             'kategori' => 'required|exists:kategori_produks,id',
             'brand' => 'required|exists:brands,id',
             'unit' => 'required|exists:units,id',
+            'pajak' => 'required|exists:pajaks,id',
             'deskripsi' => 'nullable|string',
-            'harga' => 'required|numeric',
+            'harga_jual' => 'required|numeric',
+            'harga_beli' => 'required|numeric',
             'qty' => 'required|integer',
             'garansi' => 'nullable|exists:garansis,id',
             'stok_minimum' => 'required|integer',
@@ -137,6 +148,7 @@ class ProdukController extends Controller
         $validatedData['brand_id'] = $validatedData['brand'];
         $validatedData['unit_id'] = $validatedData['unit'];
         $validatedData['garansi_id'] = $validatedData['garansi'];
+        $validatedData['pajak_id'] = $validatedData['pajak'];
 
         // Cek apakah ada gambar baru yang diunggah (path dimulai dengan 'tmp/')
         if ($request->filled('img_produk') && str_starts_with($request->img_produk, 'tmp/')) {
@@ -159,7 +171,7 @@ class ProdukController extends Controller
             }
         }
 
-        unset($validatedData['kategori'], $validatedData['brand'], $validatedData['unit'], $validatedData['garansi']);
+        unset($validatedData['kategori'], $validatedData['brand'], $validatedData['unit'], $validatedData['garansi'], $validatedData['pajak']);
 
         $produk->update($validatedData);
         Alert::success('Berhasil', 'Data Produk Berhasil Diperbarui.');
@@ -216,5 +228,26 @@ class ProdukController extends Controller
         }
 
         return response()->json(['error' => 'File not found or path is missing.'], 404);
+    }
+
+    public function getData(Request $request)
+    {
+        $search = $request->query('search');
+        $query = Produk::query();
+
+        if ($search) {
+            // Jika ada pencarian, cari berdasarkan nama produk
+            $query->where('nama_produk', 'LIKE', '%' . $search . '%');
+        } else {
+            // Jika tidak ada pencarian (saat pertama kali dibuka), urutkan berdasarkan stok terendah
+            $query->orderBy('qty', 'asc')->limit(5);
+        }
+        return response()->json($query->get());
+    }
+    public function cekStok(Request $request)
+    {
+        $id = $request->query('id');
+        $stok = Produk::find($id)->qty;
+        return response()->json($stok);
     }
 }

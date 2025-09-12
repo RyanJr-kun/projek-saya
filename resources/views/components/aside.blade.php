@@ -54,9 +54,8 @@
                     </ul>
                 </div>
             </li>
-            {{-- Menggunakan Gate/Policy untuk otorisasi adalah praktik terbaik. --}}
-            {{-- Contoh: @can('view-pembelian') --}}
-            @if (Auth::user()->role_id == 1) {{-- TODO: Ganti dengan Gate atau Policy untuk sentralisasi logika --}}
+
+            @if (Auth::user()->role_id == 1)
             {{-- pembelian --}}
             <li class="nav-item">@php $isPembelianActive = request()->routeIs('pembelian.*', 'pemasok.*'); @endphp
                 <a data-bs-toggle="collapse" href="#pembelian" class="nav-link {{ $isPembelianActive ? 'active' : '' }}" aria-controls="pembelian" role="button" aria-expanded="{{ $isPembelianActive ? 'true' : 'false' }}">
@@ -86,6 +85,7 @@
                 </div>
             </li>
             @endif
+
             <hr class="horizontal dark my-2">
             {{--inventaris --}}
             <li class="nav-item">
@@ -131,23 +131,18 @@
                     <span class="nav-link-text ms-1">Garansi</span>
                 </a>
             </li>
-
             <hr class="horizontal dark my-2">
+            {{-- Administrasi --}}
             <li class="nav-item">
-                <p class="ps-4 mb-0 text-uppercase text-xs font-weight-bolder">Stok</p>
+                <p class="ps-4 mb-0 text-uppercase text-xs font-weight-bolder">Managemen</p>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('stok-opname.*') ? 'active' : '' }}" href="#"> {{-- TODO: Arahkan ke route yang benar --}}
+                <a class="nav-link {{ request()->routeIs('stok-opname.*') ? 'active' : '' }}" href="#">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="bi bi-stack text-dark text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Stok Opname</span> {{-- Placeholder --}}
                 </a>
-            </li>
-            <hr class="horizontal dark my-2">
-            {{-- Administrasi --}}
-            <li class="nav-item">
-                <p class="ps-4 mb-0 text-uppercase text-xs font-weight-bolder">Administrasi</p>
             </li>
             <li class="nav-item">@php $isPemasukanActive = request()->routeIs('pemasukan.*', 'kategoripemasukan.*'); @endphp
                 <a data-bs-toggle="collapse" href="#Pemasukan" class="nav-link {{ $isPemasukanActive ? 'active' : '' }}" aria-controls="Pemasukan" role="button" aria-expanded="{{ $isPemasukanActive ? 'true' : 'false' }}">

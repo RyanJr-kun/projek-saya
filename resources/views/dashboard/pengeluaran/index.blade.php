@@ -10,30 +10,7 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    {{-- notif --}}
-    @if (session()->has('success') || session()->has('error'))
-        @php
-            $toastType = session()->has('success') ? 'success' : 'error';
-            $toastMessage = session('success') ?? session('error');
-            $toastHeaderBg = $toastType === 'success' ? 'bg-success' : 'bg-warning';
-            $toastIcon = $toastType === 'success' ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-exclamation-triangle';
-        @endphp
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header {{ $toastHeaderBg }} text-white">
-                    <span class="alert-icon text-light me-2"><i class="{{ $toastIcon }}"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ $toastMessage }}
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
+    <div class="container-fluid p-3 ">
         <div class="row ">
             <div class="col-12 ">
                 <div class="card mb-4 ">
@@ -107,7 +84,11 @@
                                         </td>
                                         <td>
                                             <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">
-                                                <img src="{{ asset('storage/' . $pengeluaran->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
+                                                @if ($pengeluaran->user->img_user)
+                                                    <img src="{{ asset('storage/' . $pengeluaran->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
+                                                @else
+                                                    <img src="{{ asset('assets/img/user.webp') }}" class="avatar avatar-sm me-3" alt="Gambar User default">
+                                                @endif
                                                 <h6 class="mb-0 text-sm">{{ $pengeluaran->user->nama }}</h6>
                                             </div>
                                         </td>
@@ -133,8 +114,8 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">
-                                            <p class="text-xs text-dark fw-bold mb-0">Tidak ada data pengeluaran.</p>
+                                        <td colspan="8" class="text-center py-3">
+                                            <p class="text-sm text-dark fw-bold mb-0">Belum ada data pengeluaran.</p>
                                         </td>
                                     </tr>
                                     @endforelse
@@ -200,7 +181,7 @@
                                 @error('deskripsi')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Simpan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -257,7 +238,7 @@
                                 <textarea id="edit_deskripsi" name="deskripsi" class="form-control" rows="3"></textarea>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Simpan Perubahan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -368,12 +349,6 @@
                     createModal.show();
                 }
 
-                // --- TOAST NOTIFICATION ---
-                var toastElement = document.getElementById('notificationToast');
-                if (toastElement) {
-                    var toast = new bootstrap.Toast(toastElement);
-                    toast.show();
-                }
             });
         </script>
     @endpush

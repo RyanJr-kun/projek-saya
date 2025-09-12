@@ -1,11 +1,4 @@
 <x-layout>
-
-    @push('styles')
-        <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
-        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
-        <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
-    @endpush
-
     @section('breadcrumb')
         @php
         $breadcrumbItems = [
@@ -19,19 +12,17 @@
 
     <div class="container-fluid p-3">
         <div class="card mb-4">
-            <div class="card-header pb-0 p-3 mb-3">
-                <div class="d-flex flex-sm-row justify-content-sm-center align-items-sm-center">
-                    <div class="mb-0">
-                        <h5 class="mb-0">Data Brand</h5>
-                            <p class="text-sm mb-0">
-                            Kelola Data Brandmu
-                        </p>
+            <div class="card-header pb-0 px-3 pt-2 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-n1">List Brand</h6>
+                        <p class="text-sm mb-0">Kelola Data Brandmu</p>
                     </div>
-                    <div class="ms-auto my-auto mt-lg-0">
-                        <div class="ms-auto mb-0">
-                            {{-- triger-modal --}}
-                            <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Brand</button>
-                        </div>
+                    <div class="ms-md-auto mt-2">
+                        {{-- triger-modal --}}
+                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import">
+                            <i class="fa fa-plus cursor-pointer pe-2"></i>Brand
+                        </button>
                     </div>
                 </div>
             </div>
@@ -50,7 +41,7 @@
                         </div>
                     </div>
                 </div>
-            <div class="table-responsive p-0 mt-4">
+            <div class="table-responsive p-0 mt-3">
                 <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
                 <thead>
                     <tr class="table-secondary">
@@ -152,7 +143,7 @@
                             </div>
 
                             <div class="modal-footer border-0 pb-0 mt-3">
-                                <button type="button" id="submit-create-button" class="btn btn-info btn-sm">Buat Brand</button>
+                                <button type="button" id="submit-create-button" class="btn btn-outline-info btn-sm">Buat Brand</button>
                                 <button type="button" id="cancel-create-button" class="btn btn-danger btn-sm">Batalkan</button>
                             </div>
                         </form>
@@ -196,7 +187,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer border-0 pb-0 mt-3">
-                                <button type="submit" class="btn btn-info btn-sm" id="submit-edit-button">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm" id="submit-edit-button">Simpan Perubahan</button>
                                 <button type="button" id="cancel-edit-button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -227,13 +218,6 @@
     </div>
 
     @push('scripts')
-        {{-- FilePond Scripts --}}
-        <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
-        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // --- FILEPOND SETUP ---

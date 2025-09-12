@@ -34,12 +34,17 @@
                                     <tr><td class="fw-bold">Kategori</td><td>: {{ $produk->kategori_produk->nama }}</td></tr>
                                     <tr><td class="fw-bold">Brand</td><td>: {{ $produk->brand->nama }}</td></tr>
                                     <tr><td class="fw-bold">Unit</td><td>: {{ $produk->unit->nama }}</td></tr>
-                                    <tr><td class="fw-bold">Harga</td><td>: Rp.{{ number_format($produk->harga, 0, ',', '.') }}</td></tr>
+                                    <tr><td class="fw-bold">Harga Jual</td><td>: Rp.{{ number_format($produk->harga_jual, 0, ',', '.') }}</td></tr>
+                                    <tr><td class="fw-bold">Harga Beli</td><td>: Rp.{{ number_format($produk->harga_beli, 0, ',', '.') }}</td></tr>
                                     <tr><td class="fw-bold">Stok Saat Ini</td><td>: {{ $produk->qty }}</td></tr>
                                     <tr><td class="fw-bold">Stok Minimum</td><td>: {{ $produk->stok_minimum }}</td></tr>
                                     <tr><td class="fw-bold">Garansi</td><td>: {{ $produk->garansi?->nama ?? 'Tidak ada garansi' }}</td></tr>
+                                    <tr><td class="fw-bold">Pajak</td><td>: {{ $produk->pajak?->nama_pajak ?? 'Tidak ada' }} ({{ $produk->pajak->rate}}%)</td></tr>
                                     <tr><td class="fw-bold">Dibuat oleh</td><td>: {{ $produk->user->nama }}</td></tr>
-                                    <tr><td class="fw-bold align-text-top">Deskripsi</td><td class="align-text-top">: {!! $produk->deskripsi ?? '-' !!}</td>
+                                    <tr>
+                                        <td class="fw-bold align-text-top">Deskripsi</td>
+                                        <td class="align-text-top">:<div style="white-space: normal; word-wrap: break-word;"> {!! $produk->deskripsi ?? '-' !!}</div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -53,7 +58,7 @@
                             @if($produk->img_produk && Storage::disk('public')->exists($produk->img_produk))
                                 <img src="{{ asset('storage/' . $produk->img_produk) }}" class="img-fluid border-radius-lg shadow-lg" style="max-height: 500px;" alt="Gambar Produk {{ $produk->nama_produk }}">
                             @else
-                                <img src="https://via.placeholder.com/400x400.png/f8f9fa/6c757d?text=Tidak+Ada+Gambar" class="img-fluid border-radius-lg" alt="Tidak ada gambar">
+                                 <img src="{{ asset('assets/img/produk.webp') }}" class="img-fluid border-radius-lg" alt="Gambar produk default">
                             @endif
                         </div>
                     </div>

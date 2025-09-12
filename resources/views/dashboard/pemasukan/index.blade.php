@@ -10,139 +10,119 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    {{-- notif --}}
-    @if (session()->has('success') || session()->has('error'))
-        @php
-            $toastType = session()->has('success') ? 'success' : 'error';
-            $toastMessage = session('success') ?? session('error');
-            $toastHeaderBg = $toastType === 'success' ? 'bg-success' : 'bg-warning';
-            $toastIcon = $toastType === 'success' ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-exclamation-triangle';
-        @endphp
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header {{ $toastHeaderBg }} text-white">
-                    <span class="alert-icon text-light me-2"><i class="{{ $toastIcon }}"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ $toastMessage }}
+
+
+    <div class="container-fluid p-3 ">
+        <div class="card mb-4 ">
+            <div class="card-header pb-0 px-3 pt-2 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-n1">Data Pemasukan</h6>
+                        <p class="text-sm mb-0">
+                            Kelola pemasukanmu
+                        </p>
+                    </div>
+                    <div class="ms-md-auto mt-2">
+                        {{-- triger-modal-create --}}
+                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#createModal">
+                            <i class="fa fa-plus cursor-pointer pe-2"></i> Pemasukan
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    @endif
-
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
-        <div class="row ">
-            <div class="col-12 ">
-                <div class="card mb-4 ">
-                    <div class="card-header pb-0 px-3 pt-2 mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">Data Pemasukan</h6>
-                                <p class="text-sm mb-0">
-                                    Kelola pemasukanmu
-                                </p>
-                            </div>
-                            <div class="ms-md-auto mt-2">
-                                {{-- triger-modal-create --}}
-                                <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#createModal">
-                                    <i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i> Pemasukan
-                                </button>
-                            </div>
+            <div class="card-body px-0 pt-0 pb-2">
+                <div class="filter-container">
+                    <div class="row g-3 align-items-center justify-content-between">
+                        <div class="col-5 col-lg-3 ms-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Cari keterangan...">
+                        </div>
+                        <div class="col-5 col-lg-2 me-3">
+                            <select id="kategoriFilter" class="form-select">
+                                <option value="">Semua Kategori</option>
+                                @foreach ($kategoris as $kategori)
+                                    <option value="{{ $kategori->nama }}">{{ $kategori->nama }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
-                    <div class="card-body px-0 pt-0 pb-2">
-                        <div class="filter-container">
-                            <div class="row g-3 align-items-center justify-content-between">
-                                <div class="col-5 col-lg-3 ms-3">
-                                    <input type="text" id="searchInput" class="form-control" placeholder="Cari keterangan...">
-                                </div>
-                                <div class="col-5 col-lg-2 me-3">
-                                    <select id="kategoriFilter" class="form-select">
-                                        <option value="">Semua Kategori</option>
-                                        @foreach ($kategoris as $kategori)
-                                            <option value="{{ $kategori->nama }}">{{ $kategori->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-responsive p-0 my-3">
-                            <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                                <thead>
-                                    <tr class="table-secondary">
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder">Referensi</th>
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Pemasukan</th>
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kategori</th>
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Detail</th>
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Tanggal</th>
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah</th>
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-3">Pembuat</th>
-                                        <th class="text-dark"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="isiTable">
-                                    @forelse ($pemasukans as $pemasukan)
-                                    <tr>
-                                        <td>
-                                            <p title="referensi" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $pemasukan->referensi ?? '-' }}</p>
-                                        </td>
+                </div>
+                <div class="table-responsive p-0 mt-3">
+                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
+                        <thead>
+                            <tr class="table-secondary">
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Referensi</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Pemasukan</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kategori</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Detail</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Tanggal</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-3">Pembuat</th>
+                                <th class="text-dark"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="isiTable">
+                            @forelse ($pemasukans as $pemasukan)
+                            <tr>
+                                <td>
+                                    <p title="referensi" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $pemasukan->referensi ?? '-' }}</p>
+                                </td>
 
-                                        <td>
-                                            <p title="keterangan pemasukan" class="text-xs text-dark fw-bold mb-0">{{ $pemasukan->keterangan }}</p>
-                                        </td>
-                                        <td>
-                                            <p title="kategori pemasukan" class="text-xs text-dark fw-bold mb-0">{{ $pemasukan->kategori_pemasukan->nama }}</p>
-                                        </td>
-                                        <td>
-                                            <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ $pemasukan->deskripsi ? Str::limit(strip_tags($pemasukan->deskripsi), 40) : '-' }}</p>
-                                        </td>
-                                        <td>
-                                            <p title="tanggal pemasukan" class="text-xs text-dark fw-bold mb-0">{{ $pemasukan->tanggal }}</p>
-                                        </td>
-                                        <td>
-                                            <p title="jumlah pemasukan" class="text-xs text-dark fw-bold mb-0">{{ $pemasukan->harga_formatted }}</p>
-                                        </td>
-                                        <td>
-                                            <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">
-                                                <img src="{{ asset('storage/' . $pemasukan->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
-                                                <h6 class="mb-0 text-sm">{{ $pemasukan->user->nama }}</h6>
-                                            </div>
-                                        </td>
+                                <td>
+                                    <p title="keterangan pemasukan" class="text-xs text-dark fw-bold mb-0">{{ $pemasukan->keterangan }}</p>
+                                </td>
+                                <td>
+                                    <p title="kategori pemasukan" class="text-xs text-dark fw-bold mb-0">{{ $pemasukan->kategori_pemasukan->nama }}</p>
+                                </td>
+                                <td>
+                                    <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ $pemasukan->deskripsi ? Str::limit(strip_tags($pemasukan->deskripsi), 40) : '-' }}</p>
+                                </td>
+                                <td>
+                                    <p title="tanggal pemasukan" class="text-xs text-dark fw-bold mb-0">{{ $pemasukan->tanggal }}</p>
+                                </td>
+                                <td>
+                                    <p title="jumlah pemasukan" class="text-xs text-dark fw-bold mb-0">{{ $pemasukan->harga_formatted }}</p>
+                                </td>
+                                <td>
+                                    <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">
+                                        @if ($pemasukan->user->img_user)
+                                            <img src="{{ asset('storage/' . $pemasukan->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
+                                        @else
+                                            <img src="{{ asset('assets/img/user.webp') }}" class="avatar avatar-sm me-3" alt="Gambar User default">
+                                        @endif
+                                        <h6 class="mb-0 text-sm">{{ $pemasukan->user->nama }}</h6>
+                                    </div>
 
-                                        <td class="text-center">
-                                            <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#editModal"
-                                                data-url="{{ route('pemasukan.getjson', $pemasukan->id) }}"
-                                                data-update-url="{{ route('pemasukan.update', $pemasukan->id) }}"
-                                                title="Edit pemasukan">
-                                                <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                            </a>
-                                            <a href="#" class="text-dark delete-pemasukan-btn me-md-4"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteConfirmationModal"
-                                                data-pemasukan-id="{{ $pemasukan->id }}"
-                                                data-pemasukan-name="{{ $pemasukan->keterangan }}"
-                                                title="Hapus pemasukan">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center">
-                                            <p class="text-xs text-dark fw-bold mb-0">Tidak ada data pemasukan.</p>
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                            <div class="my-3 ms-3">{{ $pemasukans->onEachSide(1)->links() }}</div>
-                        </div>
-                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editModal"
+                                        data-url="{{ route('pemasukan.getjson', $pemasukan->id) }}"
+                                        data-update-url="{{ route('pemasukan.update', $pemasukan->id) }}"
+                                        title="Edit pemasukan">
+                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
+                                    </a>
+                                    <a href="#" class="text-dark delete-pemasukan-btn me-md-4"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteConfirmationModal"
+                                        data-pemasukan-id="{{ $pemasukan->id }}"
+                                        data-pemasukan-name="{{ $pemasukan->keterangan }}"
+                                        title="Hapus pemasukan">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="8" class="text-center py-3">
+                                    <p class=" text-dark text-sm fw-bold mb-0">Belum ada data pemasukan.</p>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                    <div class="my-3 ms-3">{{ $pemasukans->onEachSide(1)->links() }}</div>
                 </div>
             </div>
         </div>
@@ -200,7 +180,7 @@
                                 @error('deskripsi')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Simpan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -257,7 +237,7 @@
                                 <textarea id="edit_deskripsi" name="deskripsi" class="form-control" rows="3"></textarea>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Simpan Perubahan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -368,12 +348,6 @@
                     createModal.show();
                 }
 
-                // --- TOAST NOTIFICATION ---
-                var toastElement = document.getElementById('notificationToast');
-                if (toastElement) {
-                    var toast = new bootstrap.Toast(toastElement);
-                    toast.show();
-                }
             });
         </script>
     @endpush

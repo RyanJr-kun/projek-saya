@@ -121,42 +121,68 @@
                 <h6 class="">Stok & Harga</h6>
             </div>
             <div class="card-body px-4 pt-0">
-                <div class="row">
+                <div class="row g-3">
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3">
                         <label for="qty" class="form-label">Stok <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('qty') is-invalid @enderror" id="qty" name="qty" value="{{ old('qty', $produk->qty) }}">
+                        <input type="number" class="form-control @error('qty') is-invalid @enderror" id="qty" name="qty" value="{{ old('qty', $produk->qty) }}">
                         @error('qty')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="col-md-4 mb-3">
-                        <label for="harga" class="form-label">Harga <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('harga') is-invalid @enderror" id="harga" name="harga" value="{{ old('harga', $produk->harga) }}">
-                        @error('harga')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="col-md-3 form-group">
+                        <label for="harga_jual" class="form-control-label">Harga Jual <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp.</span>
+                            <input type="number" class="form-control @error('harga_jual') is-invalid @enderror" id="harga_jual" name="harga_jual" value="{{ old('harga_jual', $produk->harga_jual) }}">
+                            @error('harga_jual')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <span class="input-group-text">.00</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 form-group">
+                        <label for="harga_beli" class="form-control-label">Harga Beli <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">Rp.</span>
+                            <input type="number" class="form-control @error('harga_beli') is-invalid @enderror" id="harga_beli" name="harga_beli" value="{{ old('harga_beli', $produk->harga_beli) }}">
+                            @error('harga_beli')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <span class="input-group-text">.00</span>
+                        </div>
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3">
                         <label for="garansi" class="form-label">Garansi</label>
                         <select class="form-select @error('garansi') is-invalid @enderror" id="garansi" name="garansi">
                             <option value="" disabled selected>Pilih</option>
                              @foreach ($garansis as $garansi)
-                                    <option value="{{ $garansi->id }}" @selected(old('garansi', $produk->garansi?->id) == $garansi->id)>{{ $garansi->nama }} </option>
+                                    <option value="{{ $garansi->id }}" @selected(old('garansi', $produk->garansi_id) == $garansi->id)>{{ $garansi->nama }} </option>
                                 @endforeach
                         </select>
                         @error('garansi')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
-
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3">
                         <label for="stok_minimum" class="form-label">Batas Stok Minimum <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('stok_minimum') is-invalid @enderror" id="stok_minimum" name="stok_minimum" value="{{ old('stok_minimum', $produk->stok_minimum) }}">
+                        <input type="number" class="form-control @error('stok_minimum') is-invalid @enderror" id="stok_minimum" name="stok_minimum" value="{{ old('stok_minimum', $produk->stok_minimum) }}">
                         @error('stok_minimum')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-3">
+                        <label for="pajak" class="form-label">Pajak <span class="text-danger">*</span></label>
+                        <select class="form-select @error('pajak') is-invalid @enderror" id="pajak" name="pajak" required>
+                            <option value="" disabled selected>Pilih</option>
+                            @foreach ($pajak as $item)
+                                <option value="{{ $item->id }}" @selected(old('pajak', $produk->pajak_id) == $item->id)>{{ $item->nama_pajak }}</option>
+                            @endforeach
+                        </select>
+                        @error('pajak')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -164,7 +190,7 @@
         </div>
 
         {{-- gambar --}}
-        <div class="card m-4 w-md-50">
+        <div class="card m-4 ">
             <div class="card-header mb-n5">
                 <h6 class="">Gambar Produk</h6>
             </div>
@@ -181,126 +207,38 @@
     </form>
 
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
-        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+        {{-- Panggil file JS yang sudah direfactor --}}
+        <script src="{{ asset('assets/js/filepond-init.js') }}"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // quill
-                const quill = new Quill('#quill-editor', {
-                    theme: 'snow',
-                    placeholder: 'Tulis deskripsi produk di sini...',
-                });
-                const hiddenInput = document.getElementById('deskripsi');
-                quill.on('text-change', function() {
-                    hiddenInput.value = quill.root.innerHTML;
-                });
-                if (hiddenInput.value) {
-                    quill.root.innerHTML = hiddenInput.value;
-                }
-
-                // slug
-                const nama_produk = document.querySelector('#nama_produk ')
-                const slug = document.querySelector('#slug')
-
-                nama_produk.addEventListener('change', function(){
-                    fetch('/dashboard/produk/chekSlug?nama_produk=' + nama_produk.value)
-                        .then(response => response.json())
-                        .then(data => slug.value = data.slug)
-                });
-
-                // FilePond
-                FilePond.registerPlugin(
-                    FilePondPluginImagePreview,
-                    FilePondPluginFileValidateSize,
-                    FilePondPluginImageCrop,
-                    FilePondPluginFileValidateType,
-                    FilePondPluginImageTransform // Daftarkan plugin transform
-                );
-
-                const inputElement = document.querySelector('input[id="image"]');
-                const pond = FilePond.create(inputElement, {
-                    labelIdle: `Seret & Lepas gambar Anda atau <span class="filepond--label-action">Cari</span>`,
-                    allowImagePreview: true,
-                    allowFileSizeValidation: true,
-                    imagePreviewHeight: 300,
-                    maxFileSize: '2MB',
-                    allowImageCrop: true,
-                    imageCropAspectRatio: '1:1',
-                    acceptedFileTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
-                    labelFileTypeNotAllowed: 'Jenis file tidak valid.',
-                    labelMaxFileSizeExceeded: 'Ukuran file terlalu besar',
-                    labelMaxFileSize: 'Ukuran file maksimum adalah {filesize}',
-                    server: {
-                        process: {
-                            url: '/dashboard/produk/upload',
-                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                        },
-                        revert: {
-                            url: '/dashboard/produk/revert',
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        }
-                    },
+                // Opsi kustom untuk halaman edit: memuat gambar yang sudah ada
+                const editOptions = {
                     files: [
                         @if($produk->img_produk && Storage::disk('public')->exists($produk->img_produk))
-                        '{{ asset('storage/' . $produk->img_produk) }}'
+                        { source: '{{ asset('storage/' . $produk->img_produk) }}', options: { type: 'local' } }
                         @endif
                     ]
-                });
+                };
 
-                // --- Fitur Keamanan: Nonaktifkan tombol simpan saat upload ---
-                const submitBtn = document.getElementById('submit-edit-produk');
+                // Panggil fungsi setup FilePond dengan opsi tambahan
+                setupProductFilePond('#image', '#submit-edit-produk', '#cancel-button', 'editProductForm', editOptions);
 
-                inputElement.addEventListener('FilePond:addfile', (e) => {
-                    // Nonaktifkan tombol saat file ditambahkan dan mulai diunggah
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengunggah...`;
-                });
-
-                inputElement.addEventListener('FilePond:processfile', (e) => {
-                    // Aktifkan kembali setelah proses selesai (berhasil atau gagal)
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Edit Produk';
-                });
-
-                inputElement.addEventListener('FilePond:removefile', (e) => {
-                    // Aktifkan kembali jika file dibatalkan/dihapus
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Edit Produk';
-                });
-
-                const cancelButton = document.getElementById('cancel-button');
-                if (cancelButton) {
-                    cancelButton.addEventListener('click', function(e) {
-                        e.preventDefault(); // Mencegah navigasi langsung
-                        // Cari file yang BARU diunggah oleh pengguna dan sudah selesai diproses
-                        const newFile = pond.getFiles().find(file =>
-                            file.origin === FilePond.FileOrigin.INPUT &&
-                            file.status === FilePond.FileStatus.PROCESSING_COMPLETE
-                        );
-
-                        if (newFile && newFile.serverId) {
-                            // Jika ada file baru yang sudah diunggah, hapus dulu dari server
-                            fetch('{{ route("produk.revert") }}', {
-                                method: 'DELETE',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: newFile.serverId
-                            }).finally(() => {
-                                window.location.href = this.href;
-                            });
-                        } else {
-                            window.location.href = this.href;
-                        }
+                // Inisialisasi Quill
+                if (document.getElementById('quill-editor')) {
+                    const hiddenInputDeskripsi = document.getElementById('deskripsi');
+                    const quill = new Quill('#quill-editor', {
+                        theme: 'snow',
+                        placeholder: 'Tulis deskripsi produk di sini...',
                     });
+
+                    quill.on('text-change', function() {
+                        hiddenInputDeskripsi.value = quill.root.innerHTML;
+                    });
+
+                    // Jika ada old value, set ke editor
+                    if (hiddenInputDeskripsi.value) {
+                        quill.root.innerHTML = hiddenInputDeskripsi.value;
+                    }
                 }
             });
         </script>

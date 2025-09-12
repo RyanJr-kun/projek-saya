@@ -1,11 +1,4 @@
 <x-layout>
-    {{-- breadcrumb --}}
-    @push('styles')
-        <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
-        <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
-        <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
-    @endpush
-
     @section('breadcrumb')
         @php
         $breadcrumbItems = [
@@ -16,42 +9,19 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    {{-- toast-notif --}}
-    @if (session()->has('success') || session()->has('error'))
-        @php
-            $toastType = session()->has('success') ? 'success' : 'error';
-            $toastMessage = session('success') ?? session('error');
-            $toastHeaderBg = $toastType === 'success' ? 'bg-success' : 'bg-warning';
-            $toastIcon = $toastType === 'success' ? 'bi bi-hand-thumbs-up-fill' : 'bi bi-exclamation-triangle';
-        @endphp
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header {{ $toastHeaderBg }} text-white">
-                    <span class="alert-icon text-light me-2"><i class="{{ $toastIcon }}"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ $toastMessage }}
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
-        <div class="card mb-4 ">
+    <div class="container-fluid p-3 ">
+        <div class="card">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="mb-0">Data Kategori</h5>
+                        <h6 class="mb-0">List Kategori</h6>
                             <p class="text-sm mb-0">
                             Kelola data Kategorimu
                         </p>
                     </div>
-                    <div class="ms-md-auto mt-2">
+                    <div class="ms-auto mt-2">
                         {{-- triger-modal-create --}}
-                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Kategori</button>
+                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i> Kategori</button>
                     </div>
                 </div>
             </div>
@@ -176,7 +146,7 @@
                             </div>
                         </div>
                             <div class="modal-footer border-0 pb-0 mt-3">
-                                <button type="button" id="submit-create-button" class="btn btn-info btn-sm">Buat Kategori</button>
+                                <button type="button" id="submit-create-button" class="btn btn-outline-info btn-sm">Buat Kategori</button>
                                 <button type="button" id="cancel-create-button" class="btn btn-danger btn-sm">Batalkan</button>
                             </div>
                         </form>
@@ -217,7 +187,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer border-0 pb-0 mt-3">
-                                <button type="submit" class="btn btn-info btn-sm" id="submit-edit-button">Simpan Perubahan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm" id="submit-edit-button">Simpan Perubahan</button>
                                 <button type="button" id="cancel-edit-button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -247,13 +217,6 @@
         </div>
     </div>
     @push('scripts')
-        {{-- FilePond Scripts --}}
-        <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
-        <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
-        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // --- FILEPOND SETUP ---
@@ -550,18 +513,6 @@
                     statusFilter.addEventListener('change', filterTable);
                 }
 
-                // toast notif success
-                const notificationToastEl = document.getElementById('notificationToast');
-                if (notificationToastEl) {
-                    const toast = new bootstrap.Toast(notificationToastEl);
-                    toast.show();
-                }
-
-                // Scrollbar
-                const win = navigator.platform.indexOf('Win') > -1;
-                if (win && document.querySelector('#sidenav-scrollbar')) {
-                    Scrollbar.init(document.querySelector('#sidenav-scrollbar'), { damping: '0.5' });
-                }
             });
         </script>
     @endpush

@@ -17,7 +17,7 @@ class PenjualanController extends Controller
     public function index()
     {
         return view('dashboard.penjualan.index',[
-            'title' => 'Faktur Penjualan',
+            'title' => 'Daftar Invoice Penjualan',
             'penjualan' => Penjualan::with('pelanggan', 'user', 'items')->latest()->paginate(15)
 
         ]);

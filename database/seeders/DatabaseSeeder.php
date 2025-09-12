@@ -6,7 +6,6 @@ namespace Database\Seeders;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Brand;
-use App\Models\Produk;
 use App\Models\Garansi;
 use App\Models\KategoriProduk;
 use Illuminate\Database\Seeder;
@@ -23,6 +22,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
         RoleSeeder::class,
+        PajakSeeder::class,
         ]);
         KategoriProduk::factory(5)->create();
         Brand::factory()->count(8)->create();
@@ -31,5 +31,7 @@ class DatabaseSeeder extends Seeder
         KategoriPengeluaran::factory()->count(6)->create();
         KategoriPemasukan::factory()->count(5)->create();
         User::factory(10)->create();
+        
+        \App\Models\Produk::factory(15)->create();
     }
 }

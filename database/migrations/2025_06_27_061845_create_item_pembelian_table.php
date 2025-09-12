@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('item_pembelian', function (Blueprint $table) {
+        Schema::create('pembelian_details', function (Blueprint $table) {
             $table->id();
-            // "Tali Pengikat" ke Kepala Nota di tabel `pembelian`
             $table->foreignId('pembelian_id')->constrained('pembelians')->onDelete('cascade');
-            // "Tali Pengikat" ke Katalog Produk di tabel `produk`
-            $table->foreignId('produk_id')->constrained('produks');
-            $table->unsignedInteger('kuantitas'); // Berapa banyak mouse yang dibeli?
-            $table->decimal('harga_beli', 15, 2); // Berapa harga modal per satu mouse?
+            $table->foreignId('produk_id')->constrained('produks')->onDelete('restrict');
+            $table->unsignedInteger('qty');
+            $table->decimal('harga_beli', 15, 2);
+            $table->decimal('diskon', 15, 2)->default(0);
+            $table->decimal('pajak_persen', 5, 2)->default(0);
+            $table->decimal('subtotal', 15, 2);
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('item_pembelian');
+        Schema::dropIfExists('pembelian_details');
     }
 };

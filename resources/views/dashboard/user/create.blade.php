@@ -104,20 +104,14 @@
 
                 {{-- Tombol Aksi --}}
                 <div class="d-flex justify-content-end pt-3 mt-3">
-                    <button type="submit" class="btn btn-info">Buat User</button>
-                    <a href="{{ route('users.index') }}" id="cancel-button" class="btn btn-outline-danger ms-3">Batalkan</a>
+                    <button type="submit" class="btn btn-outline-info">Buat User</button>
+                    <a href="{{ route('users.index') }}" id="cancel-button" class="btn btn-danger ms-3">Batalkan</a>
                 </div>
             </form>
         </div>
     </div>
 
     @push('scripts')
-    <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
-    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // FilePond

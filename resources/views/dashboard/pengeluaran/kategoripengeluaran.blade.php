@@ -1,7 +1,4 @@
 <x-layout>
-    @push('styles')
-        <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
-    @endpush
     {{-- breadcrumb --}}
     @section('breadcrumb')
         @php
@@ -13,232 +10,219 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    {{-- notif-success --}}
-    @if (session()->has('success'))
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-            <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header bg-success text-white">
-                    <span class="alert-icon text-light me-2"><i class="fa fa-thumbs-up"></i></span>
-                    <strong class="me-auto">Notifikasi</strong>
-                    <small class="text-light">Baru saja</small>
-                    <button type="button" class="btn-close btn-light" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body">
-                    {{ session('success') }}
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto ">
-        <div class="row ">
-            <div class="col-12 ">
-                <div class="card mb-4 ">
-                    <div class="card-header pb-0 px-3 pt-2 mb-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">Kategori Pengeluaran</h6>
-                                    <p class="text-sm mb-0">
-                                    Kelola data Kategorimu
-                                </p>
-                            </div>
-                            <div class="ms-md-auto mt-2">
-                                {{-- triger-modal-create --}}
-                                <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import">
-                                    <i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i>Buat Kategori
-                                </button>
-                            </div>
-                        </div>
+    <div class="container-fluid p-3">
+        <div class="card mb-4 ">
+            <div class="card-header pb-0 px-3 pt-2 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-n1">Kategori Pengeluaran</h6>
+                            <p class="text-sm mb-0">
+                            Kelola data Kategorimu
+                        </p>
                     </div>
-                    <div class="card-body px-0 pt-0 pb-2">
-                        <div class="filter-container">
-                            <div class="row g-3 align-items-center justify-content-between">
-                                <div class="col-5 col-lg-3 ms-3">
-                                    <input type="text" id="searchInput" class="form-control" placeholder="cari kategori ...">
-                                </div>
-                                <div class="col-5 col-lg-2 me-3">
-                                    <select id="posisiFilter" class="form-select">
-                                        <option value="">semua status</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="table-responsive p-0 my-3">
-                            <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                                <thead>
-                                    <tr class="table-secondary">
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder">Kategori</th>
-                                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Deskripsi</th>
-                                        <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
-                                        <th class="text-dark"></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="isiTable">
-                                    @foreach ($kategoris as $kategori)
-                                    <tr>
-                                        <td>
-                                            <p title="kategori" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $kategori->nama }}</p>
-                                        </td>
-
-                                        <td>
-                                            <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ Str::limit(strip_tags($kategori->deskripsi), 60) }}</p>
-                                        </td>
-
-                                        <td class="align-middle text-center text-sm">
-                                            @if ($kategori->status)
-                                                <span class="badge badge-success">Aktif</span>
-                                            @else
-                                                <span class="badge badge-secondary">Tidak Aktif</span>
-                                            @endif
-                                        </td>
-
-                                        <td class="text-center">
-                                            <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#editModal"
-                                                data-url="{{ route('kategoripengeluaran.getjson', $kategori->slug) }}"
-                                                data-update-url="{{ route('kategoripengeluaran.update', $kategori->slug) }}"
-                                                title="Edit kategori">
-                                                <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                            </a>
-                                            <a href="#" class="text-dark delete-user-btn me-md-4"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteConfirmationModal"
-                                                data-kategori-slug="{{ $kategori->slug }}"
-                                                data-kategori-name="{{ $kategori->nama }}"
-                                                title="Hapus kategori">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                            <div class="my-3 ms-3">{{ $kategoris->onEachSide(1)->links() }}</div>
-                        </div>
+                    <div class="ms-md-auto mt-2">
+                        {{-- triger-modal-create --}}
+                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import">
+                            <i class="fa fa-plus fixed-plugin-button-nav cursor-pointer pe-2"></i> Kategori
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-
-        {{-- modal-create --}}
-        <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header border-0 mb-n3">
-                        <h6 class="modal-title" id="ModalLabel">Buat kategori Baru</h6>
-                        <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="card-body px-0 pt-0 pb-2">
+                <div class="filter-container">
+                    <div class="row g-3 align-items-center justify-content-between">
+                        <div class="col-5 col-lg-3 ms-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="cari kategori ...">
+                        </div>
+                        <div class="col-5 col-lg-2 me-3">
+                            <select id="posisiFilter" class="form-select">
+                                <option value="">semua status</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <form action="{{ route('kategoripengeluaran.store') }}" method="post" >
+                </div>
+                <div class="table-responsive p-0 mt-3">
+                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
+                        <thead>
+                            <tr class="table-secondary">
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Kategori</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Deskripsi</th>
+                                <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
+                                <th class="text-dark"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="isiTable">
+                            @forelse ($kategoris as $kategori)
+                            <tr>
+                                <td>
+                                    <p title="kategori" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $kategori->nama }}</p>
+                                </td>
+
+                                <td>
+                                    <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ Str::limit(strip_tags($kategori->deskripsi), 60) }}</p>
+                                </td>
+
+                                <td class="align-middle text-center text-sm">
+                                    @if ($kategori->status)
+                                        <span class="badge badge-success">Aktif</span>
+                                    @else
+                                        <span class="badge badge-secondary">Tidak Aktif</span>
+                                    @endif
+                                </td>
+
+                                <td class="text-center">
+                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editModal"
+                                        data-url="{{ route('kategoripengeluaran.getjson', $kategori->slug) }}"
+                                        data-update-url="{{ route('kategoripengeluaran.update', $kategori->slug) }}"
+                                        title="Edit kategori">
+                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
+                                    </a>
+                                    <a href="#" class="text-dark delete-user-btn me-md-4"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteConfirmationModal"
+                                        data-kategori-slug="{{ $kategori->slug }}"
+                                        data-kategori-name="{{ $kategori->nama }}"
+                                        title="Hapus kategori">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-3 ">
+                                        <p class=" text-dark text-sm fw-bold mb-0">Belum ada data Kategori Pengeluaran.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                    <div class="my-3 ms-3">{{ $kategoris->onEachSide(1)->links() }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {{-- modal-create --}}
+    <div class="modal fade" id="import" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 mb-n3">
+                    <h6 class="modal-title" id="ModalLabel">Buat kategori Baru</h6>
+                    <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('kategoripengeluaran.store') }}" method="post" >
+                        @csrf
+                        <div class="mb-3">
+                            <label for="nama" class="form-label ">Nama</label>
+                            <input id="nama" name="nama" type="string" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
+                            @error('nama')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="slug" class="form-label">Slug</label>
+                            <input id="slug" name="slug" type="string" class="form-control @error('slug') is-invalid @enderror"  value="{{ old('slug') }}" required>
+                            @error('slug')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="deskripsi" class="form-label">Deskripsi <span class="text-danger">*</span></label>
+                            <div id="quill-editor-create" style="min-height: 100px;">{!! old('deskripsi') !!}</div>
+                            <div class="text-end text-muted small" id="counter-create">0/60</div>
+                            <input type="hidden" name="deskripsi" id="deskripsi-create" value="{{ old('deskripsi') }}">
+                            @error('deskripsi') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                        </div>
+
+                        <div class="justify-content-end form-check form-switch form-check-reverse mb-2">
+                            <label class="me-auto fw-bold form-check-label" for="status">Status</label>
+                            <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
+                        </div>
+
+                        <div class="modal-footer border-0 pb-0">
+                            <button type="submit" class="btn btn-outline-info btn-sm">Buat Kategori</button>
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- modal edit --}}
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 mb-n3">
+                    <h6 class="modal-title" id="editModalLabel">Edit Kategori pengeluaran</h6>
+                    <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editKategoriForm" method="post">
+                        @method('put')
+                        @csrf
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="mb-3">
+                                    <label for="edit_nama" class="form-label">Nama</label>
+                                    <input id="edit_nama" name="nama" type="text" class="form-control" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="edit_slug" class="form-label">Slug</label>
+                                    <input id="edit_slug" name="slug" type="text" class="form-control" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="deskripsi" class="form-label">Deskripsi</label>
+                                    <div id="quill-editor-edit" style="min-height: 100px;"></div>
+                                    <div class="text-end text-muted small" id="counter-edit">0/60</div>
+                                    <input type="hidden" name="deskripsi" id="deskripsi-edit">
+                                </div>
+
+                                <div class="justify-content-end form-check form-switch form-check-reverse mt-3">
+                                    <label class="me-auto form-check-label" for="edit_status">Status</label>
+                                    <input id="edit_status" class="form-check-input" type="checkbox" name="status" value="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 pb-0">
+                            <button type="submit" class="btn btn-outline-info btn-sm">Simpan Perubahan</button>
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- modal delete --}}
+    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center mt-3 mx-n5">
+                    <i class="bi bi-trash fa-2x text-danger mb-3"></i>
+                    <p class="mb-0">Apakah Anda yakin ingin menghapus kategori ini?</p>
+                    <h6 class="mt-2" id="kategoriNameToDelete"></h6>
+                    <div class="mt-4">
+                        <form id="deleteKategoriForm" method="POST" action="#">
+                            @method('delete')
                             @csrf
-                            <div class="mb-3">
-                                <label for="nama" class="form-label ">Nama</label>
-                                <input id="nama" name="nama" type="string" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
-                                @error('nama')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="slug" class="form-label">Slug</label>
-                                <input id="slug" name="slug" type="string" class="form-control @error('slug') is-invalid @enderror"  value="{{ old('slug') }}" required>
-                                @error('slug')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="deskripsi" class="form-label">Deskripsi <span class="text-danger">*</span></label>
-                                <div id="quill-editor-create" style="min-height: 100px;">{!! old('deskripsi') !!}</div>
-                                <div class="text-end text-muted small" id="counter-create">0/60</div>
-                                <input type="hidden" name="deskripsi" id="deskripsi-create" value="{{ old('deskripsi') }}">
-                                @error('deskripsi') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                            </div>
-
-                            <div class="justify-content-end form-check form-switch form-check-reverse mb-2">
-                                <label class="me-auto fw-bold form-check-label" for="status">Status</label>
-                                <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
-                            </div>
-
-                            <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Buat Kategori</button>
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
-                            </div>
+                            <button type="submit" class="btn btn-danger btn-sm">Ya, Hapus</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm ms-2" data-bs-dismiss="modal">Batal</button>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- modal edit --}}
-        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header border-0 mb-n3">
-                        <h6 class="modal-title" id="editModalLabel">Edit Kategori pengeluaran</h6>
-                        <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="editKategoriForm" method="post">
-                            @method('put')
-                            @csrf
-                            <div class="row">
-                                <div class="form-group">
-                                    <div class="mb-3">
-                                        <label for="edit_nama" class="form-label">Nama</label>
-                                        <input id="edit_nama" name="nama" type="text" class="form-control" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="edit_slug" class="form-label">Slug</label>
-                                        <input id="edit_slug" name="slug" type="text" class="form-control" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="deskripsi" class="form-label">Deskripsi</label>
-                                        <div id="quill-editor-edit" style="min-height: 100px;"></div>
-                                        <div class="text-end text-muted small" id="counter-edit">0/60</div>
-                                        <input type="hidden" name="deskripsi" id="deskripsi-edit">
-                                    </div>
-
-                                    <div class="justify-content-end form-check form-switch form-check-reverse mt-3">
-                                        <label class="me-auto form-check-label" for="edit_status">Status</label>
-                                        <input id="edit_status" class="form-check-input" type="checkbox" name="status" value="1">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-info btn-sm">Simpan Perubahan</button>
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- modal delete --}}
-        <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-body text-center mt-3 mx-n5">
-                        <i class="bi bi-trash fa-2x text-danger mb-3"></i>
-                        <p class="mb-0">Apakah Anda yakin ingin menghapus kategori ini?</p>
-                        <h6 class="mt-2" id="kategoriNameToDelete"></h6>
-                        <div class="mt-4">
-                            <form id="deleteKategoriForm" method="POST" action="#">
-                                @method('delete')
-                                @csrf
-                                <button type="submit" class="btn btn-danger btn-sm">Ya, Hapus</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" data-bs-dismiss="modal">Batal</button>
-                            </form>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
         <script>

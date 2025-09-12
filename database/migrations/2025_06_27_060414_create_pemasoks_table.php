@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('pemasoks', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 255);
+            $table->string('perusahaan', 255);
             $table->string('kontak', 20)->unique();
             $table->string('email')->unique()->nullable();
             $table->text('alamat')->nullable();
             $table->text('note')->nullable();
-            $table->boolean('status')->default(true); 
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

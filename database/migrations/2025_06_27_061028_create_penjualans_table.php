@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('penjualans', function (Blueprint $table) {
             $table->id();
-            $table->string('nomer_invoice', 50)->unique();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggans');
+            $table->string('referensi', 50)->unique();
+            $table->date('tanggal_penjualan');
             $table->decimal('subtotal', 15, 2);
             $table->decimal('diskon', 15, 2)->default(0);
             $table->decimal('pajak', 15, 2)->default(0);
@@ -23,6 +22,8 @@ return new class extends Migration
             $table->enum('status', ['LUNAS', 'BELUM_LUNAS', 'DIBATALKAN'])->default('LUNAS');
             $table->enum('metode_pembayaran', ['TUNAI', 'DEBIT', 'KREDIT', 'QRIS'])->default('TUNAI');
             $table->text('catatan')->nullable();
+            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggans');
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });
     }

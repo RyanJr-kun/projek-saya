@@ -4,7 +4,7 @@
         @php
         // Definisikan item breadcrumb dalam bentuk array
         $breadcrumbItems = [
-            ['name' => 'Page', 'url' => '/dashboard'],
+            ['name' => 'Page', 'url' => '#'],
             ['name' => 'Manajemen Produk', 'url' => route('produk.index')],
         ];
         @endphp
@@ -13,16 +13,16 @@
 
     <div class="container-fluid p-3">
         <div class="card">
-            <div class="card-header pb-0">
-                <div class="d-flex justify-content-between align-items-center mt-n3">
+            <div class="card-header pb-0 px-3 pt-2 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="mb-0">Data Produk</h5>
+                        <h6 class="mb-0">Data Produk</h6>
                             <p class="text-sm mb-0">
                             Kelola Data Produkmu
                         </p>
                     </div>
-                    <div class="mb-3">
-                        <div class="d-none d-md-block mt-2">
+                    <div class="ms-auto mt-2">
+                        <div class="d-none d-md-block">
                             <a href="#Export-Pdf" type="button" class="btn btn-outline-danger me-2 p-2 mb-0" title="Export PDF">
                                 <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20">
                             </a>
@@ -31,12 +31,12 @@
                             </a>
                             <a href="{{ route('produk.create') }}">
                                 <button class="btn btn-outline-info mb-0">
-                                    <i class="bi bi-plus-lg cursor-pointer pe-2"></i>Buat produk
+                                    <i class="bi bi-plus-lg cursor-pointer pe-2"></i> Produk
                                 </button>
                             </a>
                         </div>
-                        <div class="dropdown d-block d-md-none mt-3 ">
-                            <button class="btn btn-info dropdown-toggle mb-0" type="button" id="aksiMobile" data-bs-toggle="dropdown" aria-expanded="false">Pilih Aksi</button>
+                        <div class="dropdown d-block d-md-none ">
+                            <button class="btn btn-outline-info dropdown-toggle mb-0" type="button" id="aksiMobile" data-bs-toggle="dropdown" aria-expanded="false">Pilih Aksi</button>
                             <ul class="dropdown-menu" aria-labelledby="aksiMobile">
                                 <li>
                                     <a class="dropdown-item" href="#Export-Pdf">
@@ -49,8 +49,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item text-success" href="{{ route('produk.create') }}">
-                                        <i class="bi bi-plus-lg  cursor-pointer pe-2"></i>Buat Produk
+                                    <a class="dropdown-item text-info " href="{{ route('produk.create') }}">
+                                        <i class="bi bi-plus-lg  cursor-pointer pe-2"></i> Produk
                                     </a>
                                 </li>
                             </ul>
@@ -59,17 +59,17 @@
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
-                <div class="row justify-content-between px-4 mb-3">
-                    <div class="col-md-3 col-6">
+                <div class="row g-3 align-items-center justify-content-between">
+                    <div class="col-5 col-lg-3 ms-3">
                         <input type="text" id="searchInput" class="form-control" placeholder="Cari Produk...">
                     </div>
-                    <div class="col-md-2 col-6">
+                    <div class="col-5 col-lg-2 me-3">
                         <select id="posisiFilter" class="form-select">
                             <option value="">Semua Kategori</option>
                         </select>
                     </div>
                 </div>
-                <div class="table-responsive p-0 mt-4">
+                <div class="table-responsive p-0 mt-3">
                     <table class="table table-hover align-items-center pb-3" id="tableData">
                         <thead>
                             <tr class="table-secondary">
@@ -92,7 +92,7 @@
                                             @if ($produks->img_produk)
                                                 <img src="{{ asset('storage/' . $produks->img_produk) }}" class="avatar avatar-lg me-3" alt="{{ $produks->nama_produk }}">
                                             @else
-                                                <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
+                                                <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-lg me-3" alt="Gambar produk default">
                                             @endif
                                         </div>
                                         <div class="d-flex flex-column justify-content-start">
@@ -123,7 +123,11 @@
 
                                 <td>
                                     <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">
-                                        <img src="{{ asset('storage/' . $produks->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
+                                        @if ($produks->user->img_user)
+                                            <img src="{{ asset('storage/' . $produks->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
+                                        @else
+                                            <img src="{{ asset('assets/img/user.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
+                                        @endif
                                         <h6 class="mb-0 text-sm">{{ $produks->user->nama }}</h6>
                                     </div>
                                 </td>
@@ -147,7 +151,9 @@
                             </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-3 text-dark text-sm">Tidak ada data produk.</td>
+                                    <td colspan="9" class="text-center py-3">
+                                        <p class="text-dark text-sm fw-bold mb-0">Belum ada data produk.</p>
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
