@@ -76,7 +76,7 @@
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder">Produk</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kategori</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Brand</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Harga</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Harga Jual</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Unit</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Qty</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder">Pembuat</th>
@@ -185,7 +185,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                //serch
+                //search
                 const checkAll = document.getElementById('check-all');
                 const checkItems = document.querySelectorAll('.check-item');
 
@@ -262,10 +262,7 @@
                     }
                     Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
                 }
-            });
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
+                //delete
                 const deleteButtons = document.querySelectorAll('.delete-product-btn');
                 const deleteForm = document.getElementById('deleteProductForm');
                 if (deleteForm) {

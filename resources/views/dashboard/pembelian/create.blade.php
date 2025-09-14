@@ -1,8 +1,4 @@
 <x-layout>
-    @push('styles')
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
-    @endpush
     {{-- Breadcrumb --}}
     @section('breadcrumb')
         @php
@@ -162,7 +158,7 @@
             </div>
         </div>
     </form>
-    
+
     {{-- Modal Create Pemasok --}}
     <div class="modal fade" id="createPemasokModal" tabindex="-1" aria-labelledby="createPemasokModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -233,8 +229,6 @@
     </div>
 
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
                 // --- UTILITIES ---
@@ -503,10 +497,8 @@
                     quillCatatan.root.innerHTML = hiddenInputCatatan.value;
                 }
             }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
+
+            //create-pemasok
             const createPemasokForm = document.getElementById('createPemasokForm');
             const pemasokSelect = document.getElementById('Pemasok');
             const createPemasokModal = new bootstrap.Modal(document.getElementById('createPemasokModal'));

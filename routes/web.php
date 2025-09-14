@@ -23,9 +23,16 @@ Route::get('login', [LoginController::class, 'index'])->name('login')->middlewar
 Route::post('login', [LoginController::class, 'authenticate']);
 Route::post('logout',[LoginController::class, 'logout'])->name('logout');
 
+
 // market-beranda
 Route::get('/', function () {
     return view('Market.beranda', [
+        'title' => 'Beranda'
+    ]);
+});
+
+Route::get('/kasir', function () {
+    return view('kasir', [
         'title' => 'Beranda'
     ]);
 });
@@ -76,6 +83,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/garansi/chekSlug', [GaransiController::class, 'chekSlug']);
 
     //transaksi penjualan
+    Route::get('/penjualan/history/today', [PenjualanController::class, 'getTodayHistory'])->name('penjualan.history.today');
+    Route::get('/penjualan/get-products', [PenjualanController::class, 'getProductsForCashier'])->name('penjualan.get-products');
     Route::resource('/penjualan', PenjualanController::class);
     Route::get('/pelanggan/{pelanggan}/json', [PelangganController::class, 'getjson'])->name('pelanggan.getjson');
     Route::resource('pelanggan', PelangganController::class)->except('show','create','edit');

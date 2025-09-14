@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KategoriProduk;
 use App\Models\Produk;
 use App\Models\Pelanggan;
 use App\Models\Penjualan;
-use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class PenjualanController extends Controller
 {
@@ -30,12 +33,14 @@ class PenjualanController extends Controller
     {
         $produks = Produk::orderBy('nama_produk')->get();
         $pelanggans = Pelanggan::orderBy('nama')->get();
+        $kategoris = KategoriProduk::where('status', 1)->orderBy('nama')->get();
 
         return view('dashboard.penjualan.create',[
             'title' => 'Kasir',
             'produks' => $produks,
             'pelanggans' => $pelanggans,
-            'nomer_invoice' => $this->generateInvoiceNumber()
+            'kategoris' => $kategoris,
+            'referensi' => $this->generateInvoiceNumber() // Variabel ini diteruskan ke view
         ]);
     }
 
@@ -47,14 +52,14 @@ class PenjualanController extends Controller
         $prefix = 'INV-' . $date . '-';
 
         // Cari invoice terakhir untuk hari ini untuk mendapatkan nomor urut berikutnya
-        $lastPenjualan = Penjualan::where('nomer_invoice', 'like', $prefix . '%')
-                                  ->latest('nomer_invoice')
+        $lastPenjualan = Penjualan::where('referensi', 'like', $prefix . '%')
+                                  ->latest('referensi')
                                   ->first();
 
         $sequence = 1;
         if ($lastPenjualan) {
             // Ambil nomor urut dari invoice terakhir dan tambahkan 1
-            $lastSequence = (int) substr($lastPenjualan->nomer_invoice, -4);
+            $lastSequence = (int) substr($lastPenjualan->referensi, -4);
             $sequence = $lastSequence + 1;
         }
 
@@ -69,7 +74,7 @@ class PenjualanController extends Controller
         // 1. Validasi data yang masuk
         $validatedData = $request->validate([
             'pelanggan_id' => 'nullable|exists:pelanggans,id',
-            'nomer_invoice' => 'required|string|unique:penjualans,nomer_invoice',
+            'nomer_invoice' => 'required|string|unique:penjualans,referensi',
             'metode_pembayaran' => 'required|in:TUNAI,DEBIT,KREDIT,QRIS',
             'catatan' => 'nullable|string',
             'items' => 'required|array|min:1',
@@ -92,7 +97,7 @@ class PenjualanController extends Controller
                     if (!$produk || $produk->qty < $itemData['jumlah']) {
                         throw new \Exception("Stok untuk produk {$produk->nama_produk} tidak mencukupi.");
                     }
-                    $subtotal += $produk->harga * $itemData['jumlah'];
+                    $subtotal += $produk->harga_jual * $itemData['jumlah'];
                 }
 
                 // Asumsi diskon dan pajak dari request, atau bisa dihitung di sini
@@ -103,8 +108,8 @@ class PenjualanController extends Controller
 
                 // 3. Simpan data ke tabel 'penjualans'
                 $penjualan = Penjualan::create([
-                    'nomer_invoice' => $validatedData['nomer_invoice'],
-                    'user_id' => auth()->id(), // Ambil ID user yang sedang login
+                    'referensi' => $validatedData['nomer_invoice'],
+                    'user_id' => Auth::id(), // Ambil ID user yang sedang login
                     'pelanggan_id' => $validatedData['pelanggan_id'],
                     'subtotal' => $subtotal,
                     'diskon' => $diskon,
@@ -122,8 +127,8 @@ class PenjualanController extends Controller
                     $penjualan->items()->create([
                         'produk_id' => $produk->id,
                         'jumlah' => $itemData['jumlah'],
-                        'harga' => $produk->harga, // Simpan harga saat transaksi (menggunakan kolom 'harga')
-                        'subtotal' => $produk->harga * $itemData['jumlah'],
+                        'harga' => $produk->harga_jual, // Simpan harga jual saat transaksi
+                        'subtotal' => $produk->harga_jual * $itemData['jumlah'],
                     ]);
 
                     // Kurangi stok produk
@@ -152,7 +157,7 @@ class PenjualanController extends Controller
         $penjualan->load('items.produk', 'pelanggan', 'user');
 
         return view('dashboard.penjualan.show', [
-            'title' => 'Faktur Penjualan: ' . $penjualan->nomer_invoice,
+            'title' => 'Faktur Penjualan: ' . $penjualan->referensi,
             'penjualan' => $penjualan,
         ]);
     }
@@ -185,10 +190,9 @@ class PenjualanController extends Controller
                     Produk::where('id', $item->produk_id)->increment('qty', $item->jumlah);
                 }
 
-                // 2. Hapus data penjualan (relasi di database akan menghapus item terkait)
-                // 2. Hapus item terkait secara eksplisit untuk memastikan tidak ada data yatim
+                // 2. Hapus item terkait secara eksplisit untuk memastikan tidak ada data yatim jika cascade delete tidak diset
                 $penjualan->items()->delete();
-                // 3. Hapus data penjualan utama
+                // 3. Hapus data penjualan utama setelah item dihapus
                 $penjualan->delete();
             });
 
@@ -200,4 +204,32 @@ class PenjualanController extends Controller
             return back();
         }
     }
+
+
+
+
+    public function getTodayHistory(Request $request)
+    {
+        if ($request->ajax()) {
+            $todaySales = Penjualan::with('pelanggan')
+                ->whereDate('created_at', Carbon::today())
+                ->latest() // Urutkan dari yang terbaru
+                ->get()
+                ->map(function ($sale) {
+                    return [
+                        'id' => $sale->id,
+                        'nomer_invoice' => $sale->nomer_invoice,
+                        'total_akhir' => $sale->total_akhir,
+                        'status' => $sale->status,
+                        'pelanggan_nama' => $sale->pelanggan->nama ?? 'Pelanggan Umum',
+                        'waktu' => $sale->created_at->format('H:i'),
+                    ];
+                });
+
+            return response()->json($todaySales);
+        }
+        // Jika bukan request AJAX, kembalikan ke halaman sebelumnya atau 404
+        return redirect()->back();
+    }
+
 }

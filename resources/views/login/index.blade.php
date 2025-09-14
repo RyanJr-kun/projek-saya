@@ -3,8 +3,10 @@
         <head>
             <meta charset="utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-            <link rel="logo" sizes="100x100" href="../assets/img/logo.svg">
-            <link rel="icon" type="image/svg" href="../assets/img/logo.svg">
+            <meta name="csrf-token" content="{{ csrf_token() }}">
+            <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/logo.svg') }}">
+            <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
+            <link rel="apple-touch-icon" href="{{ asset('assets/img/apple-touch-icon.png') }}">
                 <title>
                     Jo Computer Dashboard
                 </title>
@@ -16,7 +18,7 @@
             <script async defer src="https://buttons.github.io/buttons.js"></script>
         </head>
     <body>
-        <main class="main-content  mt-0">
+        <main class="main-content mt-0">
             <section>
                 <div class="page-header min-vh-100">
                     <div class="container">

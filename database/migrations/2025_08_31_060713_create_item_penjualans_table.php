@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('produk_id')->constrained('produks')->onDelete('restrict');
             $table->unsignedInteger('jumlah');
             $table->decimal('harga', 15, 2);
-            $table->decimal('diskon_item', 15, 2)->default(0);
+            $table->decimal('diskon_item', 15, 2)->default(0)->comment('Diskon per item dalam nominal');
+            $table->decimal('pajak_item', 15, 2)->default(0)->comment('Pajak per item dalam nominal');
             $table->decimal('subtotal', 15, 2);
             $table->timestamps();
         });
