@@ -20,7 +20,7 @@
     @endsection
 
     {{-- Form Isian --}}
-    <form method="post" action="{{ route('produk.update', $produk->slug) }}" enctype="multipart/form-data">
+    <form id="editProductForm" method="post" action="{{ route('produk.update', $produk->slug) }}" enctype="multipart/form-data">
         @method('put')
         @csrf
         {{-- informasi produk --}}
@@ -48,7 +48,7 @@
 
                     <div class="col-md-6 mb-3">
                         <label for="slug" class="form-label">Slug <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" value="{{ old('slug', $produk->slug) }}" required>
+                        <input type="text" class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" value="{{ old('slug', $produk->slug) }}" required readonly>
                         @error('slug')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -201,45 +201,121 @@
 
         {{-- button submit --}}
         <div class="d-flex justify-content-end mt-3 me-4">
-            <button type="submit" class="btn btn-info" id="submit-edit-produk">Edit Produk</button>
+            <button type="submit" class="btn btn-outline-info" id="submit-edit-produk" >Simpan Perubahan</button>
             <a href="{{ route('produk.index') }}" id="cancel-button" class="btn btn-danger ms-3">Batalkan</a>
         </div>
     </form>
 
     @push('scripts')
-        {{-- Panggil file JS yang sudah direfactor --}}
-        <script src="{{ asset('assets/js/filepond-init.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Opsi kustom untuk halaman edit: memuat gambar yang sudah ada
-                const editOptions = {
-                    files: [
-                        @if($produk->img_produk && Storage::disk('public')->exists($produk->img_produk))
-                        { source: '{{ asset('storage/' . $produk->img_produk) }}', options: { type: 'local' } }
-                        @endif
-                    ]
-                };
+                // --- SLUG GENERATION ---
+                const namaInput = document.querySelector('#nama_produk');
+                const slugInput = document.querySelector('#slug');
 
-                // Panggil fungsi setup FilePond dengan opsi tambahan
-                setupProductFilePond('#image', '#submit-edit-produk', '#cancel-button', 'editProductForm', editOptions);
+                if (namaInput && slugInput) {
+                    namaInput.addEventListener('change', function() {
+                        fetch(`/dashboard/produk/checkSlug?nama_produk=${namaInput.value}`)
+                            .then(response => response.json())
+                            .then(data => slugInput.value = data.slug);
+                    });
+                }
 
-                // Inisialisasi Quill
+                // --- QUILL INITIALIZATION ---
                 if (document.getElementById('quill-editor')) {
                     const hiddenInputDeskripsi = document.getElementById('deskripsi');
                     const quill = new Quill('#quill-editor', {
                         theme: 'snow',
                         placeholder: 'Tulis deskripsi produk di sini...',
                     });
-
                     quill.on('text-change', function() {
                         hiddenInputDeskripsi.value = quill.root.innerHTML;
                     });
-
-                    // Jika ada old value, set ke editor
                     if (hiddenInputDeskripsi.value) {
                         quill.root.innerHTML = hiddenInputDeskripsi.value;
                     }
                 }
+
+                // --- FILEPOND INITIALIZATION ---
+                FilePond.registerPlugin(
+                    FilePondPluginImagePreview,
+                    FilePondPluginFileValidateSize,
+                    FilePondPluginImageCrop,
+                    FilePondPluginFileValidateType,
+                    FilePondPluginImageTransform
+                );
+
+                const inputElement = document.querySelector('#image');
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                const pond = FilePond.create(inputElement, {
+                    files: [
+                        @if($produk->img_produk && Storage::disk('public')->exists($produk->img_produk))
+                        '{{ asset('storage/' . $produk->img_produk) }}'
+                        @endif
+                    ],
+                    labelIdle: `Seret & Lepas gambar atau <span class="filepond--label-action">Cari</span>`,
+                    allowImagePreview: true,
+                    imagePreviewHeight: 300,
+                    maxFileSize: "2MB",
+                    allowImageCrop: true,
+                    imageCropAspectRatio: "1:1",
+                    labelMaxFileSizeExceeded: "Ukuran file terlalu besar",
+                    labelMaxFileSize: "Ukuran file maksimum adalah 2MB",
+                    acceptedFileTypes: ["image/png", "image/jpeg", "image/webp", "image/svg+xml"],
+                    labelFileTypeNotAllowed: "Jenis file tidak valid.",
+                    server: {
+                        process: { url: "/dashboard/produk/upload", headers: { "X-CSRF-TOKEN": csrfToken } },
+                        revert: { url: "/dashboard/produk/revert", method: "DELETE", headers: { "X-CSRF-TOKEN": csrfToken } },
+                    },
+                });
+
+                const saveBtn = document.getElementById('submit-edit-produk');
+                const originalSubmitText = saveBtn.innerHTML;
+
+                inputElement.addEventListener('FilePond:addfile', (e) => {
+                    // Hanya nonaktifkan tombol jika file berasal dari input pengguna, bukan dari inisialisasi
+                    if (e.detail.file.origin === FilePond.FileOrigin.INPUT) {
+                        saveBtn.disabled = true;
+                        saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengunggah...`;
+                    }
+                });
+
+                inputElement.addEventListener('FilePond:processfile', (e) => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalSubmitText;
+                });
+
+                inputElement.addEventListener('FilePond:removefile', (e) => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalSubmitText;
+                });
+
+                const cancelBtn = document.getElementById('cancel-button');
+                cancelBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const newFile = pond.getFiles().find(file =>
+                        file.origin === FilePond.FileOrigin.INPUT &&
+                        file.status === FilePond.FileStatus.PROCESSING_COMPLETE
+                    );
+
+                    if (newFile && newFile.serverId) {
+                        fetch('/dashboard/produk/revert', {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': csrfToken },
+                            body: newFile.serverId
+                        }).finally(() => { window.location.href = this.href; });
+                    } else {
+                        window.location.href = this.href;
+                    }
+                });
             });
         </script>
     @endpush

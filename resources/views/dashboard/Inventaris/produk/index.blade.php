@@ -29,6 +29,9 @@
                             <a href="#Export-Excel" class="btn btn-outline-success p-2 me-2 export mb-0" data-type="csv" type="button" title="Export Excel">
                                 <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20">
                             </a>
+                            <a href="{{ route('produk.trash') }}" class="btn btn-outline-secondary mb-0" title="Produk Diarsipkan">
+                                <i class="bi bi-trash3"></i>
+                            </a>
                             <a href="{{ route('produk.create') }}">
                                 <button class="btn btn-outline-info mb-0">
                                     <i class="bi bi-plus-lg cursor-pointer pe-2"></i> Produk
@@ -47,6 +50,11 @@
                                     <a class="dropdown-item export" href="#Export-Excel" data-type="csv">
                                         <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20" class="me-2">Export Excel
                                     </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('produk.trash') }}">
+                                        <i class="bi bi-trash3 me-2"></i>Produk Diarsipkan</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item text-info " href="{{ route('produk.create') }}">
@@ -167,7 +175,7 @@
                 <div class="modal-content">
                     <div class="modal-body text-center mt-3 mx-n5">
                         <i class="fa fa-trash fa-2x text-danger mb-3"></i>
-                        <p class="mb-0">Are you sure you want to delete product?</p>
+                        <p class="mb-0">apakah kamu yakin ingin menghapus produk ini?</p>
                         <h6 class="mt-2" id="productNameToDelete"></h6>
                         <div class="mt-4">
                             <form id="deleteProductForm" method="POST" class="d-inline" data-base-url="{{ url('produk') }}">
@@ -183,6 +191,7 @@
         </div>
     </div>
     @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 //search
@@ -262,23 +271,58 @@
                     }
                     Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
                 }
-                //delete
-                const deleteButtons = document.querySelectorAll('.delete-product-btn');
-                const deleteForm = document.getElementById('deleteProductForm');
-                if (deleteForm) {
-                    const productNameElement = document.getElementById('productNameToDelete');
-                    const baseUrl = deleteForm.getAttribute('data-base-url');
 
-                    deleteButtons.forEach(button => {
-                        button.addEventListener('click', function(event) {
-                            event.preventDefault();
-                            const productSlug = this.getAttribute('data-product-slug');
-                            const productName = this.getAttribute('data-product-name');
-                            const formAction = `${baseUrl}/${productSlug}`;
-                            deleteForm.setAttribute('action', formAction);
-                            if (productNameElement) {
-                                productNameElement.textContent = productName;
+                // --- MODAL DELETE (AJAX) ---
+                const deleteModal = document.getElementById('deleteConfirmationModal');
+                const deleteForm = document.getElementById('deleteProductForm');
+                let productRowToDelete = null; // Variabel untuk menyimpan baris tabel yang akan dihapus
+
+                if (deleteModal && deleteForm) {
+                    deleteModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget; // Tombol yang memicu modal
+                        const productSlug = button.getAttribute('data-product-slug');
+                        const productName = button.getAttribute('data-product-name');
+
+                        // Simpan referensi ke baris <tr> untuk dihapus nanti
+                        productRowToDelete = button.closest('tr');
+
+                        // Isi konten modal
+                        const modalBodyName = deleteModal.querySelector('#productNameToDelete');
+                        modalBodyName.textContent = productName;
+
+                        // Atur action form untuk URL fetch
+                        const baseUrl = deleteForm.getAttribute('data-base-url');
+                        deleteForm.action = `${baseUrl}/${productSlug}`;
+                    });
+
+                    deleteForm.addEventListener('submit', function(e) {
+                        e.preventDefault(); // Mencegah submit form tradisional
+
+                        const url = this.action;
+                        const token = this.querySelector('input[name="_token"]').value;
+
+                        fetch(url, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': token,
+                                'Accept': 'application/json' // Penting agar Laravel merespons dengan JSON
                             }
+                        })
+                        .then(response => {
+                            bootstrap.Modal.getInstance(deleteModal).hide();
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                // Hapus baris dari tabel tanpa reload
+                                productRowToDelete.remove();
+                                Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 2000, showConfirmButton: false });
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message });
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire({ icon: 'error', title: 'Oops...', text: 'Terjadi kesalahan jaringan.' });
                         });
                     });
                 }

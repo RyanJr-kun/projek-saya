@@ -1,5 +1,10 @@
 <x-layout>
-    {{-- Breadcrumb --}}
+    @push('styles')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    @endpush
+    
     @section('breadcrumb')
         @php
             $breadcrumbItems = [
@@ -229,6 +234,10 @@
     </div>
 
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
         $(document).ready(function() {
                 // --- UTILITIES ---
@@ -520,35 +529,66 @@
                     },
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    // Cek jika ada error validasi dari server
+                    if (response.status === 422) {
+                        return response.json().then(data => {
+                            // lemparkan error agar ditangkap oleh .catch()
+                            throw { errors: data.errors };
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        // Buat option baru
                         const newOption = new Option(data.data.nama, data.data.id, true, true);
-                        // Tambahkan ke dropdown dan langsung pilih
                         pemasokSelect.appendChild(newOption);
-                        pemasokSelect.dispatchEvent(new Event('change')); // Trigger event jika ada library select2/choices
+                        pemasokSelect.dispatchEvent(new Event('change'));
 
-                        // Reset form dan tutup modal
                         createPemasokForm.reset();
                         createPemasokModal.hide();
 
-                        // Tampilkan notifikasi (opsional, bisa menggunakan SweetAlert atau Toast)
-                        alert(data.message);
-                    } else if (data.errors) {
-                        // Tampilkan error validasi
-                        Object.keys(data.errors).forEach(key => {
-                            const input = document.getElementById(`create_${key}`);
-                            if (input) {
-                                input.classList.add('is-invalid');
-                                input.nextElementSibling.textContent = data.errors[key][0];
-                            }
-                        });
+                        // --- GANTI alert() DENGAN SWEETALERT ---
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: data.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                        } else {
+                            alert(data.message);
+                        }
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan. Silakan coba lagi.');
+                    if (error.errors) {
+                        // Tampilkan error validasi
+                        Object.keys(error.errors).forEach(key => {
+                            const input = createPemasokForm.querySelector(`[name="${key}"]`);
+                            if (input) {
+                                input.classList.add('is-invalid');
+                                // Cari elemen .invalid-feedback yang merupakan sibling dari input
+                                const errorFeedback = input.nextElementSibling;
+                                if (errorFeedback && errorFeedback.classList.contains('invalid-feedback')) {
+                                    errorFeedback.textContent = error.errors[key][0];
+                                }
+                            }
+                        });
+                    } else {
+                        console.error('Error:', error);
+                        // Tampilkan notifikasi error umum dengan SweetAlert
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Terjadi kesalahan. Silakan coba lagi.'
+                            });
+                        } else {
+                            alert('Terjadi kesalahan. Silakan coba lagi.');
+                        }
+                    }
                 });
             });
         });

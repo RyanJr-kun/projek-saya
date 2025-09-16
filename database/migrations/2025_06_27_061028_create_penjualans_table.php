@@ -16,11 +16,15 @@ return new class extends Migration
             $table->string('referensi', 50)->unique();
             $table->date('tanggal_penjualan');
             $table->decimal('subtotal', 15, 2);
+            $table->decimal('service', 15, 2)->default(0);
+            $table->decimal('ongkir', 15, 2)->default(0);
             $table->decimal('diskon', 15, 2)->default(0);
             $table->decimal('pajak', 15, 2)->default(0);
             $table->decimal('total_akhir', 15, 2);
+            $table->decimal('jumlah_dibayar', 15, 2)->default(0);
+            $table->decimal('kembalian', 15, 2)->default(0);
             $table->enum('status', ['LUNAS', 'BELUM_LUNAS', 'DIBATALKAN'])->default('LUNAS');
-            $table->enum('metode_pembayaran', ['TUNAI', 'DEBIT', 'KREDIT', 'QRIS'])->default('TUNAI');
+            $table->enum('metode_pembayaran', ['TUNAI', 'TRANSFER', 'QRIS'])->default('TUNAI');
             $table->text('catatan')->nullable();
             $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggans');
             $table->foreignId('user_id')->constrained('users');

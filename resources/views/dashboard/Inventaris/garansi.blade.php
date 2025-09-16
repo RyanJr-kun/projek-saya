@@ -1,4 +1,7 @@
 <x-layout>
+    @push('styles')
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+    @endpush
     {{-- breadcrumb --}}
     @section('breadcrumb')
         @php
@@ -241,6 +244,7 @@
         </div>
     </div>
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // QUILL

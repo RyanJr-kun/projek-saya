@@ -53,7 +53,7 @@
                         </thead>
                         <tbody id="isiTable">
                             @forelse ($pelanggans as $pelanggan)
-                            <tr>
+                            <tr id="pelanggan-row-{{ $pelanggan->id }}">
                                 <td>
                                     <p title="Nama Pelanggan" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $pelanggan->nama }}</p>
                                 </td>
@@ -161,6 +161,13 @@
                 </div>
             </div>
         </div>
+        {{-- Menggunakan komponen modal create pelanggan --}}
+        <x-modal-create-customer
+            id="createModal"
+            formId="createPelangganForm"
+            action="{{ route('pelanggan.store') }}"
+            title="Buat Pelanggan Baru"
+        />
 
         {{-- modal edit --}}
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -227,6 +234,7 @@
     </div>
 
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // --- MODAL EDIT ---
@@ -260,18 +268,59 @@
             }
 
             // --- MODAL DELETE ---
-            const deleteModal = document.getElementById('deleteConfirmationModal');
-            if (deleteModal) {
-                deleteModal.addEventListener('show.bs.modal', function (event) {
+            const deleteModalEl = document.getElementById('deleteConfirmationModal');
+            if (deleteModalEl) {
+                const deleteForm = deleteModalEl.querySelector('#deletePelangganForm');
+                const modalBodyName = deleteModalEl.querySelector('#pelangganNameToDelete');
+                const deleteModalInstance = new bootstrap.Modal(deleteModalEl);
+                let pelangganIdToDelete = null;
+
+                deleteModalEl.addEventListener('show.bs.modal', function (event) {
                     const button = event.relatedTarget;
-                    const pelangganId = button.getAttribute('data-pelanggan-id');
+                    pelangganIdToDelete = button.getAttribute('data-pelanggan-id');
                     const pelangganName = button.getAttribute('data-pelanggan-name');
-                    const modalBodyName = deleteModal.querySelector('#pelangganNameToDelete');
-                    const deleteForm = deleteModal.querySelector('#deletePelangganForm');
 
                     modalBodyName.textContent = pelangganName;
-                    // Assuming the delete route is something like '/pelanggan/{id}'
-                    deleteForm.action = `/pelanggan/${pelangganId}`;
+                });
+
+                deleteForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (!pelangganIdToDelete) return;
+
+                    const url = `/pelanggan/${pelangganIdToDelete}`;
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    fetch(url, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                        }
+                    })
+                    .then(response => response.json().then(data => ({ ok: response.ok, data })))
+                    .then(({ ok, data }) => {
+                        deleteModalInstance.hide();
+                        if (ok && data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            document.getElementById(`pelanggan-row-${pelangganIdToDelete}`).remove();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: data.message || 'Terjadi kesalahan.',
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        deleteModalInstance.hide();
+                        Swal.fire('Error', 'Tidak dapat terhubung ke server.', 'error');
+                    });
                 });
             }
 

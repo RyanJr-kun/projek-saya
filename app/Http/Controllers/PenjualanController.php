@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\KategoriProduk;
+use App\Models\Pajak;
 use App\Models\Produk;
 use App\Models\Pelanggan;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
+use App\Models\KategoriProduk;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,7 @@ class PenjualanController extends Controller
     {
         return view('dashboard.penjualan.index',[
             'title' => 'Daftar Invoice Penjualan',
+            'pelanggans' => Pelanggan::orderBy('nama')->get(),
             'penjualan' => Penjualan::with('pelanggan', 'user', 'items')->latest()->paginate(15)
 
         ]);
@@ -34,12 +36,14 @@ class PenjualanController extends Controller
         $produks = Produk::orderBy('nama_produk')->get();
         $pelanggans = Pelanggan::orderBy('nama')->get();
         $kategoris = KategoriProduk::where('status', 1)->orderBy('nama')->get();
+        $pajaks = Pajak::all(); // Ambil semua data pajak
 
         return view('dashboard.penjualan.create',[
             'title' => 'Kasir',
             'produks' => $produks,
             'pelanggans' => $pelanggans,
             'kategoris' => $kategoris,
+            'pajaks' => $pajaks, // Teruskan data pajak ke view
             'referensi' => $this->generateInvoiceNumber() // Variabel ini diteruskan ke view
         ]);
     }
@@ -72,50 +76,80 @@ class PenjualanController extends Controller
     public function store(Request $request)
     {
         // 1. Validasi data yang masuk
+        // Disesuaikan untuk menerima semua input dari form kasir
         $validatedData = $request->validate([
             'pelanggan_id' => 'nullable|exists:pelanggans,id',
             'nomer_invoice' => 'required|string|unique:penjualans,referensi',
-            'metode_pembayaran' => 'required|in:TUNAI,DEBIT,KREDIT,QRIS',
+            'metode_pembayaran' => 'required|in:TUNAI,TRANSFER,QRIS',
             'catatan' => 'nullable|string',
+            'jumlah_dibayar' => 'required|numeric|min:0',
+            'service' => 'nullable|numeric|min:0',
+            'ongkir' => 'nullable|numeric|min:0',
+            'diskon' => 'nullable|numeric|min:0',
             'items' => 'required|array|min:1',
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.jumlah' => 'required|integer|min:1',
+            'items.*.harga_jual' => 'required|numeric|min:0',
+            'items.*.diskon' => 'required|numeric|min:0',
+            'items.*.pajak_persen' => 'required|numeric|min:0',
         ]);
 
         try {
             // Memulai Database Transaction
-            $penjualan = DB::transaction(function () use ($validatedData, $request) {
+            $penjualan = DB::transaction(function () use ($validatedData) {
                 // 2. Ambil semua produk yang dibutuhkan dalam satu query untuk menghindari N+1
                 $produkIds = collect($validatedData['items'])->pluck('produk_id');
                 $produks = Produk::whereIn('id', $produkIds)->get()->keyBy('id');
 
-                // Hitung total dari server-side (JANGAN PERCAYA frontend)
+                // Hitung total dari server-side berdasarkan data yang divalidasi
                 $subtotal = 0;
+                $total_pajak_item = 0;
+
                 foreach ($validatedData['items'] as $itemData) {
                     $produk = $produks->get($itemData['produk_id']);
                     // Pastikan produk ada dan stok mencukupi (validasi tambahan)
                     if (!$produk || $produk->qty < $itemData['jumlah']) {
                         throw new \Exception("Stok untuk produk {$produk->nama_produk} tidak mencukupi.");
                     }
-                    $subtotal += $produk->harga_jual * $itemData['jumlah'];
+                    // Hitung subtotal per item (harga jual * jumlah - diskon item)
+                    $subtotal_item = ($itemData['harga_jual'] * $itemData['jumlah']) - $itemData['diskon'];
+                    // Hitung pajak untuk item ini
+                    $pajak_amount_item = $subtotal_item * ($itemData['pajak_persen'] / 100);
+
+                    $subtotal += $subtotal_item;
+                    $total_pajak_item += $pajak_amount_item;
                 }
 
-                // Asumsi diskon dan pajak dari request, atau bisa dihitung di sini
-                $diskon = (float) $request->input('diskon', 0);
-                $pajak_persen = (float) $request->input('pajak', 11); // Default 11% jika tidak ada
-                $pajak_amount = ($subtotal - $diskon) * ($pajak_persen / 100);
-                $total_akhir = ($subtotal - $diskon) + $pajak_amount;
+                // Ambil biaya tambahan dari data yang sudah divalidasi
+                $service = (float) $validatedData['service'] ?? 0;
+                $ongkir = (float) $validatedData['ongkir'] ?? 0;
+                $diskon_global = (float) $validatedData['diskon'] ?? 0;
+                $total_akhir = ($subtotal + $total_pajak_item + $service + $ongkir) - $diskon_global;
+                $jumlah_dibayar = (float) $validatedData['jumlah_dibayar'];
+                $kembalian = $jumlah_dibayar - $total_akhir;
+
+                // Tentukan status pembayaran secara otomatis
+                if ($kembalian >= 0) {
+                    $status_pembayaran = 'LUNAS';
+                } else {
+                    $status_pembayaran = 'BELUM_LUNAS';
+                }
 
                 // 3. Simpan data ke tabel 'penjualans'
                 $penjualan = Penjualan::create([
-                    'referensi' => $validatedData['nomer_invoice'],
+                    'referensi' => $validatedData['nomer_invoice'], // Pastikan ini benar
+                    'tanggal_penjualan' => now(), // Tambahkan baris ini
                     'user_id' => Auth::id(), // Ambil ID user yang sedang login
                     'pelanggan_id' => $validatedData['pelanggan_id'],
                     'subtotal' => $subtotal,
-                    'diskon' => $diskon,
-                    'pajak' => $pajak_amount,
+                    'diskon' => $diskon_global,
+                    'service' => $service,
+                    'ongkir' => $ongkir,
+                    'pajak' => $total_pajak_item,
                     'total_akhir' => $total_akhir,
-                    'status' => 'LUNAS', // Default atau dari input
+                    'jumlah_dibayar' => $jumlah_dibayar,
+                    'kembalian' => $kembalian > 0 ? $kembalian : 0, // Jangan simpan kembalian negatif
+                    'status' => $status_pembayaran,
                     'metode_pembayaran' => $validatedData['metode_pembayaran'],
                     'catatan' => $validatedData['catatan'],
                 ]);
@@ -123,12 +157,16 @@ class PenjualanController extends Controller
                 // 4. Simpan setiap item ke 'item_penjualan' dan kurangi stok
                 foreach ($validatedData['items'] as $itemData) {
                     $produk = $produks->get($itemData['produk_id']);
+                    $subtotal_item = ($itemData['harga_jual'] * $itemData['jumlah']) - $itemData['diskon'];
+                    $pajak_amount_item = $subtotal_item * ($itemData['pajak_persen'] / 100);
 
                     $penjualan->items()->create([
                         'produk_id' => $produk->id,
                         'jumlah' => $itemData['jumlah'],
-                        'harga' => $produk->harga_jual, // Simpan harga jual saat transaksi
-                        'subtotal' => $produk->harga_jual * $itemData['jumlah'],
+                        'harga' => $itemData['harga_jual'], // Simpan harga jual dari form
+                        'diskon_item' => $itemData['diskon'], // Simpan diskon item dari form
+                        'pajak_item' => $pajak_amount_item, // Simpan jumlah pajak item
+                        'subtotal' => $subtotal_item, // Simpan subtotal setelah diskon
                     ]);
 
                     // Kurangi stok produk
@@ -139,12 +177,13 @@ class PenjualanController extends Controller
             });
 
             // 5. Redirect ke halaman faktur jika berhasil
-            return redirect()->route('penjualan.show', $penjualan->id)
-                             ->with('success', 'Transaksi berhasil disimpan!');
+            Alert::success('Berhasil', 'Transaksi berhasil disimpan!');
+            return redirect()->route('penjualan.show', $penjualan->id);
 
         } catch (\Exception $e) {
             // Redirect kembali dengan pesan error jika transaksi gagal
-            return back()->with('error', 'Terjadi kesalahan saat menyimpan transaksi: ' . $e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan saat menyimpan transaksi: ' . $e->getMessage());
+            return back()->withInput();
         }
     }
 
@@ -170,12 +209,127 @@ class PenjualanController extends Controller
         //
     }
 
+    public function getjson(Penjualan $penjualan)
+    {
+        // Eager load relasi yang dibutuhkan oleh modal edit di frontend
+        $penjualan->load('items.produk', 'pelanggan');
+        return response()->json($penjualan);
+    }
+
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Penjualan $penjualan)
     {
-        //
+        // 1. Validasi data yang masuk dari form edit
+        $validatedData = $request->validate([
+            'pelanggan_id' => 'nullable|exists:pelanggans,id',
+            'tanggal_penjualan' => 'required|date',
+            'metode_pembayaran' => 'required|in:TUNAI,TRANSFER,QRIS',
+            'catatan' => 'nullable|string',
+            'jumlah_dibayar' => 'required|numeric|min:0',
+            'service' => 'nullable|numeric|min:0',
+            'ongkir' => 'nullable|numeric|min:0',
+            'diskon' => 'nullable|numeric|min:0',
+            'items' => 'required|array|min:1',
+            'items.*.produk_id' => 'required|exists:produks,id',
+            'items.*.jumlah' => 'required|integer|min:1', // Di frontend, ini disebut 'jumlah'
+            'items.*.harga_jual' => 'required|numeric|min:0',
+            'items.*.diskon' => 'required|numeric|min:0',
+            'items.*.pajak_persen' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $penjualan, $validatedData) {
+                // --- MANAJEMEN STOK ---
+                // a. Kembalikan stok dari item-item lama
+                foreach ($penjualan->items as $oldItem) {
+                    Produk::where('id', $oldItem->produk_id)->increment('qty', $oldItem->jumlah);
+                }
+
+                // b. Ambil semua produk yang relevan untuk data baru dalam satu query
+                $newProdukIds = collect($validatedData['items'])->pluck('produk_id');
+                $produks = Produk::whereIn('id', $newProdukIds)->get()->keyBy('id');
+
+                // c. Kurangi stok berdasarkan item-item baru & validasi ketersediaan
+                foreach ($validatedData['items'] as $itemData) {
+                    $produk = $produks->get($itemData['produk_id']);
+                    if (!$produk || $produk->qty < $itemData['jumlah']) {
+                        // Jika stok tidak mencukupi setelah pengembalian, batalkan transaksi
+                        throw new \Exception("Stok untuk produk '{$produk->nama_produk}' tidak mencukupi.");
+                    }
+                    $produk->decrement('qty', $itemData['jumlah']);
+                }
+
+                // --- PENGHITUNGAN ULANG TOTAL (SERVER-SIDE) ---
+                $subtotal_keseluruhan = 0;
+                $total_pajak_item = 0;
+                foreach ($validatedData['items'] as $itemData) {
+                    $subtotal_item = ($itemData['harga_jual'] * $itemData['jumlah']) - $itemData['diskon'];
+                    $pajak_amount_item = $subtotal_item * ($itemData['pajak_persen'] / 100);
+
+                    $subtotal_keseluruhan += $subtotal_item;
+                    $total_pajak_item += $pajak_amount_item;
+                }
+
+                $service = (float)($validatedData['service'] ?? 0);
+                $ongkir = (float)($validatedData['ongkir'] ?? 0);
+                $diskon_global = (float)($validatedData['diskon'] ?? 0);
+                $total_akhir = ($subtotal_keseluruhan + $total_pajak_item + $service + $ongkir) - $diskon_global;
+                $jumlah_dibayar = (float) $validatedData['jumlah_dibayar'];
+                $kembalian = $jumlah_dibayar - $total_akhir;
+
+                // Tentukan status pembayaran secara otomatis
+                if ($kembalian >= 0) {
+                    $status_pembayaran = 'LUNAS';
+                } else {
+                    $status_pembayaran = 'BELUM_LUNAS';
+                }
+
+                // --- UPDATE DATA PENJUALAN ---
+                // a. Update record utama di tabel 'penjualans'
+                $penjualan->update([
+                    'pelanggan_id' => $validatedData['pelanggan_id'],
+                    'tanggal_penjualan' => $validatedData['tanggal_penjualan'],
+                    'metode_pembayaran' => $validatedData['metode_pembayaran'],
+                    'catatan' => $validatedData['catatan'],
+                    'status' => $status_pembayaran,
+                    'subtotal' => $subtotal_keseluruhan,
+                    'diskon' => $diskon_global,
+                    'service' => $service,
+                    'ongkir' => $ongkir,
+                    'pajak' => $total_pajak_item,
+                    'total_akhir' => $total_akhir,
+                    'jumlah_dibayar' => $validatedData['jumlah_dibayar'],
+                    'kembalian' => $validatedData['jumlah_dibayar'] - $total_akhir,
+                ]);
+
+                // b. Hapus item penjualan yang lama
+                $penjualan->items()->delete();
+
+                // c. Buat kembali item penjualan berdasarkan data baru
+                foreach ($validatedData['items'] as $itemData) {
+                    $subtotal_item = ($itemData['harga_jual'] * $itemData['jumlah']) - $itemData['diskon'];
+                    $pajak_amount_item = $subtotal_item * ($itemData['pajak_persen'] / 100);
+
+                    $penjualan->items()->create([
+                        'produk_id' => $itemData['produk_id'],
+                        'jumlah' => $itemData['jumlah'],
+                        'harga' => $itemData['harga_jual'],
+                        'diskon_item' => $itemData['diskon'],
+                        'pajak_item' => $pajak_amount_item,
+                        'subtotal' => $subtotal_item,
+                    ]);
+                }
+
+                return $penjualan->load('items.produk', 'pelanggan', 'user');
+            });
+
+            return response()->json(['success' => true, 'message' => 'Transaksi berhasil diperbarui.', 'data' => $penjualan]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal memperbarui transaksi: ' . $e->getMessage()], 500);
+        }
     }
 
     /**

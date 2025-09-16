@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
+use Illuminate\Support\Str;
 
 class ProdukController extends Controller
 {
@@ -181,18 +182,98 @@ class ProdukController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Produk $produk)
+    public function destroy(Request $request, Produk $produk)
     {
-        if ($produk->img_produk && Storage::disk('public')->exists($produk->img_produk)) {
-        Storage::disk('public')->delete($produk->img_produk);
-        }
 
-        $produk->delete();
-        Alert::success('Berhasil', 'Data Produk Berhasil Dihapus.');
-        return redirect()->route('produk.index');
+        try {
+            // Panggil method delete(), yang sekarang akan melakukan soft delete
+            $produk->delete();
+
+            // Kirim respons JSON jika ini adalah permintaan AJAX
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produk berhasil dihapus (diarsipkan).'
+                ]);
+            }
+
+            // Respons standar jika bukan AJAX
+            Alert::success('Berhasil', 'Produk berhasil dihapus (diarsipkan).');
+            return redirect()->route('produk.index');
+
+        } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Gagal menghapus produk.'], 500);
+            }
+            Alert::error('Gagal', 'Terjadi kesalahan saat menghapus produk.');
+            return back();
+        }
     }
 
-    public function chekSlug(Request $request)
+    /**
+     * Display a listing of the soft-deleted resources.
+     */
+    public function trash()
+    {
+        $trashedProduk = Produk::onlyTrashed()->latest()->paginate(10);
+        return view('dashboard.inventaris.produk.trash', [
+            'title' => 'Produk Diarsipkan',
+            'produk' => $trashedProduk
+        ]);
+    }
+
+    /**
+     * Restore the specified soft-deleted resource.
+     */
+    public function restore($slug)
+    {
+        $produk = Produk::onlyTrashed()->where('slug', $slug)->firstOrFail();
+        $produk->restore();
+
+        Alert::success('Berhasil', 'Produk berhasil dipulihkan.');
+        return redirect()->route('produk.trash');
+    }
+
+    /**
+     * Restore multiple soft-deleted resources.
+     */
+    public function restoreMultiple(Request $request)
+    {
+        $validated = $request->validate([
+            'produk_ids' => 'required|array',
+            'produk_ids.*' => 'exists:produks,id',
+        ]);
+
+        $count = count($validated['produk_ids']);
+
+        Produk::onlyTrashed()
+            ->whereIn('id', $validated['produk_ids'])
+            ->restore();
+
+        Alert::success('Berhasil', $count . ' produk berhasil dipulihkan.');
+        return redirect()->route('produk.trash');
+    }
+
+
+    /**
+     * Permanently delete the specified resource from storage.
+     */
+    public function forceDelete($slug)
+    {
+        $produk = Produk::onlyTrashed()->where('slug', $slug)->firstOrFail();
+
+        // Hapus gambar terkait secara permanen jika ada
+        if ($produk->img_produk && Storage::disk('public')->exists($produk->img_produk)) {
+            Storage::disk('public')->delete($produk->img_produk);
+        }
+
+        $produk->forceDelete();
+
+        Alert::success('Berhasil', 'Produk berhasil dihapus secara permanen.');
+        return redirect()->route('produk.trash');
+    }
+
+    public function checkSlug(Request $request)
     {
         $slug = SlugService::createSlug(Produk::class, 'slug', $request->nama_produk );
         return response()->json(['slug' => $slug]);
@@ -249,5 +330,28 @@ class ProdukController extends Controller
         $id = $request->query('id');
         $stok = Produk::find($id)->qty;
         return response()->json($stok);
+    }
+
+    public function getLowStockNotifications()
+    {
+        $lowStockProducts = Produk::whereColumn('qty', '<=', 'stok_minimum')
+                                  ->orderBy('qty', 'asc')
+                                  ->take(5) // Ambil 5 produk teratas untuk dropdown
+                                  ->get(['id', 'nama_produk', 'slug', 'qty', 'stok_minimum', 'img_produk']);
+
+        $lowStockCount = Produk::whereColumn('qty', '<=', 'stok_minimum')->count();
+
+        return response()->json([
+            'count' => $lowStockCount,
+            'products' => $lowStockProducts->map(function ($produk) {
+                return [
+                    'nama_produk' => Str::limit($produk->nama_produk, 30),
+                    'qty' => $produk->qty,
+                    'stok_minimum' => $produk->stok_minimum,
+                    'img_url' => $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp'),
+                    'url' => route('produk.edit', $produk->slug)
+                ];
+            })
+        ]);
     }
 }

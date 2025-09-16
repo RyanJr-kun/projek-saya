@@ -12,7 +12,6 @@ class ItemPenjualan extends Model
 
     protected $table = 'item_penjualans';
     protected $guarded = ['id'];
-    public $timestamps = false;
 
     public function penjualan(): BelongsTo
     {

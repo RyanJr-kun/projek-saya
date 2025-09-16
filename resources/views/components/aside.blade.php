@@ -1,4 +1,4 @@
-<aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 ms-3 fixed-start " id="sidenav-main">
+<aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs fixed-start " id="sidenav-main">
 
     {{-- logo --}}
     <div class="sidenav-header">

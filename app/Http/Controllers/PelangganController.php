@@ -33,28 +33,26 @@ class PelangganController extends Controller
      */
     public function store(Request $request)
     {
+
         $validatedData = $request->validate([
-            'nama' => 'required|string|max:255|unique:pelanggans',
-            'kontak' => 'required|string|max:20|unique:pelanggans',
-            'email' => 'nullable|email|unique:pelanggans',
+            'nama' => 'required|string|max:255|unique:pelanggans,nama',
+            'kontak' => 'required|string|max:20|unique:pelanggans,kontak',
+            'email' => 'nullable|email|unique:pelanggans,email',
             'alamat' => 'nullable|string',
         ]);
 
-        if ($request->wantsJson()) {
-            $validatedData['status'] = true;
-        } else {
-            $validatedData['status'] = $request->boolean('status');
-        }
-
+        $validatedData['status'] = $request->has('status');
         $pelanggan = Pelanggan::create($validatedData);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
-                'message' => 'Pelanggan baru berhasil ditambahkan!',
-                'pelanggan' => $pelanggan
+                'success' => true,
+                'message' => 'pelanggan baru berhasil ditambahkan!',
+                'data'    => $pelanggan
             ], 201);
         }
-        Alert::success('Berhasil', 'Pelanggan baru berhasil ditambahkan!');
+
+        Alert::success('Berhasil', 'pelanggan baru berhasil ditambahkan!');
         return redirect()->route('pelanggan.index');
     }
 
@@ -102,14 +100,28 @@ class PelangganController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Pelanggan $pelanggan)
+    public function destroy(Request $request, Pelanggan $pelanggan)
     {
         if ($pelanggan->penjualans()->count() > 0) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pelanggan tidak dapat dihapus karena masih memiliki transaksi penjualan terkait!'
+                ], 422); // 422 Unprocessable Entity
+            }
             Alert::error('Gagal', 'Pelanggan tidak dapat dihapus karena masih memiliki transaksi penjualan terkait!');
             return back();
         }
 
         $pelanggan->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pelanggan berhasil dihapus!'
+            ]);
+        }
+
         Alert::success('Berhasil', 'Pelanggan berhasil dihapus!');
         return redirect()->route('pelanggan.index');
     }

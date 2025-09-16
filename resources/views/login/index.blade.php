@@ -8,7 +8,7 @@
             <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
             <link rel="apple-touch-icon" href="{{ asset('assets/img/apple-touch-icon.png') }}">
                 <title>
-                    Jo Computer Dashboard
+                    Jo Computer - Login
                 </title>
              @vite(['resources/scss/app.scss', 'resources/js/app.js'])
             <!--     Fonts and icons     -->

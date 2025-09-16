@@ -53,6 +53,7 @@ class KategoriProdukController extends Controller
 
         $validatedData['status'] = $request->has('status');
         KategoriProduk::create($validatedData);
+        
         Alert::success('Berhasil', 'Kategori Baru Berhasil Ditambahkan.');
         return redirect()->route('kategoriproduk.index');
     }

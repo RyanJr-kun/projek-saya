@@ -21,8 +21,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+        PelangganSeeder::class,
         RoleSeeder::class,
         PajakSeeder::class,
+        PelangganSeeder::class,
         ]);
         KategoriProduk::factory(5)->create();
         Brand::factory()->count(8)->create();
@@ -31,7 +33,8 @@ class DatabaseSeeder extends Seeder
         KategoriPengeluaran::factory()->count(6)->create();
         KategoriPemasukan::factory()->count(5)->create();
         User::factory(10)->create();
-        
+
         \App\Models\Produk::factory(15)->create();
+
     }
 }

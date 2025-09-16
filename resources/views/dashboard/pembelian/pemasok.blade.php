@@ -127,52 +127,10 @@
                         <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
+                        {{-- PERBAIKAN: Form ini sekarang akan melakukan submit standar (full page refresh) --}}
                         <form action="{{ route('pemasok.store') }}" method="post">
                             @csrf
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="nama" class="form-label">Nama</label>
-                                    <input id="nama" name="nama" type="text" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
-                                    @error('nama')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="perusahaan" class="form-label">Perusahaan</label>
-                                    <input id="perusahaan" name="perusahaan" type="text" class="form-control @error('perusahaan') is-invalid @enderror" value="{{ old('perusahaan') }}" required>
-                                    @error('perusahaan')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="kontak" class="form-label">Kontak</label>
-                                    <input id="kontak" name="kontak" type="text" class="form-control @error('kontak') is-invalid @enderror" value="{{ old('kontak') }}" required>
-                                    @error('kontak')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="example@gmail.com" value="{{ old('email') }}">
-                                    @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-12">
-                                    <label for="alamat" class="form-label">Alamat</label>
-                                    <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror" rows="2">{{ old('alamat') }}</textarea>
-                                    @error('alamat')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-12">
-                                    <label for="note" class="form-label">Catatan (Opsional)</label>
-                                    <textarea id="note" name="note" class="form-control @error('note') is-invalid @enderror" rows="2">{{ old('note') }}</textarea>
-                                    @error('note')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
+                            <x-pemasok-form-fields />
                             <div class="justify-content-end form-check form-switch form-check-reverse my-2">
                                 <label class="me-auto fw-bold form-check-label" for="status">Status</label>
                                 <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
@@ -199,26 +157,7 @@
                         <form id="editPemasokForm" method="post">
                             @method('put')
                             @csrf
-                            <div class="mb-3">
-                                <label for="edit_nama" class="form-label">Nama</label>
-                                <input id="edit_nama" name="nama" type="text" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_kontak" class="form-label">Kontak</label>
-                                <input id="edit_kontak" name="kontak" type="text" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_email" class="form-label">Email</label>
-                                <input id="edit_email" name="email" type="email" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_alamat" class="form-label">Alamat</label>
-                                <textarea id="edit_alamat" name="alamat" class="form-control" rows="3"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_note" class="form-label">Catatan (Opsional)</label>
-                                <textarea id="edit_note" name="note" class="form-control" rows="2"></textarea>
-                            </div>
+                            <x-pemasok-form-fields prefix="edit_" :pemasok="new \App\Models\Pemasok" />
                             <div class="justify-content-end form-check form-switch form-check-reverse mt-3">
                                 <label class="me-auto form-check-label" for="edit_status">Status</label>
                                 <input id="edit_status" class="form-check-input" type="checkbox" name="status" value="1" >
@@ -268,6 +207,7 @@
 
                     const editForm = document.getElementById('editPemasokForm');
                     const inputNama = document.getElementById('edit_nama');
+                    const inputPerusahaan = document.getElementById('edit_perusahaan');
                     const inputKontak = document.getElementById('edit_kontak');
                     const inputEmail = document.getElementById('edit_email');
                     const inputAlamat = document.getElementById('edit_alamat');
@@ -277,9 +217,15 @@
                     editForm.action = updateUrl;
 
                     fetch(dataUrl)
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             inputNama.value = data.nama;
+                            inputPerusahaan.value = data.perusahaan;
                             inputKontak.value = data.kontak;
                             inputEmail.value = data.email;
                             inputAlamat.value = data.alamat;
@@ -301,8 +247,8 @@
                     const deleteForm = deleteModal.querySelector('#deletePemasokForm');
 
                     modalBodyName.textContent = pemasokName;
-                    // Assuming the delete route is something like '/pemasok/{id}'
-                    deleteForm.action = `/pemasok/${pemasokId}`;
+                    // Pastikan route untuk delete sudah benar, contoh: /pemasok/{id}
+                    deleteForm.action = `{{ url('pemasok') }}/${pemasokId}`;
                 });
             }
 
@@ -332,31 +278,36 @@
 
                 for (let i = 0; i < rows.length; i++) {
                     const row = rows[i];
-                    const namaCell = row.cells[0];
-                    const statusCell = row.cells[4]; // Status is in the 5th column (index 4)
+                    // Cek jika baris adalah baris data (bukan header atau lainnya)
+                    if (row.cells.length > 5) {
+                        const namaCell = row.cells[0];
+                        const statusCell = row.cells[5];
 
-                    if (namaCell && statusCell) {
-                        const namaText = namaCell.textContent.toLowerCase().trim();
-                        const statusText = statusCell.textContent.trim();
+                        if (namaCell && statusCell) {
+                            const namaText = namaCell.textContent.toLowerCase().trim();
+                            const statusText = statusCell.textContent.trim();
 
-                        const namaMatch = namaText.includes(searchText);
-                        const statusMatch = (statusValue === "" || statusText === statusValue);
+                            const namaMatch = namaText.includes(searchText);
+                            const statusMatch = (statusValue === "" || statusText === statusValue);
 
-                        row.style.display = (namaMatch && statusMatch) ? "" : "none";
+                            row.style.display = (namaMatch && statusMatch) ? "" : "none";
+                        }
                     }
                 }
             }
-
-            populateStatusFilter();
-            searchInput.addEventListener('keyup', filterTable);
-            statusFilter.addEventListener('change', filterTable);
+            if(searchInput) {
+                populateStatusFilter();
+                searchInput.addEventListener('keyup', filterTable);
+                statusFilter.addEventListener('change', filterTable);
+            }
 
             // --- SHOW CREATE MODAL ON VALIDATION ERROR ---
             const hasError = document.querySelector('.is-invalid');
-            if (hasError) {
+            @if($errors->any())
                 var createModal = new bootstrap.Modal(document.getElementById('createModal'));
                 createModal.show();
-            }
+            @endif
+
         });
     </script>
     @endpush

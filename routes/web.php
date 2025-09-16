@@ -48,13 +48,24 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('get-data')->as('get-data.')->group(function () {
         Route::get('produk', [ProdukController::class, 'getData'])->name('produk');
         Route::get('cek-stok-produk', [ProdukController::class, 'cekStok'])->name('cek-stok');
+        Route::get('low-stock-notifications', [ProdukController::class, 'getLowStockNotifications'])->name('notifications.low-stock');
     });
 
-    //produk
-    Route::resource('produk', ProdukController::class);
-    Route::get('/dashboard/produk/chekSlug', [ProdukController::class, 'chekSlug']);
-    Route::post('/dashboard/produk/upload', [ProdukController::class, 'upload'])->name('produk.upload');
-    Route::delete('/dashboard/produk/revert', [ProdukController::class, 'revert'])->name('produk.revert');
+    // Grup Rute Produk
+    Route::prefix('produk')->name('produk.')->group(function () {
+        // Rute untuk Soft Deletes (Trash)
+        Route::get('trash', [ProdukController::class, 'trash'])->name('trash');
+        Route::post('{slug}/restore', [ProdukController::class, 'restore'])->name('restore');
+        Route::post('restore-multiple', [ProdukController::class, 'restoreMultiple'])->name('restoreMultiple');
+        Route::delete('{slug}/force-delete', [ProdukController::class, 'forceDelete'])->name('forceDelete');
+        Route::post('force-delete-multiple', [ProdukController::class, 'forceDeleteMultiple'])->name('forceDeleteMultiple');
+        // Rute untuk Filepond
+        Route::post('upload', [ProdukController::class, 'upload'])->name('upload');
+        Route::delete('revert', [ProdukController::class, 'revert'])->name('revert');
+        // Rute untuk slug
+        Route::get('checkSlug', [ProdukController::class, 'checkSlug'])->name('checkSlug');
+    });
+    Route::resource('produk', ProdukController::class)->parameters(['produk' => 'produk:slug']);
 
     //kategori produk
     Route::get('/kategoriproduk/{kategoriproduk}/json', [KategoriProdukController::class, 'getKategoriJson'])->name('kategoriproduk.getjson');
@@ -71,9 +82,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/dashboard/brand/revert', [BrandController::class, 'revert'])->name('brand.revert');
 
     //unit
-    Route::get('/unit/{unit}/json', [UnitController::class, 'getUnitJson'])
-
-         ->name('unit.getjson');
+    Route::get('/unit/{unit}/json', [UnitController::class, 'getUnitJson'])->name('unit.getjson');
     Route::resource('unit', UnitController::class)->except('show','create','edit');
     Route::get('/dashboard/unit/chekSlug', [UnitController::class, 'chekSlug']);
 
@@ -86,6 +95,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/penjualan/history/today', [PenjualanController::class, 'getTodayHistory'])->name('penjualan.history.today');
     Route::get('/penjualan/get-products', [PenjualanController::class, 'getProductsForCashier'])->name('penjualan.get-products');
     Route::resource('/penjualan', PenjualanController::class);
+    Route::get('/penjualan/{penjualan}/json', [PenjualanController::class, 'getjson'])->name('penjualan.getjson');
+
     Route::get('/pelanggan/{pelanggan}/json', [PelangganController::class, 'getjson'])->name('pelanggan.getjson');
     Route::resource('pelanggan', PelangganController::class)->except('show','create','edit');
 

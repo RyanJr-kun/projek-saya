@@ -46,16 +46,18 @@ class PemasokController extends Controller
         $validatedData['status'] = $request->has('status');
         $pemasok = Pemasok::create($validatedData);
 
-        if ($request->wantsJson() || $request->ajax()) {
+        // Cek jika request adalah AJAX (misalnya dari modal)
+        if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Pemasok baru berhasil ditambahkan!',
-                'data'    => $pemasok
-            ], 201);
+                'data'    => $pemasok,
+            ]);
         }
 
+        // Redirect standar jika bukan AJAX
         Alert::success('Berhasil', 'Pemasok baru berhasil ditambahkan!');
-        return redirect()->route('pemasok.index');
+        return redirect('/pemasok');
     }
 
     /**
@@ -104,7 +106,7 @@ class PemasokController extends Controller
 
         $pemasok->update($validatedData);
         Alert::success('Berhasil', 'Data pemasok berhasil diperbarui!');
-        return redirect()->route('pemasok.index');
+        return redirect('/pemasok');
     }
 
     /**
@@ -112,14 +114,13 @@ class PemasokController extends Controller
      */
     public function destroy(Pemasok $pemasok)
     {
-        // Periksa apakah ada transaksi pembelian yang terkait dengan pemasok ini
-        if ($pemasok->pembelians()->count() > 0) {
-            Alert::error('Gagal', 'Pemasok tidak dapat dihapus karena masih memiliki transaksi pembelian terkait!');
-            return back();
-        }
+        // if ($pemasok->pembelians()->exists()) {
+        //     Alert::error('Gagal', 'Pemasok tidak dapat dihapus karena masih memiliki transaksi pembelian terkait!');
+        //     return back();
+        // }
 
         $pemasok->delete();
         Alert::success('Berhasil', 'Pemasok berhasil dihapus!');
-        return redirect()->route('pemasok.index');
+        return redirect('/pemasok');
     }
 }
