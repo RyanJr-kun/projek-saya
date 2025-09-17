@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('kategori_pemasukan_id');
             $table->date('tanggal');
-            $table->decimal('jumlah', 15, 2);
+            $table->decimal('jumlah', 15, 0);
             $table->string('referensi');
             $table->string('keterangan');
             $table->text('deskripsi')->nullable();

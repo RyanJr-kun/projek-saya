@@ -22,7 +22,7 @@ class PenjualanController extends Controller
     {
         return view('dashboard.penjualan.index',[
             'title' => 'Daftar Invoice Penjualan',
-            'pelanggans' => Pelanggan::orderBy('nama')->get(),
+            'pelanggans' => Pelanggan::where('status', 1)->orderBy('nama')->get(), // Ambil pelanggan yang aktif saja
             'penjualan' => Penjualan::with('pelanggan', 'user', 'items')->latest()->paginate(15)
 
         ]);
@@ -33,8 +33,9 @@ class PenjualanController extends Controller
      */
     public function create()
     {
-        $produks = Produk::orderBy('nama_produk')->get();
-        $pelanggans = Pelanggan::orderBy('nama')->get();
+
+        $produks = Produk::where('qty', '>', 0)->orderBy('nama_produk')->get();
+        $pelanggans = Pelanggan::where('status', 1)->orderBy('nama')->get();
         $kategoris = KategoriProduk::where('status', 1)->orderBy('nama')->get();
         $pajaks = Pajak::all(); // Ambil semua data pajak
 
@@ -51,7 +52,6 @@ class PenjualanController extends Controller
     private function generateInvoiceNumber()
     {
         // Contoh format: INV-20250831-0001
-        // Diperbaiki untuk mencegah race condition dan query yang lebih akurat.
         $date = now()->format('Ymd');
         $prefix = 'INV-' . $date . '-';
 
@@ -79,7 +79,7 @@ class PenjualanController extends Controller
         // Disesuaikan untuk menerima semua input dari form kasir
         $validatedData = $request->validate([
             'pelanggan_id' => 'nullable|exists:pelanggans,id',
-            'nomer_invoice' => 'required|string|unique:penjualans,referensi',
+            'referensi' => 'required|string|unique:penjualans,referensi',
             'metode_pembayaran' => 'required|in:TUNAI,TRANSFER,QRIS',
             'catatan' => 'nullable|string',
             'jumlah_dibayar' => 'required|numeric|min:0',
@@ -137,7 +137,7 @@ class PenjualanController extends Controller
 
                 // 3. Simpan data ke tabel 'penjualans'
                 $penjualan = Penjualan::create([
-                    'referensi' => $validatedData['nomer_invoice'], // Pastikan ini benar
+                    'referensi' => $validatedData['referensi'],
                     'tanggal_penjualan' => now(), // Tambahkan baris ini
                     'user_id' => Auth::id(), // Ambil ID user yang sedang login
                     'pelanggan_id' => $validatedData['pelanggan_id'],
@@ -163,9 +163,9 @@ class PenjualanController extends Controller
                     $penjualan->items()->create([
                         'produk_id' => $produk->id,
                         'jumlah' => $itemData['jumlah'],
-                        'harga' => $itemData['harga_jual'], // Simpan harga jual dari form
-                        'diskon_item' => $itemData['diskon'], // Simpan diskon item dari form
-                        'pajak_item' => $pajak_amount_item, // Simpan jumlah pajak item
+                        'harga' => $itemData['harga_jual'],
+                        'diskon_item' => $itemData['diskon'],
+                        'pajak_item' => $pajak_amount_item,
                         'subtotal' => $subtotal_item, // Simpan subtotal setelah diskon
                     ]);
 
@@ -315,7 +315,7 @@ class PenjualanController extends Controller
                     $penjualan->items()->create([
                         'produk_id' => $itemData['produk_id'],
                         'jumlah' => $itemData['jumlah'],
-                        'harga' => $itemData['harga_jual'],
+                        'harga' => $itemData['harga_jual'], // Nama kolom di DB adalah 'harga'
                         'diskon_item' => $itemData['diskon'],
                         'pajak_item' => $pajak_amount_item,
                         'subtotal' => $subtotal_item,
@@ -371,7 +371,7 @@ class PenjualanController extends Controller
                 ->get()
                 ->map(function ($sale) {
                     return [
-                        'id' => $sale->id,
+                        'referensi' => $sale->referensi,
                         'nomer_invoice' => $sale->nomer_invoice,
                         'total_akhir' => $sale->total_akhir,
                         'status' => $sale->status,

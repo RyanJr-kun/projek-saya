@@ -89,6 +89,8 @@ Route::middleware(['auth'])->group(function () {
     //garansi
     Route::get('/garansi/{garansi}/json', [GaransiController::class, 'getGaransiJson'])->name('garansi.getjson');
     Route::resource('garansi', GaransiController::class)->except('show','create','edit');
+    Route::get('/garansi/{garansi:slug}/json', [GaransiController::class, 'getGaransiJson'])->name('garansi.getjson');
+    Route::resource('garansi', GaransiController::class)->except('show', 'create', 'edit')->parameters(['garansi' => 'garansi:slug']);
     Route::get('/dashboard/garansi/chekSlug', [GaransiController::class, 'chekSlug']);
 
     //transaksi penjualan

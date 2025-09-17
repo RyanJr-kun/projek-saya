@@ -30,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
     window.sidebarType = argonDashboard.sidebarType;
     window.navbarFixed = argonDashboard.navbarFixed;
     window.navbarMinimize = argonDashboard.navbarMinimize;
+    window.focused = argonDashboard.focused; // Tambahkan baris ini
+    window.defocused = argonDashboard.defocused; // Tambahkan baris ini
     window.toggleSidenav = argonDashboard.toggleSidenav; // Jika Anda membutuhkannya secara global
 });
 

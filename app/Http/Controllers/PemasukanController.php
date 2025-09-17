@@ -17,9 +17,9 @@ class PemasukanController extends Controller
     public function index()
     {
         return view('dashboard.pemasukan.index', [
-        'title' => 'Pemasukan',
-        'pemasukans' => Pemasukan::latest()->paginate(15),
-        'kategoris' => KategoriPemasukan::all()
+            'title' => 'Pemasukan',
+            'pemasukans' => Pemasukan::with(['kategoriPemasukan', 'user'])->latest()->paginate(15),
+            'kategoris' => KategoriPemasukan::where('status', 1)->get(['id', 'nama'])
         ]);
     }
 

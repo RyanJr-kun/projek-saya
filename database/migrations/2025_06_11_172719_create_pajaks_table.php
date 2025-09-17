@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pajaks', function (Blueprint $table) {
             $table->id();
             $table->string('nama_pajak', 100)->unique();
-            $table->decimal('rate', 5, 2);
+            $table->decimal('rate', 5, 0);
             $table->timestamps();
         });
     }

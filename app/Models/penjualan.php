@@ -21,6 +21,11 @@ class Penjualan extends Model
         'total_akhir' => 'float',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'referensi';
+    }
+
     /**
      * Get all of the items for the Penjualan
      */

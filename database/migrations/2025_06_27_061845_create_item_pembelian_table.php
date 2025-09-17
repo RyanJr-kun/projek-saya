@@ -16,10 +16,10 @@ return new class extends Migration
             $table->foreignId('pembelian_id')->constrained('pembelians')->onDelete('cascade');
             $table->foreignId('produk_id')->constrained('produks')->onDelete('restrict');
             $table->unsignedInteger('qty');
-            $table->decimal('harga_beli', 15, 2);
-            $table->decimal('diskon', 15, 2)->default(0);
-            $table->decimal('pajak_persen', 5, 2)->default(0);
-            $table->decimal('subtotal', 15, 2);
+            $table->decimal('harga_beli', 15, 0);
+            $table->decimal('diskon', 15, 0)->default(0);
+            $table->decimal('pajak_persen', 5, 0)->default(0);
+            $table->decimal('subtotal', 15, 0);
             $table->timestamps();
         });
     }

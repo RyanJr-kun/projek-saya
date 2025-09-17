@@ -24,7 +24,8 @@ class ProdukController extends Controller
     public function index()
     {
         return view('dashboard.inventaris.produk.index', [
-        'produk' => Produk::latest()->paginate(10)
+        // Eager load relasi untuk menghindari N+1 query problem
+        'produk' => Produk::with(['kategori_produk', 'brand', 'unit'])->latest()->paginate(10)
     ]);
     }
 

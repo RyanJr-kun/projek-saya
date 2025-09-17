@@ -5,11 +5,7 @@
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
             <meta name="csrf-token" content="{{ csrf_token() }}">
             <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/logo.svg') }}">
-            <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
-            <link rel="apple-touch-icon" href="{{ asset('assets/img/apple-touch-icon.png') }}">
-
             <title>Point Of Sales - JO Computer</title>
-
              @vite(['resources/scss/app.scss', 'resources/js/app.js'])
             <!--     Fonts and icons     -->
             <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -61,7 +57,7 @@
                                 <i class="bi bi-person-circle cursor-pointer fs-5"></i>
                             @endif
                         </a>
-                            <ul class="dropdown-menu dropd                                                                                                                                                                      own-menu-end p-2" aria-labelledby="userDropdown">
+                            <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="userDropdown">
                                 <li class="text-start d-flex m-2">
                                      @if (auth()->user()->img_user)
                                         <img src="{{ asset('storage/' . auth()->user()->img_user) }}" alt="Profile" class="avatar avatar-sm rounded-circle cursor-pointer">
@@ -175,13 +171,13 @@
                 <div class="col-md-4 col-12 ">
                     <form action="{{ route('penjualan.store') }}" method="POST" id="penjualanForm">
                         @csrf
-                        <div class="card mt-3">
+                        <div class="card rounded-2 mt-3">
                             <div class="card-header pb-0">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="mb-0">Detail Pesanan</h6>
                                         <p class="text-sm mb-0">Invoice: <span class="font-weight-bold">{{ $referensi }}</span></p>
-                                        <input type="hidden" name="nomer_invoice" value="{{ $referensi }}">
+                                        <input type="hidden" name="referensi" value="{{ $referensi }}">
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <span class="badge badge-md badge-success me-2" id="cart-item-count">
@@ -225,12 +221,6 @@
                                         </thead>
                                         <tbody id="cart-items-container">
                                             {{-- Cart items will be injected here by JS --}}
-                                            <tr id="cart-empty-message">
-                                                <td colspan="4" class="text-center py-4 text-muted">
-                                                    <i class="fas fa-shopping-cart fa-2x mb-2"></i>
-                                                    <p>Keranjang masih kosong</p>
-                                                </td>
-                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -517,7 +507,6 @@
                 const productList = document.getElementById('product-list');
                 const allProductCards = document.querySelectorAll('.product-card'); // Ambil semua kartu produk
                 const cartContainer = document.getElementById('cart-items-container');
-                const cartEmptyMsg = document.getElementById('cart-empty-message');
                 const cartItemCount = document.getElementById('cart-item-count');
                 const subtotalEl = document.getElementById('subtotal');
                 const serviceInput = document.getElementById('service-input');
@@ -599,11 +588,15 @@
                 const renderCart = () => {
                     cartContainer.innerHTML = '';
                     if (cart.size === 0) {
-                        document.querySelectorAll('.product-card.active').forEach(card => card.classList.remove('active'));
-                        cartContainer.appendChild(cartEmptyMsg);
-                        cartEmptyMsg.style.display = 'block';
+                        const emptyRow = `
+                            <tr id="cart-empty-message">
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                                    <p>Keranjang masih kosong</p>
+                                </td>
+                            </tr>`;
+                        cartContainer.innerHTML = emptyRow;
                     } else {
-                        if(cartEmptyMsg) cartEmptyMsg.style.display = 'none';
                         let formIndex = 0;
                         cart.forEach(item => {
                             const subtotalItem = (item.harga_jual * item.jumlah) - item.diskon;
@@ -614,7 +607,7 @@
                                     <input type="hidden" name="items[${formIndex}][harga_jual]" value="${item.harga_jual}">
                                     <input type="hidden" name="items[${formIndex}][diskon]" value="${item.diskon}">
                                     <input type="hidden" name="items[${formIndex}][pajak_persen]" value="${item.pajak_persen}">
-                                    <td style="width: 45%;">
+                                    <td style="width: 80%;">
                                         <div class="d-flex align-items-center">
                                             <img src="${item.img}" class="avatar avatar-sm rounded me-2" alt="product image">
                                             <div class="d-flex flex-column" style="min-width: 0;">
@@ -624,9 +617,9 @@
                                         </div>
                                     </td>
                                     <td class="align-middle text-center" style="width: 25%;">
-                                        <button class="btn btn-outline-primary btn-sm rounded-circle p-0 qty-decrease" data-id="${item.id}" type="button" style="width: 20px; height: 20px;">-</button>
+                                        <button class="btn btn-outline-primary btn-sm rounded-circle p-0 mt-3 qty-decrease" data-id="${item.id}" type="button" style="width: 20px; height: 20px;">-</button>
                                         <span class="fw-bold px-1 text-sm">${item.jumlah}</span>
-                                        <button class="btn btn-outline-primary btn-sm rounded-circle p-0 qty-increase" data-id="${item.id}" type="button" style="width: 20px; height: 20px;">+</button>
+                                        <button class="btn btn-outline-primary btn-sm rounded-circle p-0 mt-3 qty-increase" data-id="${item.id}" type="button" style="width: 20px; height: 20px;">+</button>
                                     </td>
                                     <td class="align-middle text-end"><span class="text-sm fw-bold">${formatCurrency(subtotalItem)}</span></td>
                                     <td class="align-middle text-end">
@@ -1024,9 +1017,9 @@
                             let historyHtml = '<div class="list-group list-group-flush">';
                             sales.forEach(sale => {
                                 historyHtml += `
-                                    <a href="/penjualan/${sale.id}" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <a href="/penjualan/${sale.referensi}" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="mb-0 text-sm">${sale.nomer_invoice}</h6>
+                                            <h6 class="mb-0 text-sm">${sale.referensi}</h6>
                                             <p class="text-xs text-secondary mb-0">${sale.nama} &bull; ${sale.waktu}</p>
                                         </div>
                                         <div class="text-end">

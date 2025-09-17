@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('barcode', 100)->unique()->nullable();
             $table->text('deskripsi')->nullable();
             $table->string('sku', 50)->unique();
-            $table->decimal('harga_jual', 15, 2);
-            $table->decimal('harga_beli', 15, 2);
+            $table->decimal('harga_jual', 15, 0);
+            $table->decimal('harga_beli', 15, 0);
             $table->integer('qty')->default(0);
             $table->unsignedInteger('stok_minimum')->default(0);
             $table->string('img_produk', 255)->nullable();

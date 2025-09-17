@@ -14,6 +14,11 @@ class Pembelian extends Model
 {
     protected $guarded = ['id'];
 
+    public function getRouteKeyName()
+    {
+        return 'referensi';
+    }
+
      protected function total(): Attribute
     {
         return Attribute::make(

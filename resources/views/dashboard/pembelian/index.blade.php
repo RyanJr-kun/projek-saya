@@ -11,7 +11,7 @@
     @endsection
 
     <div class="container-fluid p-3">
-        <div class="card mb-4">
+        <div class="card rounded-2 mb-4">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -68,7 +68,7 @@
                                         <p class="text-xs font-weight-bold mb-0">{{ $item->referensi }}</p>
                                     </td>
                                     <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ $item->tanggal_pembelian}}</p>
+                                        <p class="text-xs font-weight-bold mb-0">{{ \Carbon\Carbon::parse($item->tanggal_pembelian)->translatedFormat('d M Y') }}</p>
                                     </td>
                                     <td class="align-middle text-center">
                                         <span class="badge badge-sm {{ $item->status_barang == 'Diterima' ? 'badge-success' : 'badge-danger' }}">
@@ -76,13 +76,13 @@
                                         </span>
                                     </td>
                                     <td class="align-middle">
-                                        <span class="text-dark text-xs font-weight-bold">{{ $item->total }}</span>
+                                        <span class="text-dark text-xs font-weight-bold">{{ 'Rp ' . number_format($item->total_akhir, 0, ',', '.') }}</span>
                                     </td>
                                     <td class="align-middle">
-                                        <span class="text-dark text-xs font-weight-bold">{{ $item->bayar }}</span>
+                                        <span class="text-dark text-xs font-weight-bold">{{ 'Rp ' . number_format($item->jumlah_dibayar, 0, ',', '.') }}</span>
                                     </td>
                                     <td class="align-middle">
-                                        <span class="text-dark text-xs font-weight-bold">{{ $item->sisa }}</span>
+                                        <span class="text-dark text-xs font-weight-bold">{{ 'Rp ' . number_format($item->sisa_hutang, 0, ',', '.') }}</span>
                                     </td>
                                     <td class="align-middle text-center text-sm">
                                         @php
@@ -107,13 +107,15 @@
                                         </div>
                                     </td>
                                     <td class="align-middle text-start">
-                                        <a href="{{ route('pembelian.show', $item->id) }}" class="text-secondary font-weight-bold text-xs px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
+                                        <a href="{{ route('pembelian.show', $item->referensi) }}" class="text-secondary font-weight-bold text-xs px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
                                             <i class="fa fa-eye text-dark text-sm opacity-10"></i>
+                                        </a>
+                                        <a href="{{ route('pembelian.edit', $item->referensi) }}" class="text-dark mx-3" data-toggle="tooltip" data-original-title="Edit pembelian">
+                                            <i class="fa fa-pen-to-square text-dark text-sm opacity-10"></i>
                                         </a>
                                         <a href="#" class="text-dark font-weight-bold text-xs"
                                             data-bs-toggle="modal"
                                             data-bs-target="#deleteConfirmationModal"
-                                            data-pembelian-id="{{ $item->id }}"
                                             data-pembelian-referensi="{{ $item->referensi }}"
                                             title="Hapus Transaksi">
                                             <i class="bi bi-trash text-sm opacity-10"></i>
@@ -208,10 +210,9 @@
             if (deleteModal) {
                 deleteModal.addEventListener('show.bs.modal', function (event) {
                     const button = event.relatedTarget;
-                    const pembelianId = button.getAttribute('data-pembelian-id');
                     const pembelianReferensi = button.getAttribute('data-pembelian-referensi');
                     deleteModal.querySelector('#invoiceNumberToDelete').textContent = pembelianReferensi;
-                    deleteModal.querySelector('#deleteInvoiceForm').action = `/dashboard/pembelian/${pembelianId}`;
+                    deleteModal.querySelector('#deleteInvoiceForm').action = `{{ url('pembelian') }}/${pembelianReferensi}`;
                 });
             }
         });

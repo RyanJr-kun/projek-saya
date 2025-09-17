@@ -34,7 +34,7 @@ class GaransiController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi semua input dari form create
+        // Validasi input. Jika request adalah AJAX dan validasi gagal, Laravel akan otomatis mengirim response JSON 422.
         $validated = $request->validate([
             'nama' => 'required|string|max:100|unique:garansis',
             'slug' => 'required|string|max:100|unique:garansis',
@@ -59,7 +59,23 @@ class GaransiController extends Controller
             'durasi' => $totalMonths,
         ];
 
-        Garansi::create($dataToStore);
+        $garansi = Garansi::create($dataToStore);
+
+        // Cek apakah request mengharapkan response JSON (dikirim via AJAX)
+        if ($request->wantsJson()) {
+            // Muat ulang model untuk mendapatkan atribut tambahan seperti 'formatted_duration'
+            $garansi->refresh();
+            // Secara eksplisit tambahkan accessor 'formatted_duration' ke output JSON
+            $garansi->append('formatted_duration');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Garansi Baru Berhasil Ditambahkan.',
+                'data'    => $garansi
+            ]);
+        }
+
+        // Fallback untuk non-AJAX request
         Alert::success('Berhasil', 'Garansi Baru Berhasil Ditambahkan.');
         return redirect()->route('garansi.index');
     }
@@ -116,6 +132,16 @@ class GaransiController extends Controller
         ];
 
         $garansi->update($dataToUpdate);
+        if ($request->wantsJson()) {
+            $garansi->refresh();
+            $garansi->append('formatted_duration');
+            return response()->json([
+                'success' => true,
+                'message' => 'Garansi Berhasil Diperbarui.',
+                'data'    => $garansi
+            ]);
+        }
+
         Alert::success('Berhasil', 'Garansi Berhasil Diperbarui.');
         return redirect()->route('garansi.index');
     }

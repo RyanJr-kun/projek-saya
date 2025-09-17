@@ -4,7 +4,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     @endpush
-    
+
     @section('breadcrumb')
         @php
             $breadcrumbItems = [
@@ -78,8 +78,9 @@
                                     <tr class="table-secondary">
                                         <th class="text-dark text-xs font-weight-bolder">Nama Produk</th>
                                         <th class="text-dark text-xs font-weight-bolder text-center">Qty</th>
-                                        <th class="text-dark text-xs font-weight-bolder ps-2">Harga Beli</th>
-                                        <th class="text-dark text-xs font-weight-bolder ps-2">Diskon (Rp)</th>
+                                        <th class="text-dark text-xs font-weight-bolder">Harga Beli</th>
+                                        <th class="text-dark text-xs font-weight-bolder">Pajak (Rp)</th>
+                                        <th class="text-dark text-xs font-weight-bolder">Diskon (Rp)</th>
                                         <th class="text-dark text-xs font-weight-bolder ps-2">Subtotal</th>
                                         <th class="text-dark"></th>
                                     </tr>
@@ -233,6 +234,58 @@
         </div>
     </div>
 
+    {{-- Modal Edit Item --}}
+    <div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editItemModalLabel">Edit Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editItemForm" onsubmit="return false;">
+                        <input type="hidden" id="edit-item-id">
+                        <div class="row g-3 px-1">
+                            <div class="col-12">
+                                <label class="form-label">Nama Produk</label>
+                                <input type="text" class="form-control" id="edit-item-nama" readonly disabled>
+                            </div>
+                            <div class="col-md-6 col-12 form-group">
+                                <label for="edit-item-qty" class="form-control-label">Qty <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="edit-item-qty" min="1" required>
+                            </div>
+                            <div class="col-md-6 col-12 form-group">
+                                <label for="edit-item-harga" class="form-control-label">Harga Beli <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit-item-harga" placeholder="0">
+                            </div>
+                            <div class="col-12 form-group">
+                                <label for="edit-item-harga-jual" class="form-control-label">Harga Jual <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit-item-harga-jual" placeholder="0">
+                            </div>
+                            <div class="col-6">
+                                <label for="edit-item-pajak-persen" class="form-label">Pajak</label>
+                                <select class="form-select" id="edit-item-pajak-persen">
+                                    <option value="0" selected>Tidak ada</option>
+                                    @foreach($pajaks as $pajak)
+                                        <option value="{{ $pajak->rate }}">{{ $pajak->nama_pajak }} ({{ $pajak->rate }}%)</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="edit-item-diskon" class="form-label">Diskon (Rp)</label>
+                                <input type="text" class="form-control" id="edit-item-diskon" placeholder="0">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-info" id="saveItemChangesBtn">Simpan Perubahan</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -245,7 +298,15 @@
                 $("#qty").removeAttr("onfocus");
 
                 const formatCurrency = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+                const parseCurrency = (string) => parseFloat(String(string).replace(/[^0-9]/g, '')) || 0;
+
+                function formatInputAsCurrency(input) {
+                    let value = parseCurrency(input.val());
+                    input.val(new Intl.NumberFormat('id-ID').format(value));
+                }
+
                 let itemCounter = 0;
+                const editItemModal = new bootstrap.Modal(document.getElementById('editItemModal'));
 
                 // --- SELECT2 INITIALIZATION ---
                 function formatProduk(produk) {
@@ -301,7 +362,8 @@
                                         text: item.nama_produk,
                                         img_produk: item.img_produk,
                                         qty: item.qty,
-                                        harga_beli: item.harga_beli
+                                        harga_beli: item.harga_beli,
+                                        harga_jual: item.harga_jual
                                     };
                                 })
                             };
@@ -324,6 +386,7 @@
                     const produkNama = selectedData.text;
                     const produkImg = selectedData.img_produk;
                     const hargaBeli = selectedData.harga_beli || 0;
+                    const hargaJual = selectedData.harga_jual || 0;
                     const qtyToAdd = parseInt(qty);
 
                     // Cek jika produk sudah ada di tabel
@@ -338,30 +401,33 @@
                         const imageUrl = produkImg ? `{{ asset('storage/') }}/${produkImg}` : defaultImage;
 
                         const newRow = `
-                            <tr data-produk-id="${produkId}">
+                            <tr data-produk-id="${produkId}" data-pajak-persen="0" data-diskon="0">
                                 <input type="hidden" name="items[${itemCounter}][produk_id]" value="${produkId}">
+                                <input type="hidden" name="items[${itemCounter}][qty]" class="item-qty-hidden" value="${qtyToAdd}">
+                                <input type="hidden" name="items[${itemCounter}][harga_beli]" class="item-harga-hidden" value="${hargaBeli}">
+                                <input type="hidden" name="items[${itemCounter}][harga_jual]" class="item-harga-jual-hidden" value="${hargaJual}">
+                                <input type="hidden" name="items[${itemCounter}][diskon]" class="item-diskon-hidden" value="0">
+                                <input type="hidden" name="items[${itemCounter}][pajak_persen]" class="item-pajak-hidden" value="0">
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <img src="${imageUrl}" class="avatar avatar-sm me-3" alt="${produkNama}">
-                                        <h6 class="mb-0 text-sm">${produkNama}</h6>
+                                        <h6 class="mb-0 text-sm item-nama">${produkNama}</h6>
                                     </div>
                                 </td>
-                                <td class="align-middle">
-                                    <div class="d-flex justify-content-center">
-                                        <input type="number" name="items[${itemCounter}][qty]" class="form-control form-control-sm qty-pembelian w-md-30 w-100 text-center" value="${qtyToAdd}" min="1">
-                                    </div>
-                                </td>
-                                <td>
-                                    <input type="number" name="items[${itemCounter}][harga_beli]" class="form-control form-control-sm harga-beli w-md-60 w-100" value="${hargaBeli}" min="0">
-                                </td>
-                                <td>
-                                    <input type="number" name="items[${itemCounter}][diskon]" class="form-control form-control-sm diskon-item w-md-60 w-100" value="0" min="0">
-                                </td>
+                                <td class="align-middle text-center"><span class="item-qty">${qtyToAdd}</span></td>
+                                <td class="align-middle"><span class="item-harga">${formatCurrency(hargaBeli)}</span></td>
+                                <td class="align-middle"><span class="item-pajak">Rp 0</span></td>
+                                <td class="align-middle"><span class="item-diskon">Rp 0</span></td>
                                 <td class="subtotal-item text-start text-sm">Rp 0</td>
                                 <td>
-                                    <button type="button" class="btn btn-link text-danger p-0 m-0 btn-remove">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    <div class="d-flex">
+                                        <button type="button" class="btn btn-link text-info p-0 m-0 me-2 btn-edit" title="Edit Item">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-link text-danger p-0 m-0 btn-remove" title="Hapus Item">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         `;
@@ -379,22 +445,28 @@
 
                 // --- CALCULATIONS ---
                 function calculateRow(row) {
-                    const qty = parseFloat(row.find(".qty-pembelian").val()) || 0;
-                    const hargaBeli = parseFloat(row.find(".harga-beli").val()) || 0;
-                    const diskon = parseFloat(row.find(".diskon-item").val()) || 0;
+                    const qty = parseFloat(row.find(".item-qty-hidden").val()) || 0;
+                    const hargaBeli = parseFloat(row.find(".item-harga-hidden").val()) || 0;
+                    const diskon = parseFloat(row.find(".item-diskon-hidden").val()) || 0;
+                    const pajakPersen = parseFloat(row.find(".item-pajak-hidden").val()) || 0;
 
+                    const pajakAmount = ((qty * hargaBeli) - diskon) * (pajakPersen / 100);
                     const subtotal = (qty * hargaBeli) - diskon;
 
+                    row.find(".item-pajak").text(formatCurrency(pajakAmount));
                     row.find(".subtotal-item").text(formatCurrency(subtotal));
                 }
 
                 function calculateGrandTotal() {
                     let subtotalKeseluruhan = 0;
+                    let totalPajak = 0;
                     $('#table-pembelian tbody tr').each(function() {
-                        const qty = parseFloat($(this).find(".qty-pembelian").val()) || 0;
-                        const hargaBeli = parseFloat($(this).find(".harga-beli").val()) || 0;
-                        const diskon = parseFloat($(this).find(".diskon-item").val()) || 0;
+                        const qty = parseFloat($(this).find(".item-qty-hidden").val()) || 0;
+                        const hargaBeli = parseFloat($(this).find(".item-harga-hidden").val()) || 0;
+                        const diskon = parseFloat($(this).find(".item-diskon-hidden").val()) || 0;
+                        const pajakPersen = parseFloat($(this).find(".item-pajak-hidden").val()) || 0;
                         subtotalKeseluruhan += (qty * hargaBeli) - diskon;
+                        totalPajak += ((qty * hargaBeli) - diskon) * (pajakPersen / 100);
                     });
 
                     $("#subtotal-keseluruhan").text(formatCurrency(subtotalKeseluruhan));
@@ -402,7 +474,7 @@
                     const ongkir = parseFloat($("#ongkir").val()) || 0;
                     const diskonTambahan = parseFloat($("#diskon-tambahan").val()) || 0;
 
-                    const totalAkhir = subtotalKeseluruhan - diskonTambahan + ongkir;
+                    const totalAkhir = subtotalKeseluruhan + totalPajak - diskonTambahan + ongkir;
 
                     $("#total-akhir").text(formatCurrency(totalAkhir < 0 ? 0 : totalAkhir));
                     return totalAkhir < 0 ? 0 : totalAkhir;
@@ -430,11 +502,6 @@
                 }
 
                 // --- EVENT LISTENERS ---
-                // Recalculate row on input change
-                $("#table-pembelian").on("input", ".qty-pembelian, .harga-beli, .diskon-item", function() {
-                    calculateRow($(this).closest("tr"));
-                    calculateChange();
-                });
 
                 // Recalculate grand total on footer input change
                 $("#ongkir, #diskon-tambahan").on("input", function() {
@@ -443,8 +510,55 @@
 
                 // Remove item from table
                 $("#table-pembelian").on("click", ".btn-remove", function() {
-                    $(this).closest("tr").remove();
-                    calculateChange();
+                    const row = $(this).closest("tr");
+                    const productName = row.find('.item-nama').text();
+                    Swal.fire({
+                        title: 'Hapus Produk?',
+                        text: `Anda yakin ingin menghapus ${productName} dari daftar?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            row.remove();
+                            calculateChange();
+                        }
+                    });
+                });
+
+                // Open Edit Modal
+                $("#table-pembelian").on("click", ".btn-edit", function() {
+                    const row = $(this).closest("tr");
+                    const produkId = row.data('produk-id');
+
+                    // Populate modal
+                    $("#edit-item-id").val(produkId);
+                    $("#edit-item-nama").val(row.find(".item-nama").text());
+                    $("#edit-item-qty").val(row.find(".item-qty-hidden").val());
+                    $("#edit-item-harga").val(new Intl.NumberFormat('id-ID').format(row.find(".item-harga-hidden").val()));
+                    $("#edit-item-harga-jual").val(new Intl.NumberFormat('id-ID').format(row.find(".item-harga-jual-hidden").val()));
+                    $("#edit-item-diskon").val(new Intl.NumberFormat('id-ID').format(row.find(".item-diskon-hidden").val()));
+                    $("#edit-item-pajak-persen").val(row.find(".item-pajak-hidden").val());
+
+                    editItemModal.show();
+                });
+
+                // Save changes from modal
+                $("#saveItemChangesBtn").on("click", function() {
+                    const produkId = $("#edit-item-id").val();
+                    const row = $(`#table-pembelian tbody tr[data-produk-id="${produkId}"]`);
+
+                    row.find(".item-qty, .item-qty-hidden").val($("#edit-item-qty").val());
+                    row.find(".item-harga-hidden").val(parseCurrency($("#edit-item-harga").val()));
+                    row.find(".item-harga-jual-hidden").val(parseCurrency($("#edit-item-harga-jual").val()));
+                    row.find(".item-diskon-hidden").val(parseCurrency($("#edit-item-diskon").val()));
+                    row.find(".item-pajak-hidden").val($("#edit-item-pajak-persen").val());
+
+                    updateRowDisplay(row);
+                    editItemModal.hide();
                 });
 
                 // Calculate change on payment input
@@ -471,6 +585,22 @@
                     // Tampilkan dengan format ribuan
                     $(this).val(new Intl.NumberFormat('id-ID').format(number));
                 });
+
+                // Format currency inputs in modal
+                $('#edit-item-harga, #edit-item-harga-jual, #edit-item-diskon').on('input', function() {
+                    formatInputAsCurrency($(this));
+                });
+
+                function updateRowDisplay(row) {
+                    row.find('.item-qty').text(row.find('.item-qty-hidden').val());
+                    row.find('.item-harga').text(formatCurrency(row.find('.item-harga-hidden').val()));
+                    row.find('.item-diskon').text(formatCurrency(row.find('.item-diskon-hidden').val()));
+
+                    calculateRow(row);
+                    calculateChange();
+                }
+
+
 
                 // --- FORM SUBMISSION VALIDATION ---
                 $("#form-pembelian").on("submit", function(e) {

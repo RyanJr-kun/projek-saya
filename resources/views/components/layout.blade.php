@@ -37,7 +37,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item d-none d-md-block me-2">
-                                    <a href="/dashboard" class="nav-link">
+                                    <a href="{{ route('penjualan.create') }}" class="nav-link">
                                         <button class="btn btn-white btn-sm px-3 mb-0">
                                             <i class="bi bi-tv me-2"></i>POS</button>
                                     </a>
@@ -64,7 +64,7 @@
                                         @if (auth()->user()->img_user)
                                             <img src="{{ asset('storage/' . auth()->user()->img_user) }}" alt="Profile" class="avatar avatar-sm rounded cursor-pointer">
                                         @else
-                                            <i class="bi bi-person-circle cursor-pointer fs-5"></i>
+                                            <img src="{{ asset('assets/img/user.webp') }}" class="avatar avatar-sm me-3" alt="Gambar user default">
                                         @endif
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="userDropdown">

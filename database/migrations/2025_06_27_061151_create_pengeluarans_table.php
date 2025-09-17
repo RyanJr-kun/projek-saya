@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pengeluarans', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal');
-            $table->decimal('jumlah', 15, 2);
+            $table->decimal('jumlah', 15, 0);
             $table->foreignId('user_id')->constrained();
             $table->foreignId('kategori_pengeluaran_id')->constrained();
             $table->string('referensi');
