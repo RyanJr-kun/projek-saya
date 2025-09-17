@@ -25,9 +25,13 @@ return new class extends Migration
             $table->decimal('jumlah_dibayar', 15, 0)->default(0);
             $table->decimal('sisa_hutang', 15, 0)->default(0);
             $table->enum('status_barang', ['Diterima','Belum Diterima'])->default('Diterima');
-            $table->enum('status_pembayaran', ['Lunas','Lunas Sebagian','Belum Lunas'])->default('Lunas');
+            $table->enum('status_pembayaran', ['Lunas','Belum Lunas','Dibatalkan'])->default('Lunas');
             $table->text('catatan')->nullable();
             $table->timestamps();
+
+            $table->index('tanggal_pembelian');
+            $table->index('pemasok_id');
+            $table->index('user_id');
         });
     }
 

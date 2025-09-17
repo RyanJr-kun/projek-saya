@@ -80,6 +80,7 @@ class PenjualanController extends Controller
         $validatedData = $request->validate([
             'pelanggan_id' => 'nullable|exists:pelanggans,id',
             'referensi' => 'required|string|unique:penjualans,referensi',
+            'status_pembayaran' => 'required|in:Lunas,Belum Lunas,Dibatalkan',
             'metode_pembayaran' => 'required|in:TUNAI,TRANSFER,QRIS',
             'catatan' => 'nullable|string',
             'jumlah_dibayar' => 'required|numeric|min:0',
@@ -128,18 +129,11 @@ class PenjualanController extends Controller
                 $jumlah_dibayar = (float) $validatedData['jumlah_dibayar'];
                 $kembalian = $jumlah_dibayar - $total_akhir;
 
-                // Tentukan status pembayaran secara otomatis
-                if ($kembalian >= 0) {
-                    $status_pembayaran = 'LUNAS';
-                } else {
-                    $status_pembayaran = 'BELUM_LUNAS';
-                }
-
                 // 3. Simpan data ke tabel 'penjualans'
                 $penjualan = Penjualan::create([
                     'referensi' => $validatedData['referensi'],
-                    'tanggal_penjualan' => now(), // Tambahkan baris ini
-                    'user_id' => Auth::id(), // Ambil ID user yang sedang login
+                    'tanggal_penjualan' => now(),
+                    'user_id' => Auth::id(),
                     'pelanggan_id' => $validatedData['pelanggan_id'],
                     'subtotal' => $subtotal,
                     'diskon' => $diskon_global,
@@ -149,7 +143,7 @@ class PenjualanController extends Controller
                     'total_akhir' => $total_akhir,
                     'jumlah_dibayar' => $jumlah_dibayar,
                     'kembalian' => $kembalian > 0 ? $kembalian : 0, // Jangan simpan kembalian negatif
-                    'status' => $status_pembayaran,
+                    'status_pembayaran' => $validatedData['status_pembayaran'],
                     'metode_pembayaran' => $validatedData['metode_pembayaran'],
                     'catatan' => $validatedData['catatan'],
                 ]);
@@ -163,14 +157,16 @@ class PenjualanController extends Controller
                     $penjualan->items()->create([
                         'produk_id' => $produk->id,
                         'jumlah' => $itemData['jumlah'],
-                        'harga' => $itemData['harga_jual'],
+                        'harga_jual' => $itemData['harga_jual'],
                         'diskon_item' => $itemData['diskon'],
                         'pajak_item' => $pajak_amount_item,
                         'subtotal' => $subtotal_item, // Simpan subtotal setelah diskon
                     ]);
 
-                    // Kurangi stok produk
-                    $produk->decrement('qty', $itemData['jumlah']); // Menggunakan kolom 'qty'
+                    // Kurangi stok produk hanya jika transaksi tidak dibatalkan
+                    if ($validatedData['status_pembayaran'] !== 'DIBATALKAN') {
+                        $produk->decrement('qty', $itemData['jumlah']);
+                    }
                 }
 
                 return $penjualan;
@@ -178,7 +174,7 @@ class PenjualanController extends Controller
 
             // 5. Redirect ke halaman faktur jika berhasil
             Alert::success('Berhasil', 'Transaksi berhasil disimpan!');
-            return redirect()->route('penjualan.show', $penjualan->id);
+            return redirect()->route('penjualan.show', $penjualan->referensi);
 
         } catch (\Exception $e) {
             // Redirect kembali dengan pesan error jika transaksi gagal
@@ -280,8 +276,10 @@ class PenjualanController extends Controller
                 $kembalian = $jumlah_dibayar - $total_akhir;
 
                 // Tentukan status pembayaran secara otomatis
-                if ($kembalian >= 0) {
+                if ($kembalian >= 0 && $jumlah_dibayar > 0) {
                     $status_pembayaran = 'LUNAS';
+                } elseif ($jumlah_dibayar > 0 && $kembalian < 0) {
+                    $status_pembayaran = 'LUNAS_SEBAGIAN';
                 } else {
                     $status_pembayaran = 'BELUM_LUNAS';
                 }
@@ -293,7 +291,7 @@ class PenjualanController extends Controller
                     'tanggal_penjualan' => $validatedData['tanggal_penjualan'],
                     'metode_pembayaran' => $validatedData['metode_pembayaran'],
                     'catatan' => $validatedData['catatan'],
-                    'status' => $status_pembayaran,
+                    'status_pembayaran' => $status_pembayaran,
                     'subtotal' => $subtotal_keseluruhan,
                     'diskon' => $diskon_global,
                     'service' => $service,
@@ -372,7 +370,6 @@ class PenjualanController extends Controller
                 ->map(function ($sale) {
                     return [
                         'referensi' => $sale->referensi,
-                        'nomer_invoice' => $sale->nomer_invoice,
                         'total_akhir' => $sale->total_akhir,
                         'status' => $sale->status,
                         'pelanggan_nama' => $sale->pelanggan->nama ?? 'Pelanggan Umum',

@@ -6,9 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>JO Computer</title>
     @vite([
-        'resources/scss/app.scss',
-        'resources/js/app.js',
-        'resources/js/argon-dashboard.min.js'
+        'resources/scss/app.scss', // Memuat semua gaya
+        'resources/js/app.js'      // Memuat semua skrip
     ])
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />

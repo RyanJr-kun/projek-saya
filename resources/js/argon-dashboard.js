@@ -68,14 +68,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // adding on inputs attributes for calling the focused and defocused functions
-    if (document.querySelectorAll(".input-group").length != 0) {
-        var allInputs = document.querySelectorAll("input.form-control");
-        allInputs.forEach((el) =>
-            setAttributes(el, {
-                onfocus: "focused(this)",
-                onfocusout: "defocused(this)",
-            })
-        );
+    const allInputs = document.querySelectorAll("input.form-control");
+    if (allInputs.length > 0) {
+        allInputs.forEach((el) => {
+            el.addEventListener("focus", () => focused(el));
+            el.addEventListener("focusout", () => defocused(el));
+            // Hapus penggunaan setAttributes jika hanya untuk ini
+            // setAttributes(el, { onfocus: "focused(this)", onfocusout: "defocused(this)" });
+        });
     }
 
     // Fixed Plugin

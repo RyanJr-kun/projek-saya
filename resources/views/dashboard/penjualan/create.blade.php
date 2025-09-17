@@ -171,6 +171,17 @@
                 <div class="col-md-4 col-12 ">
                     <form action="{{ route('penjualan.store') }}" method="POST" id="penjualanForm">
                         @csrf
+                        {{-- Display All Validation Errors --}}
+                        @if ($errors->any())
+                        <div class="alert alert-danger text-white mt-3" role="alert">
+                            <strong class="font-weight-bold">Oops! Terjadi kesalahan:</strong>
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
                         <div class="card rounded-2 mt-3">
                             <div class="card-header pb-0">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -200,7 +211,7 @@
                                                 <option value="{{ $item->id }}" @selected(old('pelanggan_id') == $item->id)>{{ $item->nama }}</option>
                                                 @endforeach
                                         </select>
-                                        @error('pelanggan')
+                                        @error('pelanggan_id')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                         <button type="button" class="btn btn-outline-info btn-xs mb-0" data-bs-toggle="modal" data-bs-target="#createPelangganModal" title="Tambah pelanggan Baru">
@@ -254,33 +265,43 @@
                                     <h6 class="font-weight-bold" id="total-akhir">Rp 0</h6>
                                 </div>
                                 {{-- Metode Pembayaran & Catatan --}}
-                                <div class="mt-3">
-                                    <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>
-                                    <select name="metode_pembayaran" id="metode_pembayaran" class="form-select" required>
-                                        <option value="TUNAI">Tunai</option>
-                                        <option value="TRANSFER">Transfer</option>
-                                        <option value="QRIS">QRIS</option>
-                                    </select>
-                                </div>
-                                <div class="mt-3">
-                                    <label for="catatan" class="form-label">Catatan (Opsional)</label>
-                                    <textarea name="catatan" id="catatan" class="form-control" rows="2" placeholder="Tambahkan catatan untuk transaksi ini..."></textarea>
-                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-6 mt-3">
+                                        <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>
+                                        <select name="metode_pembayaran" id="metode_pembayaran" class="form-select" required>
+                                            <option value="TUNAI">Tunai</option>
+                                            <option value="TRANSFER">Transfer</option>
+                                            <option value="QRIS">QRIS</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6 mt-3">
+                                        <label for="status_pembayaran_select" class="form-label">Status Pembayaran</label>
+                                        <select name="status_pembayaran" id="status_pembayaran_select" class="form-select" required>
+                                            <option value="Lunas">Lunas</option>
+                                            <option value="Belum Lunas">Belum Lunas</option>
+                                            <option value="Dibatalkan">Dibatalkan</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 mt-3">
+                                        <label for="catatan" class="form-label">Catatan (Opsional)</label>
+                                        <textarea name="catatan" id="catatan" class="form-control" rows="2" placeholder="Tambahkan catatan untuk transaksi ini..."></textarea>
+                                    </div>
                                 {{-- Pembayaran & Kembalian --}}
-                                <div class="mt-3 py-2 px-2 rounded" style="cursor: pointer; background-color: #f8f9fa;" data-bs-toggle="modal" data-bs-target="#paymentModal">
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <p class="text-sm mb-0">Bayar</p>
-                                        <p class="text-sm font-weight-bold mb-0" id="payment-display">Rp 0</p>
-                                        <input type="hidden" name="jumlah_dibayar" id="jumlah-dibayar-input" value="0">
+                                    <div class="col-6">
+                                        <label for="jumlah-dibayar-input" class="form-label">Jumlah Dibayar</label>
+                                        <input type="text" name="jumlah_dibayar" id="jumlah-dibayar-input" class="form-control text-end" value="0">
                                     </div>
-                                    <div class="d-flex justify-content-between">
-                                        <p class="text-sm mb-0">Kembalian</p>
-                                        <p class="text-sm font-weight-bold mb-0" id="change-display">Rp 0</p>
+                                    <div class="col-6">
+                                        <label class="form-label">Kembalian</p>
+                                        <p class="form-control-plaintext text-end fw-bold mb-0" id="change-display">Rp 0</p>
                                     </div>
                                 </div>
+
                                 {{-- Tombol Aksi --}}
-                                <div class="d-grid gap-2 mt-3">
-                                    <button type="submit" class="btn btn-outline-success" id="btn-save-transaction">
+                                <div class="d-flex justify-content-center mt-3">
+                                    <button type="button" class="btn btn-info me-3" id="btn-pay-exact">Bayar Pas</button>
+                                    <button type="submit" class="btn btn-success" id="btn-save-transaction">
                                         <i class="fas fa-save me-1"></i> Simpan Transaksi
                                     </button>
                                 </div>
@@ -515,7 +536,7 @@
                 const paymentDisplay = document.getElementById('payment-display');
                 const changeDisplay = document.getElementById('change-display');
                 const paymentInputHidden = document.getElementById('jumlah-dibayar-input');
-                // const pajakInput = document.querySelector('input[name="pajak"]'); // Pajak global belum diimplementasikan di HTML
+                const payExactButton = document.getElementById('btn-pay-exact');
                 const totalAkhirEl = document.getElementById('total-akhir');
                 const productSearchInput = document.getElementById('product-search');
                 const mainForm = document.getElementById('penjualanForm');
@@ -524,10 +545,9 @@
                 const editItemModal = new bootstrap.Modal(document.getElementById('editCartItemModal'));
                 const editItemForm = document.getElementById('editCartItemForm');
 
-                // --- PAYMENT MODAL ELEMENTS ---
-                const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
-                const paymentModalEl = document.getElementById('paymentModal');
-                const paymentAmountInput = document.getElementById('payment-amount-input');
+                // --- PAYMENT ELEMENTS (NO MODAL) ---
+                const paymentInput = document.getElementById('jumlah-dibayar-input');
+
 
                 // --- FUNCTIONS ---
                 const updateCartAndTotals = () => {
@@ -675,10 +695,9 @@
 
                 const calculateChange = () => {
                     const total = parseFloat(totalAkhirEl.textContent.replace(/[^0-9]/g, '')) || 0;
-                    const paymentAmount = parseFloat(paymentInputHidden.value) || 0;
+                    const paymentAmount = parseFloat(paymentInput.value.replace(/[^0-9]/g, '')) || 0;
                     const change = paymentAmount - total;
 
-                    paymentDisplay.textContent = formatCurrency(paymentAmount);
                     changeDisplay.textContent = formatCurrency(change);
 
                     if (change < 0) {
@@ -756,11 +775,28 @@
                 }
                 productSearchInput.addEventListener('keyup', filterProducts);
 
-                mainForm.addEventListener('submit', (e) => {
+                mainForm.addEventListener('submit', function(e) {
                     if (cart.size === 0) {
                         e.preventDefault();
                         alert('Keranjang belanja kosong. Silakan tambahkan produk terlebih dahulu.');
+                        return;
                     }
+                    // Bersihkan format angka sebelum submit untuk validasi di server
+                    const paymentInputValue = paymentInput.value;
+                    if (paymentInputValue) {
+                        paymentInput.value = paymentInputValue.replace(/[^0-9]/g, '');
+                    }
+                });
+
+                paymentInput.addEventListener('input', (e) => {
+                    formatNumberInput(e);
+                    calculateChange();
+                });
+
+                payExactButton.addEventListener('click', () => {
+                    const total = parseFloat(totalAkhirEl.textContent.replace(/[^0-9]/g, '')) || 0;
+                    paymentInput.value = new Intl.NumberFormat('id-ID').format(total);
+                    calculateChange();
                 });
 
                 // --- INITIALIZATION ---
@@ -833,51 +869,6 @@
 
                     calculateTotals();
                     extraCostModal.hide();
-                });
-
-                // --- PAYMENT MODAL LOGIC ---
-                paymentModalEl.addEventListener('show.bs.modal', function() {
-                    const total = calculateTotals();
-                    document.getElementById('payment-modal-total').textContent = formatCurrency(total);
-                    const currentPayment = parseFloat(paymentInputHidden.value) || 0;
-                    paymentAmountInput.value = new Intl.NumberFormat('id-ID').format(currentPayment);
-                    setTimeout(() => paymentAmountInput.focus(), 500);
-                });
-
-                paymentAmountInput.addEventListener('input', function(e) {
-                    // Format input dengan pemisah ribuan saat diketik
-                    let value = e.target.value.replace(/[^0-9]/g, '');
-                    e.target.value = new Intl.NumberFormat('id-ID').format(value || 0);
-                });
-
-                document.querySelectorAll('.quick-pay-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const amountType = this.dataset.amount;
-                        const total = parseFloat(totalAkhirEl.textContent.replace(/[^0-9]/g, '')) || 0;
-                        let paymentValue = 0;
-
-                        if (amountType === 'pas') {
-                            paymentValue = total;
-                        } else {
-                            paymentValue = parseFloat(amountType);
-                        }
-                        paymentAmountInput.value = new Intl.NumberFormat('id-ID').format(paymentValue);
-                    });
-                });
-
-                document.getElementById('savePaymentBtn').addEventListener('click', () => {
-                    const paymentValue = parseFloat(paymentAmountInput.value.replace(/[^0-9]/g, '')) || 0;
-                    paymentInputHidden.value = paymentValue;
-                    calculateChange();
-                    paymentModal.hide();
-                });
-
-                // Menangani submit form dengan Enter di dalam modal pembayaran
-                paymentAmountInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        document.getElementById('savePaymentBtn').click();
-                    }
                 });
 
                 // --- MODAL PELANGGAN BARU (AJAX) ---

@@ -13,43 +13,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Pembelian extends Model
 {
     protected $guarded = ['id'];
-
-    public function getRouteKeyName()
+    public function getRouteKeyName() { return 'referensi'; }
+    protected function total(): Attribute
     {
-        return 'referensi';
-    }
-
-     protected function total(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => 'Rp. ' . number_format($this->attributes['total_akhir'], 2, ',', '.')
-        );
+        return Attribute::make(get: fn () => 'Rp. ' . number_format($this->attributes['total_akhir'], 2, ',', '.'));
     }
     protected function bayar(): Attribute
     {
-        return Attribute::make(
-            get: fn () => 'Rp. ' . number_format($this->attributes['jumlah_dibayar'], 2, ',', '.')
-        );
+        return Attribute::make( get: fn () => 'Rp. ' . number_format($this->attributes['jumlah_dibayar'], 2, ',', '.'));
     }
     protected function sisa(): Attribute
     {
-        return Attribute::make(
-            get: fn () => 'Rp. ' . number_format($this->attributes['sisa_hutang'], 2, ',', '.')
-        );
+        return Attribute::make( get: fn () => 'Rp. ' . number_format($this->attributes['sisa_hutang'], 2, ',', '.'));
     }
-
-    public function pemasok(): BelongsTo
-    {
-        return $this->belongsTo(Pemasok::class);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function details(): HasMany
-    {
-        return $this->hasMany(PembelianDetail::class);
-    }
+    public function pemasok(): BelongsTo { return $this->belongsTo(Pemasok::class); }
+    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function details(): HasMany { return $this->hasMany(PembelianDetail::class); }
 }

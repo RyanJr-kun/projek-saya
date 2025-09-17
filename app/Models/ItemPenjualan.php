@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ItemPenjualan extends Model
 {
     use HasFactory;
-
-    protected $table = 'item_penjualans';
     protected $guarded = ['id'];
 
     public function penjualan(): BelongsTo

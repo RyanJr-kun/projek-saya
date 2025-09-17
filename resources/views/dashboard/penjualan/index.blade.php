@@ -52,8 +52,8 @@
                                 <th class="text-uppercase text-dark text-xs fw-bolder">Pelanggan</th>
                                 <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Invoice</th>
                                 <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Tanggal</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder text-center">Total</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder text-center">Status</th>
+                                <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Total</th>
+                                <th class="text-uppercase text-dark text-xs fw-bolder text-center">Status Pembayaran</th>
                                 <th class="text-uppercase text-dark text-xs fw-bolder">Pembuat</th>
                                 <th class="text-dark"></th>
                             </tr>
@@ -62,24 +62,29 @@
                             @forelse ($penjualan as $item)
                                 <tr>
                                     <td>
-                                        <div class="d-flex flex-column justify-content-center px-2 py-1">
+                                        <div class="d-flex flex-column justify-content-center ms-3">
                                             <h6 class="mb-0 text-sm">{{ $item->pelanggan->nama ?? 'Pelanggan Umum' }}</h6>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm">{{ $item->nomer_invoice }}</h6>
-                                            <p class="text-xs text-secondary mb-0">Kasir: {{ $item->user->nama ?? 'N/A' }}</p>
+                                            <h6 class="mb-0 text-sm">{{ $item->referensi }}</h6>
                                         </div>
                                     </td>
                                     <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ $item->created_at->translatedFormat('d M Y, H:i') }}</p>
+                                        <p class="text-sm fw-bolder mb-0">{{ $item->created_at->translatedFormat('d M Y, H:i') }}</p>
                                     </td>
-                                    <td class="align-middle text-center">
-                                        <span class="text-secondary text-xs fw-bold">Rp {{ number_format($item->total_akhir, 0, ',', '.') }}</span>
+                                    <td class="align-middle">
+                                        <span class="text-secondary text-sm fw-bolder">{{ $item->total }}</span>
                                     </td>
                                     <td class="align-middle text-center text-sm">
-                                        <span class="badge badge-sm {{ $item->status === 'Lunas' ? 'bg-gradient-success' : ($item->status === 'Belum Lunas' ? 'bg-gradient-danger' : 'bg-gradient-warning') }}">{{ $item->status }}</span>
+                                        @php
+                                            $statusClass = '';
+                                            if ($item->status_pembayaran === 'Lunas') $statusClass = 'badge-success';
+                                            elseif ($item->status_pembayaran === 'Belum Lunas') $statusClass = 'badge-danger';
+                                            elseif ($item->status_pembayaran === 'Dibatalkan') $statusClass = 'badge-warning';
+                                        @endphp
+                                        <span class="badge badge-sm {{ $statusClass }}">{{ str_replace('_', ' ', $item->status_pembayaran) }}</span>
                                     </td>
                                     <td>
                                         <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">
@@ -92,7 +97,7 @@
                                         </div>
                                     </td>
                                     <td class="align-middle text-center">
-                                        <a href="{{ route('penjualan.show', $item->referensi) }}" class="text-secondary fw-bold text-xs px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
+                                        <a href="{{ route('penjualan.show', $item->referensi) }}" class="text-dark fw-bold text-xs px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         <a href="#" class="text-info fw-bold text-xs px-2 edit-penjualan-btn"
@@ -161,15 +166,8 @@
                                 <label for="edit_tanggal_penjualan" class="form-label">Tanggal</label>
                                 <input type="datetime-local" name="tanggal_penjualan" id="edit_tanggal_penjualan" class="form-control" required>
                             </div>
-                            <div class="col-md-3">
-                                <label for="edit_metode_pembayaran" class="form-label">Metode Pembayaran</label>
-                                <select name="metode_pembayaran" id="edit_metode_pembayaran" class="form-select" required>
-                                    <option value="TUNAI">Tunai</option>
-                                    <option value="TRANSFER">Transfer</option>
-                                    <option value="QRIS">QRIS</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
+
+                            <div class="col-md-3 ms-auto">
                                 <label for="edit_nomer_invoice" class="form-label">No. Invoice</label>
                                 <input type="text" name="nomer_invoice" id="edit_nomer_invoice" class="form-control" readonly>
                             </div>
@@ -202,11 +200,25 @@
                             </div>
 
                             {{-- Rincian Biaya --}}
-                            <div class="col-6 d-md-block d-none">
+                            <div class="col-3 d-md-block d-none">
+                                <label for="edit_metode_pembayaran" class="form-label">Metode Pembayaran</label>
+                                <select name="metode_pembayaran" id="edit_metode_pembayaran" class="form-select" required>
+                                    <option value="TUNAI">Tunai</option>
+                                    <option value="TRANSFER">Transfer</option>
+                                    <option value="QRIS">QRIS</option>
+                                </select>
+                            </div>
+                            <div class="col-3 mt-3">
+                                <label for="status_pembayaran_select" class="form-label">Status Pembayaran</label>
+                                <select name="status_pembayaran" id="status_pembayaran_select" class="form-select" required>
+                                    <option value="Lunas">Lunas</option>
+                                    <option value="Belum Lunas">Belum Lunas</option>
+                                    <option value="Dibatalkan">Dibatalkan</option>
+                                </select>
                             </div>
 
                             {{-- Total & Pembayaran --}}
-                            <div class="col-12 col-md-6 ">
+                            <div class="col-12 col-md-6 mt-3">
                                 <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editExtraCostModal" data-type="service" data-label="Service">
                                     <p class="text-sm mb-0">Service</p>
                                     <p class="text-sm font-weight-bold mb-0" id="edit_service_display">Rp 0</p>
@@ -223,7 +235,7 @@
                                     <input type="hidden" name="diskon" id="edit_diskon" value="0">
                                 </div>
                                 <div class="d-flex justify-content-between">
-                                    <h6 class="font-weight-bold">Total</h6>
+                                    <h6 class="font-weight-bold ">Total</h6>
                                     <h6 class="font-weight-bold" id="edit_total_akhir">Rp 0</h6>
                                 </div>
                                 <div class="d-flex justify-content-between mt-2">

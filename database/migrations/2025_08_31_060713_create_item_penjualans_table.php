@@ -12,15 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('item_penjualans', function (Blueprint $table) {
-             $table->id();
+            $table->id();
             $table->foreignId('penjualan_id')->constrained('penjualans')->onDelete('cascade');
             $table->foreignId('produk_id')->constrained('produks')->onDelete('restrict');
             $table->unsignedInteger('jumlah');
-            $table->decimal('harga', 15, 0);
+            $table->decimal('harga_jual', 15, 0);
             $table->decimal('diskon_item', 15, 0)->default(0)->comment('Diskon per item dalam nominal');
-            $table->decimal('pajak_item', 15, 0)->default(0)->comment('Pajak per item dalam nominal');
+            $table->foreignId('pajak_id')->nullable()->constrained('pajaks');
             $table->decimal('subtotal', 15, 0);
             $table->timestamps();
+
+            $table->index('penjualan_id');
+            $table->index('pajak_id');
+            $table->index('produk_id');
         });
     }
 

@@ -23,12 +23,16 @@ return new class extends Migration
             $table->decimal('total_akhir', 15, 0);
             $table->decimal('jumlah_dibayar', 15, 0)->default(0);
             $table->decimal('kembalian', 15, 0)->default(0);
-            $table->enum('status', ['LUNAS', 'BELUM_LUNAS', 'DIBATALKAN'])->default('LUNAS');
+            $table->enum('status_pembayaran', ['Lunas', 'Belum Lunas', 'Dibatalkan'])->default('LUNAS');
             $table->enum('metode_pembayaran', ['TUNAI', 'TRANSFER', 'QRIS'])->default('TUNAI');
             $table->text('catatan')->nullable();
             $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggans');
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
+
+            $table->index('tanggal_penjualan');
+            $table->index('pelanggan_id');
+            $table->index('user_id');
         });
     }
 

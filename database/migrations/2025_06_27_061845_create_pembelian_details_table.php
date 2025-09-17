@@ -18,9 +18,13 @@ return new class extends Migration
             $table->unsignedInteger('qty');
             $table->decimal('harga_beli', 15, 0);
             $table->decimal('diskon', 15, 0)->default(0);
-            $table->decimal('pajak_persen', 5, 0)->default(0);
+            $table->foreignId('pajak_id')->nullable()->constrained('pajaks');
             $table->decimal('subtotal', 15, 0);
             $table->timestamps();
+
+            $table->index('pembelian_id');
+            $table->index('produk_id');
+            $table->index('pajak_id');
         });
     }
 

@@ -13,17 +13,6 @@ class PembelianDetail extends Model
      * @var array<int, string>
      */
     protected $guarded = ['id'];
-
-    /**
-     * Get the pembelian that owns the detail.
-     */
-    public function pembelian(): BelongsTo
-    {
-        return $this->belongsTo(Pembelian::class);
-    }
-
-    public function produk(): BelongsTo
-    {
-        return $this->belongsTo(Produk::class);
-    }
+    public function pembelian(): BelongsTo { return $this->belongsTo(Pembelian::class); }
+    public function produk(): BelongsTo { return $this->belongsTo(Produk::class); }
 }

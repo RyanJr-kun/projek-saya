@@ -23,13 +23,17 @@ return new class extends Migration
             $table->integer('qty')->default(0);
             $table->unsignedInteger('stok_minimum')->default(0);
             $table->string('img_produk', 255)->nullable();
-            $table->foreignId('kategori_produk_id')->constrained();
-            $table->foreignId('brand_id')->constrained();
-            $table->foreignId('unit_id')->constrained();
-            $table->foreignId('garansi_id')->nullable()->constrained();
-            $table->foreignId('pajak_id')->nullable()->constrained();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('kategori_produk_id')->constrained('kategori_produks')->onDelete('restrict');
+            $table->foreignId('brand_id')->constrained('brands')->onDelete('restrict');
+            $table->foreignId('unit_id')->constrained('units')->onDelete('restrict');
+            $table->foreignId('garansi_id')->constrained('garansis')->onDelete('restrict');
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
+
+            $table->index('kategori_produk_id');
+            $table->index('brand_id');
+            $table->index('unit_id');
+            $table->index('garansi_id');
         });
     }
 
