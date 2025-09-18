@@ -14,6 +14,7 @@ use App\Http\Controllers\PemasukanController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\SerialNumberController;
 use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\KategoriPemasukanController;
 use App\Http\Controllers\KategoriPengeluaranController;
@@ -66,6 +67,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('checkSlug', [ProdukController::class, 'checkSlug'])->name('checkSlug');
     });
     Route::resource('produk', ProdukController::class)->parameters(['produk' => 'produk:slug']);
+
+    //serial-number
+    Route::resource('serialNumber', SerialNumberController::class)->except('show');
+    Route::get('serialNumber/get-by-product/{produk_id}', [SerialNumberController::class, 'getByProduct'])->name('serialNumber.getByProduct');
 
     //kategori produk
     Route::get('/kategoriproduk/{kategoriproduk}/json', [KategoriProdukController::class, 'getKategoriJson'])->name('kategoriproduk.getjson');

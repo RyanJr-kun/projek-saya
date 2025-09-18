@@ -11,7 +11,7 @@
         @php
         // Definisikan item breadcrumb dalam bentuk array
         $breadcrumbItems = [
-            ['name' => 'Page', 'url' => '/dashboard'],
+            ['name' => 'Page', 'url' => '#'],
             ['name' => 'Manajemen Produk', 'url' => route('produk.index')],
             ['name' => 'Edit Produk', 'url' => '#'],
         ];
@@ -48,7 +48,7 @@
 
                     <div class="col-md-6 mb-3">
                         <label for="slug" class="form-label">Slug <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" value="{{ old('slug', $produk->slug) }}" required readonly>
+                        <input type="text" class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" value="{{ old('slug', $produk->slug) }}" required>
                         @error('slug')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -139,7 +139,6 @@
                             @error('harga_jual')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <span class="input-group-text">.00</span>
                         </div>
                     </div>
                     <div class="col-md-3 form-group">
@@ -150,7 +149,6 @@
                             @error('harga_beli')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <span class="input-group-text">.00</span>
                         </div>
                     </div>
 
@@ -176,7 +174,7 @@
                     <div class="col-md-3">
                         <label for="pajak" class="form-label">Pajak <span class="text-danger">*</span></label>
                         <select class="form-select @error('pajak') is-invalid @enderror" id="pajak" name="pajak" required>
-                            <option value="" disabled selected>Pilih</option>
+                            <option value="" disabled selected> pilih </option>
                             @foreach ($pajak as $item)
                                 <option value="{{ $item->id }}" @selected(old('pajak', $produk->pajak_id) == $item->id)>{{ $item->nama_pajak }}</option>
                             @endforeach
@@ -184,6 +182,13 @@
                         @error('pajak')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="wajib_seri" name="wajib_seri" value="1" @checked(old('wajib_seri', $produk->wajib_seri))>
+                            <label class="form-check-label fw-bolder" for="wajib_seri">Produk ini memiliki <u class="text-warning">Nomor Seri</u></label>
+                        </div>
+                        <small id="serial-number-info" class="text-muted text-sm" style="display: none; opacity: 0; transition: opacity 0.3s ease-in-out;">Jika dicentang, Anda harus memasukkan nomor seri saat pembelian dan memilihnya saat penjualan.</small>
                     </div>
                 </div>
             </div>
@@ -222,7 +227,7 @@
 
                 if (namaInput && slugInput) {
                     namaInput.addEventListener('change', function() {
-                        fetch(`/dashboard/produk/checkSlug?nama_produk=${namaInput.value}`)
+                        fetch(`/produk/checkSlug?nama_produk=${namaInput.value}`)
                             .then(response => response.json())
                             .then(data => slugInput.value = data.slug);
                     });
@@ -272,8 +277,8 @@
                     acceptedFileTypes: ["image/png", "image/jpeg", "image/webp", "image/svg+xml"],
                     labelFileTypeNotAllowed: "Jenis file tidak valid.",
                     server: {
-                        process: { url: "/dashboard/produk/upload", headers: { "X-CSRF-TOKEN": csrfToken } },
-                        revert: { url: "/dashboard/produk/revert", method: "DELETE", headers: { "X-CSRF-TOKEN": csrfToken } },
+                        process: { url: "/produk/upload", headers: { "X-CSRF-TOKEN": csrfToken } },
+                        revert: { url: "/produk/revert", method: "DELETE", headers: { "X-CSRF-TOKEN": csrfToken } },
                     },
                 });
 
@@ -307,7 +312,7 @@
                     );
 
                     if (newFile && newFile.serverId) {
-                        fetch('/dashboard/produk/revert', {
+                        fetch('/produk/revert', {
                             method: 'DELETE',
                             headers: { 'X-CSRF-TOKEN': csrfToken },
                             body: newFile.serverId
@@ -316,6 +321,35 @@
                         window.location.href = this.href;
                     }
                 });
+
+                // --- HAS SERIAL CHECKBOX ANIMATION ---
+                const serialCheckbox = document.getElementById('wajib_seri');
+                const serialInfo = document.getElementById('serial-number-info');
+                let hideTimeout; // Variabel untuk menyimpan ID timeout
+
+                function toggleSerialInfoVisibility() {
+                    // Hapus timeout yang mungkin sedang berjalan untuk mencegah konflik
+                    clearTimeout(hideTimeout);
+
+                    if (serialCheckbox.checked) {
+                        serialInfo.style.display = 'block';
+                        // Gunakan timeout agar properti display diterapkan sebelum transisi dimulai
+                        setTimeout(() => {
+                            serialInfo.style.opacity = 1;
+                        }, 10);
+                    } else {
+                        serialInfo.style.opacity = 0;
+                        // Atur timeout untuk menyembunyikan elemen setelah transisi selesai
+                        hideTimeout = setTimeout(() => {
+                            serialInfo.style.display = 'none';
+                        }, 300); // Durasi ini harus cocok dengan durasi transisi CSS
+                    }
+                }
+
+                // Panggil fungsi saat halaman dimuat untuk mengatur state awal
+                toggleSerialInfoVisibility();
+                // Tambahkan event listener untuk perubahan pada checkbox
+                serialCheckbox.addEventListener('change', toggleSerialInfoVisibility);
             });
         </script>
     @endpush

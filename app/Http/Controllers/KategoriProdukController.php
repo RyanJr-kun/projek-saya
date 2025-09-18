@@ -12,7 +12,7 @@ use \Cviebrock\EloquentSluggable\Services\SlugService;
 class KategoriProdukController extends Controller
 {
    public function index() {
-    return view('dashboard.kategori.kategoriproduk', [
+    return view('dashboard.inventaris.kategoriproduk', [
         'title' => 'Data Kategori Produk',
         'kategoris'=>KategoriProduk::withCount('produks')->latest()->paginate(10),
     ]);
@@ -53,7 +53,7 @@ class KategoriProdukController extends Controller
 
         $validatedData['status'] = $request->has('status');
         KategoriProduk::create($validatedData);
-        
+
         Alert::success('Berhasil', 'Kategori Baru Berhasil Ditambahkan.');
         return redirect()->route('kategoriproduk.index');
     }

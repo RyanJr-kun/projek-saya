@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 
 class Produk extends Model
 {
@@ -37,12 +40,13 @@ class Produk extends Model
         );
     }
 
-    public function kategori_produk() { return $this->belongsTo(KategoriProduk::class); }
-    public function brand() { return $this->belongsTo(Brand::class); }
-    public function unit() { return $this->belongsTo(Unit::class); }
-    public function garansi() { return $this->belongsTo(Garansi::class); }
-    public function pajak() { return $this->belongsTo(Pajak::class); }
-    public function user() { return $this->belongsTo(User::class); }
-    public function itemPenjualans() { return $this->hasMany(ItemPenjualan::class); }
-    public function pembelianDetails() { return $this->hasMany(PembelianDetail::class); }
+    public function kategori_produk(): BelongsTo { return $this->belongsTo(KategoriProduk::class); }
+    public function brand() : BelongsTo { return $this->belongsTo(Brand::class); }
+    public function unit() : BelongsTo { return $this->belongsTo(Unit::class); }
+    public function garansi() : BelongsTo { return $this->belongsTo(Garansi::class); }
+    public function pajak() : BelongsTo { return $this->belongsTo(Pajak::class); }
+    public function user() : BelongsTo { return $this->belongsTo(User::class); }
+    public function itemPenjualans() : HasMany { return $this->hasMany(ItemPenjualan::class); }
+    public function pembelianDetails() : HasMany { return $this->hasMany(PembelianDetail::class); }
+    public function serialNumbers(): HasMany { return $this->hasMany(SerialNumber::class); }
 }

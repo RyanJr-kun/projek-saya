@@ -67,6 +67,7 @@ class ProdukController extends Controller
             'stok_minimum' => 'required|integer',
             'pajak' => 'required|exists:pajaks,id',
             'img_produk' => 'nullable|string',
+            'wajib_seri' => 'nullable|boolean',
         ]);
 
         $validatedData['user_id'] = Auth::id();
@@ -75,6 +76,7 @@ class ProdukController extends Controller
         $validatedData['unit_id'] = $validatedData['unit'];
         $validatedData['pajak_id'] = $validatedData['pajak'];
         $validatedData['garansi_id'] = $validatedData['garansi'];
+        $validatedData['wajib_seri'] = $request->boolean('wajib_seri');
 
         // Pindahkan gambar dari temp ke folder produk
         if ($request->img_produk) {
@@ -142,6 +144,7 @@ class ProdukController extends Controller
             'slug' => ['required', 'string', Rule::unique('produks', 'slug')->ignore($produk->id)],
             'barcode' => ['nullable', 'string', Rule::unique('produks', 'barcode')->ignore($produk->id)],
             'sku' => ['required', 'string', Rule::unique('produks', 'sku')->ignore($produk->id)],
+            'wajib_seri' => 'nullable|boolean',
         ];
 
         $validatedData = $request->validate($rules);
@@ -151,6 +154,7 @@ class ProdukController extends Controller
         $validatedData['unit_id'] = $validatedData['unit'];
         $validatedData['garansi_id'] = $validatedData['garansi'];
         $validatedData['pajak_id'] = $validatedData['pajak'];
+        $validatedData['wajib_seri'] = $request->boolean('wajib_seri');
 
         // Cek apakah ada gambar baru yang diunggah (path dimulai dengan 'tmp/')
         if ($request->filled('img_produk') && str_starts_with($request->img_produk, 'tmp/')) {
@@ -315,17 +319,23 @@ class ProdukController extends Controller
     public function getData(Request $request)
     {
         $search = $request->query('search');
-        $query = Produk::query();
+        // Selalu urutkan berdasarkan nama produk untuk konsistensi
+        $query = Produk::query()->orderBy('nama_produk', 'asc');
 
+        // Filter berdasarkan kata kunci pencarian
         if ($search) {
-            // Jika ada pencarian, cari berdasarkan nama produk
             $query->where('nama_produk', 'LIKE', '%' . $search . '%');
-        } else {
-            // Jika tidak ada pencarian (saat pertama kali dibuka), urutkan berdasarkan stok terendah
-            $query->orderBy('qty', 'asc')->limit(5);
         }
-        return response()->json($query->get());
+
+        // Filter berdasarkan flag 'wajib_seri' jika ada di request
+        if ($request->boolean('wajib_seri')) {
+            $query->where('wajib_seri', true);
+        }
+
+        // Gunakan paginate() untuk mengembalikan hasil yang kompatibel dengan Select2 AJAX (load more)
+        return response()->json($query->paginate(10));
     }
+
     public function cekStok(Request $request)
     {
         $id = $request->query('id');
@@ -337,7 +347,7 @@ class ProdukController extends Controller
     {
         $lowStockProducts = Produk::whereColumn('qty', '<=', 'stok_minimum')
                                   ->orderBy('qty', 'asc')
-                                  ->take(5) // Ambil 5 produk teratas untuk dropdown
+                                  ->take(5)
                                   ->get(['id', 'nama_produk', 'slug', 'qty', 'stok_minimum', 'img_produk']);
 
         $lowStockCount = Produk::whereColumn('qty', '<=', 'stok_minimum')->count();

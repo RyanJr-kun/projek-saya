@@ -108,7 +108,7 @@
                 <div class="col-md-8 col-12 border-end ">
                     <div class="row mt-3 mx-2">
                         <div class="col-md-8 col-12">
-                            <h6 class="mb-0 text-primary fw-bolder">Selamat Datang, {{ auth()->user()->username }}</h6>
+                            <h6 class="mb-0 text-dark fw-bolder">Selamat Datang, <u class="text-warning">{{ auth()->user()->username }}</u></h6>
                             <p class="text-sm">{{ now()->translatedFormat('l, d F Y') }}</p>
                         </div>
                         <div class="col-md-4 col-12 mt-2 mt-md-0">

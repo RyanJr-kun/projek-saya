@@ -131,6 +131,15 @@
                     <span class="nav-link-text ms-1">Garansi</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('serialNumber.*') ? 'active' : '' }}" href="{{ route('serialNumber.index') }}">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-tags-fill text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Serial Number</span>
+                </a>
+            </li>
+
             <hr class="horizontal dark my-2">
             {{-- Administrasi --}}
             <li class="nav-item">
