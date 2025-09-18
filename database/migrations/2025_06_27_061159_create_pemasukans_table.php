@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('pemasukans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kategori_pemasukan_id')->constrained('kategori_pemasukans');
+            $table->foreignId('kategori_pemasukan_id')->constrained('kategori_pemasukans')->onDelete('restrict');
             $table->date('tanggal');
             $table->decimal('jumlah', 15, 0);
-            $table->string('referensi');
+            $table->string('referensi')->nullable()->unique();
             $table->string('keterangan');
             $table->text('deskripsi')->nullable();
             $table->foreignId('user_id')->constrained('users');

@@ -19,10 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
-
-    window.sidebarType = argonDashboard.sidebarType;
-    window.navbarFixed = argonDashboard.navbarFixed;
-    window.navbarMinimize = argonDashboard.navbarMinimize;
 });
 
 document.addEventListener("DOMContentLoaded", function () {

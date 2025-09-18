@@ -30,7 +30,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index('tanggal_pembelian');
-            $table->index('pemasok_id');
             $table->index('user_id');
         });
     }

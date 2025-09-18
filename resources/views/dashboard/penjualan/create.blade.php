@@ -8,9 +8,11 @@
             <title>Point Of Sales - JO Computer</title>
              @vite(['resources/scss/app.scss', 'resources/js/app.js'])
             <!--     Fonts and icons     -->
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-            <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
+            <script async defer src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
             <script async defer src="https://buttons.github.io/buttons.js"></script>
 
         </head>
@@ -106,10 +108,10 @@
                 <div class="col-md-8 col-12 border-end ">
                     <div class="row mt-3 mx-2">
                         <div class="col-md-8 col-12">
-                            <h6 class="mb-0">Selamat Datang, {{ auth()->user()->username }}</h6>
+                            <h6 class="mb-0 text-primary fw-bolder">Selamat Datang, {{ auth()->user()->username }}</h6>
                             <p class="text-sm">{{ now()->translatedFormat('l, d F Y') }}</p>
                         </div>
-                        <div class="col-md-4 col-8 mt-2 mt-md-0">
+                        <div class="col-md-4 col-12 mt-2 mt-md-0">
                             <div class="ms-md-auto">
                                 <input type="text" id="product-search" class="form-control " placeholder="Cari produk...">
                             </div>
@@ -244,12 +246,16 @@
                                     <p class="text-sm">Subtotal</p>
                                     <p class="text-sm font-weight-bold" id="subtotal">Rp 0</p>
                                 </div>
+                                <div class="d-flex justify-content-between mb-0">
+                                    <p class="text-sm">PPN</p>
+                                    <p class="text-sm font-weight-bold" id="pajak-total-display">Rp 0</p>
+                                </div>
                                 <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editExtraCostModal" data-type="service" data-label="Service">
                                     <p class="text-sm mb-0">Service</p>
                                     <p class="text-sm font-weight-bold mb-0" id="service-display">Rp 0</p>
                                     <input type="hidden" name="service" id="service-input" value="0">
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center my-2" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editExtraCostModal" data-type="ongkir" data-label="Ongkos Kirim">
+                                <div class="d-flex justify-content-between align-items-center my-3" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editExtraCostModal" data-type="ongkir" data-label="Ongkos Kirim">
                                     <p class="text-sm mb-0">Ongkir</p>
                                     <p class="text-sm font-weight-bold mb-0" id="ongkir-display">Rp 0</p>
                                     <input type="hidden" name="ongkir" id="ongkir-input" value="0">
@@ -267,7 +273,16 @@
                                 {{-- Metode Pembayaran & Catatan --}}
 
                                 <div class="row mt-3">
-                                    <div class="col-6 mt-3">
+                                {{-- Pembayaran & Kembalian --}}
+                                    <div class="col-12 d-flex justify-content-between">
+                                        <label for="jumlah-dibayar-input" class="form-label text-sm">Jumlah Dibayar</label>
+                                        <input type="text" name="jumlah_dibayar" id="jumlah-dibayar-input" class="form-control form-control-sm text-end w-30" value="0">
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-between">
+                                        <label class="form-label text-sm">Kembalian</label>
+                                        <p class="form-control-plaintext text-end fw-bold mb-0" id="change-display">Rp 0</p>
+                                    </div>
+                                    <div class="col-6">
                                         <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>
                                         <select name="metode_pembayaran" id="metode_pembayaran" class="form-select" required>
                                             <option value="TUNAI">Tunai</option>
@@ -275,33 +290,16 @@
                                             <option value="QRIS">QRIS</option>
                                         </select>
                                     </div>
-                                    <div class="col-6 mt-3">
-                                        <label for="status_pembayaran_select" class="form-label">Status Pembayaran</label>
-                                        <select name="status_pembayaran" id="status_pembayaran_select" class="form-select" required>
-                                            <option value="Lunas">Lunas</option>
-                                            <option value="Belum Lunas">Belum Lunas</option>
-                                            <option value="Dibatalkan">Dibatalkan</option>
-                                        </select>
-                                    </div>
                                     <div class="col-12 mt-3">
                                         <label for="catatan" class="form-label">Catatan (Opsional)</label>
                                         <textarea name="catatan" id="catatan" class="form-control" rows="2" placeholder="Tambahkan catatan untuk transaksi ini..."></textarea>
-                                    </div>
-                                {{-- Pembayaran & Kembalian --}}
-                                    <div class="col-6">
-                                        <label for="jumlah-dibayar-input" class="form-label">Jumlah Dibayar</label>
-                                        <input type="text" name="jumlah_dibayar" id="jumlah-dibayar-input" class="form-control text-end" value="0">
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label">Kembalian</p>
-                                        <p class="form-control-plaintext text-end fw-bold mb-0" id="change-display">Rp 0</p>
                                     </div>
                                 </div>
 
                                 {{-- Tombol Aksi --}}
                                 <div class="d-flex justify-content-center mt-3">
                                     <button type="button" class="btn btn-info me-3" id="btn-pay-exact">Bayar Pas</button>
-                                    <button type="submit" class="btn btn-success" id="btn-save-transaction">
+                                    <button type="submit" class="btn btn-dark" id="btn-save-transaction">
                                         <i class="fas fa-save me-1"></i> Simpan Transaksi
                                     </button>
                                 </div>
@@ -356,8 +354,8 @@
                                 <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-outlineinfo btn-sm p-3">Tambah Pelanggan</button>
-                                <button type="button" class="btn btn-danger btn-sm p-3" data-bs-dismiss="modal">Batalkan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm p-2">Tambah Pelanggan</button>
+                                <button type="button" class="btn btn-danger btn-sm p-2" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
                     </div>
@@ -393,10 +391,11 @@
                                     <input type="text" class="form-control" id="edit-item-diskon" placeholder="0">
                                 </div>
                                 <div class="col-6">
-                                    <label for="edit-item-pajak-persen" class="form-label">Pajak (%)</label>
-                                    <select class="form-select" id="edit-item-pajak-persen">
+                                    <label for="edit-item-pajak-id" class="form-label">Pajak</label>
+                                    <select class="form-select" id="edit-item-pajak-id">
+                                        <option value="" data-rate="0" selected>Tidak Ada</option>
                                         @foreach($pajaks as $pajak)
-                                            <option value="{{ $pajak->rate }}">{{ $pajak->nama_pajak }}</option>
+                                            <option value="{{ $pajak->id }}" data-rate="{{ $pajak->rate }}">{{ $pajak->nama_pajak }} ({{ $pajak->rate }}%)</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -575,7 +574,8 @@
                                 jumlah: 1,
                                 harga_jual: harga, // Harga jual yang bisa diedit
                                 diskon: 0,
-                                pajak_persen: 0,
+                                pajak_id: null,
+                                pajak_rate: 0,
                             });
                         } else {
                             alert(`${nama} kehabisan stok.`);
@@ -619,14 +619,14 @@
                     } else {
                         let formIndex = 0;
                         cart.forEach(item => {
-                            const subtotalItem = (item.harga_jual * item.jumlah) - item.diskon;
+                            const subtotalItem = (item.harga_jual * item.jumlah) - item.diskon; // Subtotal sebelum pajak
                             const itemHtml = `
                                 <tr class="cart-item-row">
                                     <input type="hidden" name="items[${formIndex}][produk_id]" value="${item.id}">
                                     <input type="hidden" name="items[${formIndex}][jumlah]" value="${item.jumlah}">
                                     <input type="hidden" name="items[${formIndex}][harga_jual]" value="${item.harga_jual}">
                                     <input type="hidden" name="items[${formIndex}][diskon]" value="${item.diskon}">
-                                    <input type="hidden" name="items[${formIndex}][pajak_persen]" value="${item.pajak_persen}">
+                                    <input type="hidden" name="items[${formIndex}][pajak_id]" value="${item.pajak_id || ''}">
                                     <td style="width: 80%;">
                                         <div class="d-flex align-items-center">
                                             <img src="${item.img}" class="avatar avatar-sm rounded me-2" alt="product image">
@@ -671,22 +671,23 @@
 
                 const calculateTotals = () => {
                     let subtotal = 0;
-                    let totalPajakItem = 0;
+                    let totalPajak = 0;
                     cart.forEach(item => {
-                        const itemSubtotal = (item.harga_jual * item.jumlah) - item.diskon;
-                        subtotal += itemSubtotal;
-                        totalPajakItem += itemSubtotal * (item.pajak_persen / 100);
+                        const hargaTotalItem = item.harga_jual * item.jumlah;
+                        const dpp = hargaTotalItem / (1 + item.pajak_rate / 100); // Dasar Pengenaan Pajak
+                        const pajakItem = hargaTotalItem - dpp;
+
+                        subtotal += dpp;
+                        totalPajak += pajakItem;
                     });
 
                     const service = parseFloat(serviceInput.value) || 0;
                     const ongkir = parseFloat(ongkirInput.value) || 0;
                     const diskon = parseFloat(diskonInput.value) || 0;
-                    // const pajakPercent = parseFloat(pajakInput.value) || 0; // Pajak global
-
-                    const subtotalAfterDiskon = subtotal - diskon;
-                    const total = subtotalAfterDiskon + service + ongkir; // + (subtotalAfterDiskon * (pajakPercent / 100));
+                    const total = (subtotal + totalPajak + service + ongkir) - diskon;
 
                     subtotalEl.textContent = formatCurrency(subtotal);
+                    document.getElementById('pajak-total-display').textContent = formatCurrency(totalPajak);
                     totalAkhirEl.textContent = formatCurrency(total);
 
                     calculateChange(); // Panggil kalkulasi kembalian
@@ -814,7 +815,7 @@
                     document.getElementById('edit-item-nama').value = item.nama;
                     editItemHargaInput.value = new Intl.NumberFormat('id-ID').format(item.harga_jual);
                     editItemDiskonInput.value = new Intl.NumberFormat('id-ID').format(item.diskon);
-                    document.getElementById('edit-item-pajak-persen').value = String(item.pajak_persen); // Pastikan nilai cocok dengan opsi select
+                    document.getElementById('edit-item-pajak-id').value = item.pajak_id || '';
 
                     editItemModal.show();
                 }
@@ -829,7 +830,11 @@
 
                     item.harga_jual = parseFloat(editItemHargaInput.value.replace(/[^0-9]/g, '')) || item.harga;
                     item.diskon = parseFloat(editItemDiskonInput.value.replace(/[^0-9]/g, '')) || 0;
-                    item.pajak_persen = parseFloat(document.getElementById('edit-item-pajak-persen').value) || 0;
+
+                    const pajakSelect = document.getElementById('edit-item-pajak-id');
+                    const selectedPajak = pajakSelect.options[pajakSelect.selectedIndex];
+                    item.pajak_id = selectedPajak.value ? parseInt(selectedPajak.value) : null;
+                    item.pajak_rate = parseFloat(selectedPajak.dataset.rate) || 0;
 
                     updateCartAndTotals();
                     editItemModal.hide();
@@ -889,6 +894,7 @@
                         kontak: addCustomerForm.querySelector('#kontak').value,
                         email: addCustomerForm.querySelector('#email').value,
                         alamat: addCustomerForm.querySelector('#alamat').value,
+                        status: addCustomerForm.querySelector('#status').checked
                     };
 
                     try {
@@ -924,7 +930,7 @@
                             }
                         } else {
                             // 5. Tangani respons sukses (status 201)
-                            const newPelanggan = result.pelanggan;
+                            const newPelanggan = result.data;
 
                             // Tambahkan pelanggan baru ke dropdown dan langsung pilih
                             const newOption = new Option(newPelanggan.nama, newPelanggan.id, true, true);

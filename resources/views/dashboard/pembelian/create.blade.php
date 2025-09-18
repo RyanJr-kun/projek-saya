@@ -263,11 +263,11 @@
                                 <input type="text" class="form-control" id="edit-item-harga-jual" placeholder="0">
                             </div>
                             <div class="col-6">
-                                <label for="edit-item-pajak-persen" class="form-label">Pajak</label>
-                                <select class="form-select" id="edit-item-pajak-persen">
-                                    <option value="0" selected>Tidak ada</option>
+                                <label for="edit-item-pajak-id" class="form-label">Pajak</label>
+                                <select class="form-select" id="edit-item-pajak-id">
+                                    <option value="" data-rate="0" selected>Tidak ada</option>
                                     @foreach($pajaks as $pajak)
-                                        <option value="{{ $pajak->rate }}">{{ $pajak->nama_pajak }} ({{ $pajak->rate }}%)</option>
+                                        <option value="{{ $pajak->id }}" data-rate="{{ $pajak->rate }}">{{ $pajak->nama_pajak }} ({{ $pajak->rate }}%)</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -401,13 +401,14 @@
                         const imageUrl = produkImg ? `{{ asset('storage/') }}/${produkImg}` : defaultImage;
 
                         const newRow = `
-                            <tr data-produk-id="${produkId}" data-pajak-persen="0" data-diskon="0">
+                            <tr data-produk-id="${produkId}" data-diskon="0">
                                 <input type="hidden" name="items[${itemCounter}][produk_id]" value="${produkId}">
                                 <input type="hidden" name="items[${itemCounter}][qty]" class="item-qty-hidden" value="${qtyToAdd}">
                                 <input type="hidden" name="items[${itemCounter}][harga_beli]" class="item-harga-hidden" value="${hargaBeli}">
                                 <input type="hidden" name="items[${itemCounter}][harga_jual]" class="item-harga-jual-hidden" value="${hargaJual}">
                                 <input type="hidden" name="items[${itemCounter}][diskon]" class="item-diskon-hidden" value="0">
-                                <input type="hidden" name="items[${itemCounter}][pajak_persen]" class="item-pajak-hidden" value="0">
+                                <input type="hidden" name="items[${itemCounter}][pajak_id]" class="item-pajak-id-hidden" value="">
+                                <input type="hidden" class="item-pajak-rate-hidden" value="0">
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <img src="${imageUrl}" class="avatar avatar-sm me-3" alt="${produkNama}">
@@ -448,9 +449,9 @@
                     const qty = parseFloat(row.find(".item-qty-hidden").val()) || 0;
                     const hargaBeli = parseFloat(row.find(".item-harga-hidden").val()) || 0;
                     const diskon = parseFloat(row.find(".item-diskon-hidden").val()) || 0;
-                    const pajakPersen = parseFloat(row.find(".item-pajak-hidden").val()) || 0;
+                    const pajakRate = parseFloat(row.find(".item-pajak-rate-hidden").val()) || 0;
 
-                    const pajakAmount = ((qty * hargaBeli) - diskon) * (pajakPersen / 100);
+                    const pajakAmount = ((qty * hargaBeli) - diskon) * (pajakRate / 100);
                     const subtotal = (qty * hargaBeli) - diskon;
 
                     row.find(".item-pajak").text(formatCurrency(pajakAmount));
@@ -464,9 +465,9 @@
                         const qty = parseFloat($(this).find(".item-qty-hidden").val()) || 0;
                         const hargaBeli = parseFloat($(this).find(".item-harga-hidden").val()) || 0;
                         const diskon = parseFloat($(this).find(".item-diskon-hidden").val()) || 0;
-                        const pajakPersen = parseFloat($(this).find(".item-pajak-hidden").val()) || 0;
+                        const pajakRate = parseFloat($(this).find(".item-pajak-rate-hidden").val()) || 0;
                         subtotalKeseluruhan += (qty * hargaBeli) - diskon;
-                        totalPajak += ((qty * hargaBeli) - diskon) * (pajakPersen / 100);
+                        totalPajak += ((qty * hargaBeli) - diskon) * (pajakRate / 100);
                     });
 
                     $("#subtotal-keseluruhan").text(formatCurrency(subtotalKeseluruhan));
@@ -541,7 +542,7 @@
                     $("#edit-item-harga").val(new Intl.NumberFormat('id-ID').format(row.find(".item-harga-hidden").val()));
                     $("#edit-item-harga-jual").val(new Intl.NumberFormat('id-ID').format(row.find(".item-harga-jual-hidden").val()));
                     $("#edit-item-diskon").val(new Intl.NumberFormat('id-ID').format(row.find(".item-diskon-hidden").val()));
-                    $("#edit-item-pajak-persen").val(row.find(".item-pajak-hidden").val());
+                    $("#edit-item-pajak-id").val(row.find(".item-pajak-id-hidden").val());
 
                     editItemModal.show();
                 });
@@ -555,7 +556,10 @@
                     row.find(".item-harga-hidden").val(parseCurrency($("#edit-item-harga").val()));
                     row.find(".item-harga-jual-hidden").val(parseCurrency($("#edit-item-harga-jual").val()));
                     row.find(".item-diskon-hidden").val(parseCurrency($("#edit-item-diskon").val()));
-                    row.find(".item-pajak-hidden").val($("#edit-item-pajak-persen").val());
+
+                    const selectedPajak = $("#edit-item-pajak-id option:selected");
+                    row.find(".item-pajak-id-hidden").val(selectedPajak.val());
+                    row.find(".item-pajak-rate-hidden").val(selectedPajak.data('rate'));
 
                     updateRowDisplay(row);
                     editItemModal.hide();

@@ -31,29 +31,20 @@ class ProdukFactory extends Factory
         $hargaBeli = $hargaJual * $this->faker->randomFloat(2, 0.7, 0.9); // harga beli 70-90% dari harga jual
 
         return [
-            // Kolom utama produk
             'nama_produk' => ucwords($namaProduk),
             'slug' => Str::slug($namaProduk) . '-' . $this->faker->unique()->randomNumber(5),
             'barcode' => $this->faker->unique()->ean13(),
             'sku' => 'SKU-' . $this->faker->unique()->bothify('??##??'),
             'deskripsi' => $this->faker->paragraph(),
-
-            // Kolom harga dan stok
             'harga_jual' => $hargaJual,
             'harga_beli' => $hargaBeli,
             'qty' => $this->faker->numberBetween(10, 200),
             'stok_minimum' => $this->faker->numberBetween(1, 10),
-
-            // Kolom relasi (foreign keys)
-            // Pastikan tabel-tabel ini sudah memiliki data (sudah di-seed)
             'kategori_produk_id' => KategoriProduk::inRandomOrder()->first()->id,
             'brand_id' => Brand::inRandomOrder()->first()->id,
             'unit_id' => Unit::inRandomOrder()->first()->id,
             'garansi_id' => Garansi::inRandomOrder()->first()->id,
-            'pajak_id' => Pajak::inRandomOrder()->first()->id,
-            'user_id' => User::inRandomOrder()->first()->id ?? User::factory(), // Mengambil user acak atau membuat baru jika tidak ada
-
-            // Kolom gambar (sesuai permintaan, di-set null)
+            'user_id' => User::inRandomOrder()->first()->id ?? User::factory(),
             'img_produk' => null,
         ];
     }

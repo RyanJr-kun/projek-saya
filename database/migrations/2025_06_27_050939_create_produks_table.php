@@ -28,11 +28,13 @@ return new class extends Migration
             $table->foreignId('unit_id')->constrained('units')->onDelete('restrict');
             $table->foreignId('garansi_id')->constrained('garansis')->onDelete('restrict');
             $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('pajak_id')->nullable()->constrained('pajaks');
             $table->timestamps();
 
             $table->index('kategori_produk_id');
             $table->index('brand_id');
             $table->index('unit_id');
+            $table->index('pajak_id');
             $table->index('garansi_id');
         });
     }

@@ -41,7 +41,13 @@ class PelangganController extends Controller
             'alamat' => 'nullable|string',
         ]);
 
-        $validatedData['status'] = $request->has('status');
+        // Handle 'status' for both form submission and JSON request
+        if ($request->isJson()) {
+            $validatedData['status'] = $request->input('status', true); // Default to true if not present
+        } else {
+            $validatedData['status'] = $request->has('status');
+        }
+
         $pelanggan = Pelanggan::create($validatedData);
 
         if ($request->wantsJson() || $request->ajax()) {

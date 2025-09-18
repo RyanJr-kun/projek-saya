@@ -16,11 +16,11 @@ class PelangganSeeder extends Seeder
     {
         Pelanggan::updateOrCreate(
             [
-                'id' => 1 // Kunci untuk mencari data
+                'id' => 1
             ],
             [
                 'nama' => 'Pelanggan Umum',
-                'kontak' => '0000', // Gunakan nilai unik sebagai placeholder
+                'kontak' => null,
                 'email' => null,
                 'alamat' => null,
                 'status' => true,

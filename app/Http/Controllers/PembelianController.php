@@ -82,11 +82,15 @@ class PembelianController extends Controller
             'items.*.harga_beli' => 'required|numeric|min:0',
             'items.*.harga_jual' => 'required|numeric|min:0',
             'items.*.diskon' => 'nullable|numeric|min:0',
-            'items.*.pajak_persen' => 'nullable|numeric|min:0',
+            'items.*.pajak_id' => 'nullable|exists:pajaks,id',
         ]);
 
         try {
-            $pembelian = DB::transaction(function () use ($validatedData, $request) {
+            // Ambil data pajak yang relevan dalam satu query untuk efisiensi
+            $pajakIds = collect($validatedData['items'])->pluck('pajak_id')->filter()->unique();
+            $pajaksData = Pajak::whereIn('id', $pajakIds)->get()->keyBy('id');
+
+            $pembelian = DB::transaction(function () use ($validatedData, $request, $pajaksData) {
                 // 1. Ambil semua produk yang relevan dalam satu query
                 $produkIds = collect($validatedData['items'])->pluck('produk_id');
                 $produks = Produk::whereIn('id', $produkIds)->get()->keyBy('id');
@@ -98,10 +102,11 @@ class PembelianController extends Controller
                     $harga_beli = $itemData['harga_beli'];
                     $qty = $itemData['qty'];
                     $diskon_item = $itemData['diskon'] ?? 0;
-                    $pajak_item_persen = $itemData['pajak_persen'] ?? 0;
+                    $pajak_id = $itemData['pajak_id'] ?? null;
+                    $pajak_rate = $pajak_id ? ($pajaksData->get($pajak_id)->rate ?? 0) : 0;
 
                     $subtotal_item = ($harga_beli * $qty) - $diskon_item;
-                    $pajak_amount_item = $subtotal_item * ($pajak_item_persen / 100);
+                    $pajak_amount_item = $subtotal_item * ($pajak_rate / 100);
 
                     $subtotal_keseluruhan += $subtotal_item;
                     $total_pajak_item += $pajak_amount_item;
@@ -154,25 +159,21 @@ class PembelianController extends Controller
                         'qty' => $itemData['qty'],
                         'harga_beli' => $itemData['harga_beli'],
                         'diskon' => $itemData['diskon'] ?? 0,
+                        'pajak_id' => $itemData['pajak_id'] ?? null,
                         'subtotal' => $subtotal_item,
                     ]);
                     // Ambil model produk yang sesuai
                     $produk = $produks->get($itemData['produk_id']);
 
-                    // Temukan pajak_id berdasarkan rate
-                    $pajak_persen = $itemData['pajak_persen'] ?? 0;
-                    $pajak = Pajak::where('rate', $pajak_persen)->first();
-
                     // Update data di tabel produk master
                     $produk->harga_beli = $itemData['harga_beli'];
                     $produk->harga_jual = $itemData['harga_jual'];
-                    $produk->pajak_id = $pajak ? $pajak->id : $produk->pajak_id; // Update pajak jika ditemukan
 
                     // Tambah stok hanya jika status barang 'Diterima'
                     if ($validatedData['status_barang'] === 'Diterima') {
                         $produk->qty += $itemData['qty'];
                     }
-                    $produk->save(); // Simpan perubahan (harga beli dan/atau stok)
+                    $produk->save(); // Simpan perubahan (harga beli, harga jual, dan/atau stok)
                 }
 
                 return $pembelian;
@@ -229,17 +230,20 @@ class PembelianController extends Controller
             'ongkir' => 'nullable|numeric|min:0',
             'diskon_tambahan' => 'nullable|numeric|min:0',
             'catatan' => 'nullable|string',
-            'pajak_persen' => 'nullable|numeric|min:0',
             'items' => 'required|array|min:1',
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.qty' => 'required|integer|min:1',
             'items.*.harga_beli' => 'required|numeric|min:0',
             'items.*.harga_jual' => 'required|numeric|min:0',
             'items.*.diskon' => 'nullable|numeric|min:0',
+            'items.*.pajak_id' => 'nullable|exists:pajaks,id',
         ]);
 
         try {
-            DB::transaction(function () use ($validatedData, $pembelian) {
+            $pajakIds = collect($validatedData['items'])->pluck('pajak_id')->filter()->unique();
+            $pajaksData = Pajak::whereIn('id', $pajakIds)->get()->keyBy('id');
+
+            DB::transaction(function () use ($validatedData, $pembelian, $pajaksData) {
                 // --- MANAJEMEN STOK ---
                 // a. Kembalikan stok dari item-item lama, HANYA jika status barang sebelumnya 'Diterima'
                 if ($pembelian->status_barang === 'Diterima') {
@@ -268,9 +272,11 @@ class PembelianController extends Controller
                 $subtotal_keseluruhan = 0;
                 $total_pajak_item = 0;
                 foreach ($validatedData['items'] as $itemData) {
-                    $pajak_item_persen = $itemData['pajak_persen'] ?? 0;
+                    $pajak_id = $itemData['pajak_id'] ?? null;
+                    $pajak_rate = $pajak_id ? ($pajaksData->get($pajak_id)->rate ?? 0) : 0;
+
                     $subtotal_item = ($itemData['harga_beli'] * $itemData['qty']) - ($itemData['diskon'] ?? 0);
-                    $pajak_amount_item = $subtotal_item * ($pajak_item_persen / 100);
+                    $pajak_amount_item = $subtotal_item * ($pajak_rate / 100);
 
                     $subtotal_keseluruhan += $subtotal_item;
                     $total_pajak_item += $pajak_amount_item;
@@ -317,18 +323,15 @@ class PembelianController extends Controller
                         'qty' => $itemData['qty'],
                         'harga_beli' => $itemData['harga_beli'],
                         'diskon' => $itemData['diskon'] ?? 0,
+                        'pajak_id' => $itemData['pajak_id'] ?? null,
                         'subtotal' => $subtotal_item,
                     ]);
 
                     // Update data master produk
                     $produk = $produks->get($itemData['produk_id']);
                     if ($produk) {
-                        $pajak_persen = $itemData['pajak_persen'] ?? 0;
-                        $pajak = Pajak::where('rate', $pajak_persen)->first();
-
                         $produk->harga_beli = $itemData['harga_beli'];
                         $produk->harga_jual = $itemData['harga_jual'];
-                        $produk->pajak_id = $pajak ? $pajak->id : $produk->pajak_id;
                         $produk->save();
                     }
                 }

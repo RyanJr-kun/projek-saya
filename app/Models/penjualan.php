@@ -19,6 +19,8 @@ class Penjualan extends Model
         'diskon' => 'float',
         'pajak' => 'float',
         'total_akhir' => 'float',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     protected function total(): Attribute
