@@ -12,14 +12,27 @@ use Illuminate\Validation\Rule; // <-- Tambahkan ini
 
 class SerialNumberController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, $produk_slug = null) // Terima parameter slug
     {
         $query = SerialNumber::with(['produk', 'penjualan'])->latest();
+        $produkDipilih = null; // Variabel untuk menampung produk yang dipilih via slug
 
+        // Jika ada slug dari URL, cari produknya
+        if ($produk_slug) {
+            // PERBAIKAN: Gunakan withCount untuk efisiensi query saat menghitung SN di view.
+            $produkDipilih = Produk::withCount('serialNumbers')->where('slug', $produk_slug)->first();
+            // Jika produk ditemukan, langsung filter daftar SN untuk produk tersebut
+            if ($produkDipilih) {
+                $query->where('produk_id', $produkDipilih->id);
+            }
+        }
+
+        // Filter lainnya tetap berfungsi seperti biasa
         if ($request->filled('search')) {
             $query->where('nomor_seri', 'like', '%' . $request->search . '%');
         }
 
+        // Filter produk dari dropdown akan menimpa filter dari slug jika digunakan
         if ($request->filled('produk_id')) {
             $query->where('produk_id', $request->produk_id);
         }
@@ -31,10 +44,11 @@ class SerialNumberController extends Controller
         $serialNumbers = $query->paginate(15)->withQueryString();
         $produks = Produk::where('wajib_seri', true)->orderBy('nama_produk')->get();
 
-        return view('dashboard.inventaris.serialNumber.index', [
+        return view('dashboard.inventaris.serialNumber', [
             'title' => 'Manajemen Nomor Seri',
             'serialNumbers' => $serialNumbers,
             'produks' => $produks,
+            'produkDipilih' => $produkDipilih, // Kirim produk yang dipilih ke view
         ]);
     }
 
@@ -159,34 +173,88 @@ class SerialNumberController extends Controller
         }
     }
 
+    /**
+     * Mengambil informasi detail produk untuk halaman manajemen Serial Number.
+     * Didesain untuk dipanggil via AJAX.
+     *
+     * @param  \App\Models\Produk  $produk
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getProductInfoForSerial($produk_id)
+    {
+        $produk = Produk::find($produk_id);
+
+        // Jika produk tidak ditemukan, kirim respons JSON yang jelas, bukan 404.
+        if (!$produk) {
+            return response()->json(['message' => 'Produk tidak ditemukan.'], 404);
+        }
+
+        // Hitung SN yang masih dianggap sebagai aset (bukan terjual atau hilang)
+        $snTerdaftar = $produk->serialNumbers()
+                              ->whereNotIn('status', ['Terjual', 'Hilang'])
+                              ->count();
+
+        return response()->json([
+            'qty' => $produk->qty,
+            'sn_tercatat_count' => $snTerdaftar,
+            'butuh_sn' => max(0, $produk->qty - $snTerdaftar), // Pastikan tidak mengembalikan angka negatif
+        ]);
+    }
+
     // --- PERBAIKAN: Isi method update ---
     public function update(Request $request, SerialNumber $serialNumber)
     {
         $validated = $request->validate([
             'serial_number' => [
                 'required',
-                // Pastikan unik, kecuali untuk dirinya sendiri
+                // Pastikan unik untuk produk yang sama, kecuali untuk dirinya sendiri
                 Rule::unique('serial_numbers', 'nomor_seri')->where('produk_id', $serialNumber->produk_id)->ignore($serialNumber->id),
             ],
-            'status' => 'required|in:Tersedia,Rusak,Hilang', // Batasi status yang bisa diubah dari sini
+            // Batasi status yang bisa diubah. 'Terjual' tidak bisa diubah dari sini
+            // karena seharusnya diatur oleh transaksi penjualan.
+            'status' => 'required|in:Tersedia,Rusak,Hilang',
         ]);
 
+        // Memulai transaksi database untuk menjaga integritas data
+        DB::beginTransaction();
         try {
-            // Map the validated 'serial_number' from the request to the 'nomor_seri' database column.
-            $dataToUpdate = [
+            // 1. Simpan status lama sebelum ada perubahan
+            $old_status = $serialNumber->status;
+            $new_status = $validated['status'];
+
+            // 2. Update data nomor seri
+            $serialNumber->update([
                 'nomor_seri' => $validated['serial_number'],
-                'status' => $validated['status'],
-            ];
-            $serialNumber->update($dataToUpdate);
+                'status' => $new_status,
+            ]);
+
+            // 3. Logika penyesuaian stok produk
+            // Jika status berubah MENJADI 'Hilang' atau 'Rusak' (dari status apapun yang bukan itu)
+            if (($new_status === 'Hilang' || $new_status === 'Rusak') && ($old_status !== 'Hilang' && $old_status !== 'Rusak')) {
+                $serialNumber->produk->decrement('qty');
+            }
+            // Jika status berubah DARI 'Hilang' atau 'Rusak' MENJADI 'Tersedia' (misal: barang ditemukan kembali)
+            else if (($old_status === 'Hilang' || $old_status === 'Rusak') && $new_status === 'Tersedia') {
+                $serialNumber->produk->increment('qty');
+            }
+            // Tidak ada perubahan stok jika status tidak berubah, atau jika perubahannya antara Rusak dan Hilang.
+
+            // Jika semua berhasil, commit transaksi
+            DB::commit();
+
             return response()->json([
                 'success' => true,
-                'message' => 'Nomor seri berhasil diperbarui.'
+                'message' => 'Nomor seri berhasil diperbarui dan stok telah disesuaikan.'
             ]);
+
         } catch (\Exception $e) {
+            // Jika terjadi error, batalkan semua perubahan
+            DB::rollBack();
+
             Log::error('Error update serial number: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui nomor seri.'
+                'message' => 'Gagal memperbarui nomor seri. Terjadi kesalahan pada server.'
             ], 500);
         }
     }
@@ -216,4 +284,30 @@ class SerialNumberController extends Controller
             ], 500);
         }
     }
+
+     public function getByProduct($produk_id)
+    {
+        // Pastikan ini adalah request AJAX untuk keamanan
+        if (!request()->ajax()) {
+            return response()->json(['error' => 'Invalid request'], 400);
+        }
+        try {
+            // PERBAIKAN: Cari produk secara manual berdasarkan ID
+            $produk = Produk::find($produk_id);
+
+            // Jika produk tidak ditemukan, kirim respons yang jelas, bukan 404
+            if (!$produk) {
+                return response()->json(['error' => 'Produk tidak ditemukan.'], 404);
+            }
+
+            $serialNumbers = SerialNumber::where('produk_id', $produk_id)
+                                         ->where('status', 'Tersedia')
+                                         ->pluck('nomor_seri'); // Ambil hanya kolom nomor_seri
+
+            return response()->json($serialNumbers);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal mengambil data nomor seri.'], 500);
+        }
+    }
+
 }

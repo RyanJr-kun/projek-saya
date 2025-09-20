@@ -19,7 +19,7 @@ class BrandController extends Controller
     {
         return view('dashboard.inventaris.brand',[
             'title' => 'Data Brand',
-            'brands' => Brand::withCount('produks')->latest()->paginate(10)
+            'brands' => Brand::withCount('produks')->latest()->paginate(20)
         ]);
     }
 
@@ -39,7 +39,6 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            // Menambahkan validasi untuk memastikan path gambar adalah dari FilePond
             'img_brand' => 'nullable|string|starts_with:tmp/',
             'nama' => 'required|max:255|unique:brands',
             'slug' => 'required|max:255|unique:brands',
@@ -63,19 +62,25 @@ class BrandController extends Controller
         }
 
         $validatedData['status'] = $request->has('status');
-        Brand::create($validatedData);
-        Alert::success('Berhasil', 'Brand Baru Berhasil Ditambahkan.');
+        $brand = Brand::create($validatedData);
 
+        // Cek jika request adalah AJAX
         if ($request->wantsJson()) {
-            return response()->json(['message' => 'Brand created successfully.']);
+            // Muat relasi dan format tanggal untuk konsistensi
+            $brand->loadCount('produks');
+            $brand->created_at_formatted = $brand->created_at->translatedFormat('d M Y');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Brand baru berhasil ditambahkan.',
+                'data'    => $brand
+            ], 201);
         }
 
+        // Respons standar jika bukan AJAX
+        Alert::success('Berhasil', 'Brand Baru Berhasil Ditambahkan.');
         return redirect()->route('brand.index');
     }
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Brand $brand)
     {
         //
@@ -136,6 +141,18 @@ class BrandController extends Controller
 
         $validatedData['status'] = $request->has('status');
         $brand->update($validatedData);
+
+        if ($request->wantsJson()) {
+            $brand->loadCount('produks');
+            $brand->created_at_formatted = $brand->created_at->translatedFormat('d M Y');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data Brand Berhasil Diperbarui.',
+                'data'    => $brand
+            ]);
+        }
+
         Alert::success('Berhasil', 'Data Brand Berhasil Diperbarui.');
         return redirect()->route('brand.index');
     }
@@ -145,14 +162,25 @@ class BrandController extends Controller
      */
     public function destroy(Brand $brand)
     {
-        if ($brand->produks()->count() > 0) {
-        Alert::error('Gagal','brand tidak dapat dihapus karena masih memiliki produk terkait!');
-        return back();
-    }
+        if ($brand->produks()->exists()) {
+            $message = 'Brand tidak dapat dihapus karena masih memiliki produk terkait!';
+            if (request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+            Alert::error('Gagal', $message);
+            return back();
+        }
+
         if ($brand->img_brand) {
-        Storage::disk('public')->delete($brand->img_brand);
-    }
+            Storage::disk('public')->delete($brand->img_brand);
+        }
+
         $brand->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Data Brand Berhasil Dihapus.']);
+        }
+
         Alert::success('Berhasil', 'Data Brand Berhasil Dihapus.');
         return redirect()->route('brand.index');
     }

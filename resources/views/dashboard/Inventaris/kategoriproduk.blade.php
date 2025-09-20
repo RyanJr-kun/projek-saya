@@ -4,6 +4,7 @@
         <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
         <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
     @endpush
+
     @section('breadcrumb')
         @php
         $breadcrumbItems = [
@@ -57,7 +58,7 @@
                         </thead>
                         <tbody id="isiTable">
                             @foreach ($kategoris as $kategori)
-                            <tr>
+                            <tr id="kategori-row-{{ $kategori->slug }}">
                                 <td>
                                     <div title="image & Nama Kategori" class="d-flex align-items-center px-2 py-1">
                                         @if ($kategori->img_kategori)
@@ -97,7 +98,7 @@
                                         title="Edit kategori">
                                         <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
                                     </a>
-                                    <a href="#" class="text-dark delete-user-btn"
+                                    <a href="#" class="text-dark delete-btn"
                                         data-bs-toggle="modal"
                                         data-bs-target="#deleteConfirmationModal"
                                         data-kategori-slug="{{ $kategori->slug }}"
@@ -108,6 +109,13 @@
                                 </td>
                             </tr>
                             @endforeach
+                            @if($kategoris->isEmpty())
+                                <tr id="kategori-row-empty">
+                                    <td colspan="6" class="text-center py-4">
+                                        <p class="text-dark text-sm fw-bold mb-0">Belum ada data kategori.</p>
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                     <div class="my-3 ms-3">{{ $kategoris->onEachSide(2)->links() }}</div>
@@ -222,6 +230,7 @@
         </div>
     </div>
     @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
         <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
         <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
@@ -229,6 +238,37 @@
         <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
         <script>
+            // Fungsi untuk membuat baris tabel baru dari data
+            function createTableRow(kategori) {
+                const statusBadge = kategori.status ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-secondary">Tidak Aktif</span>';
+                const imageUrl = kategori.img_kategori ? `{{ asset('storage') }}/${kategori.img_kategori}` : `{{ asset('assets/img/produk.webp') }}`;
+                const editUrl = `{{ url('kategoriproduk/getjson') }}/${kategori.slug}`;
+                const updateUrl = `{{ url('kategoriproduk') }}/${kategori.slug}`;
+
+                return `
+                    <tr id="kategori-row-${kategori.slug}">
+                        <td>
+                            <div title="image & Nama Kategori" class="d-flex align-items-center px-2 py-1">
+                                <img src="${imageUrl}" class="avatar avatar-sm me-3" alt="${kategori.nama}">
+                                <h6 class="mb-0 text-sm">${kategori.nama}</h6>
+                            </div>
+                        </td>
+                        <td><p title="kategori slug" class="text-xs text-dark fw-bold mb-0">${kategori.slug}</p></td>
+                        <td><p class="text-xs text-dark fw-bold mb-0">${kategori.produks_count}</p></td>
+                        <td class="align-middle"><span class="text-dark text-xs fw-bold">${kategori.created_at_formatted}</span></td>
+                        <td class="align-middle text-center text-sm">${statusBadge}</td>
+                        <td class="align-middle">
+                            <a href="#" class="text-dark fw-bold px-3 text-xs" data-bs-toggle="modal" data-bs-target="#editModal" data-url="${editUrl}" data-update-url="${updateUrl}" title="Edit kategori">
+                                <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
+                            </a>
+                            <a href="#" class="text-dark delete-btn" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-kategori-slug="${kategori.slug}" data-kategori-name="${kategori.nama}" title="Hapus kategori">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
                 // --- FILEPOND SETUP ---
                 FilePond.registerPlugin(
@@ -298,28 +338,40 @@
                                 body: formData
                             })
                             .then(response => {
-                                if (response.ok) {
-                                    window.location.reload();
-                                } else if (response.status === 422) {
-                                    return response.json().then(data => {
+                                if (!response.ok) {
+                                    return response.json().then(data => { throw data; });
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    const tableBody = document.getElementById('isiTable');
+                                    const newRowHtml = createTableRow(data.data);
+                                    tableBody.insertAdjacentHTML('afterbegin', newRowHtml);
+                                    document.getElementById('kategori-row-empty')?.remove();
+
+                                    const modalInstance = bootstrap.Modal.getInstance(createModal);
+                                    modalInstance.hide();
+
+                                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, showConfirmButton: false, timer: 1500 });
+                                }
+                            })
+                            .catch(errorData => {
+                                if (errorData.errors) {
                                         Object.keys(data.errors).forEach(key => {
                                             const input = createForm.querySelector(`[name="${key}"]`);
                                             const errorDiv = createForm.querySelector(`#${key}-error`);
-                                            if (input) {
-                                                input.classList.add('is-invalid');
-                                            }
-                                            if (errorDiv) {
-                                                errorDiv.textContent = data.errors[key][0];
-                                            }
+                                            if (input) input.classList.add('is-invalid');
+                                            if (errorDiv) errorDiv.textContent = errorData.errors[key][0];
                                         });
-                                    });
+                                } else {
+                                    Swal.fire({ icon: 'error', title: 'Gagal!', text: errorData.message || 'Terjadi kesalahan server.' });
                                 }
-                            })
-                            .catch(error => console.error('An unexpected error occurred:', error));
+                            });
                         });
                     }
 
-                    // Event listener untuk slug otomatis
+                    // Slug otomatis
                     namaInput.addEventListener('change', function() {
                         fetch(`/dashboard/kategoriproduk/chekSlug?nama=${namaInput.value}`)
                             .then(response => response.json())
@@ -347,6 +399,7 @@
                 // --- MODAL EDIT ---
                 const editModal = document.getElementById('editModal');
                 let editPond = null;
+                const csrfToken = '{{ csrf_token() }}';
 
                 if (editModal) {
                     const editForm = editModal.querySelector('#editKategoriForm');
@@ -359,6 +412,7 @@
                         const dataUrl = button.getAttribute('data-url');
                         const updateUrl = button.getAttribute('data-update-url');
 
+                        // Set action form untuk update
                         editForm.action = updateUrl;
 
                         fetch(dataUrl)
@@ -387,12 +441,12 @@
                                     labelMaxFileSize: 'Ukuran file maksimum adalah 2MB',
                                     server: {
                                         process: {
-                                            url: '/dashboard/kategoriproduk/upload',
-                                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                            url: '{{ route("kategoriproduk.upload") }}',
+                                            headers: { 'X-CSRF-TOKEN': csrfToken }
                                         },
                                         revert: {
-                                            url: '/dashboard/kategoriproduk/revert',
-                                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                            url: '{{ route("kategoriproduk.revert") }}',
+                                            headers: { 'X-CSRF-TOKEN': csrfToken }
                                         }
                                     }
                                 });
@@ -418,6 +472,40 @@
                             .catch(error => console.error('Error fetching kategori data:', error));
                     });
 
+                    editForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
+                        const updateUrl = this.action;
+
+                        fetch(updateUrl, {
+                            method: 'POST', // Laravel handles PUT/PATCH via _method field
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const updatedRow = createTableRow(data.data);
+                                const oldRow = document.getElementById(`kategori-row-${data.data.slug}`);
+                                if (oldRow) {
+                                    oldRow.outerHTML = updatedRow;
+                                }
+                                bootstrap.Modal.getInstance(editModal).hide();
+                                Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, showConfirmButton: false, timer: 1500 });
+                            } else {
+                                // Handle validation or other errors
+                                Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Terjadi kesalahan.' });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('Error', 'Tidak dapat terhubung ke server.', 'error');
+                        });
+                    });
+
                     inputNama.addEventListener('change', function() {
                         fetch(`/dashboard/kategoriproduk/chekSlug?nama=${inputNama.value}`)
                             .then(response => response.json())
@@ -439,9 +527,7 @@
                             if (newFile && newFile.serverId) {
                                 fetch('{{ route("kategoriproduk.revert") }}', {
                                     method: 'DELETE',
-                                    headers: {
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    },
+                                    headers: { 'X-CSRF-TOKEN': csrfToken },
                                     body: newFile.serverId
                                 }).finally(() => {
                                     modalInstance.hide();
@@ -461,21 +547,49 @@
                 }
 
                 // --- MODAL DELETE ---
-                const deleteModal = document.getElementById('deleteConfirmationModal');
-                if (deleteModal) {
-                    deleteModal.addEventListener('show.bs.modal', function (event) {
-                        const button = event.relatedTarget;
-                        const kategoriSlug = button.getAttribute('data-kategori-slug');
-                        const kategoriName = button.getAttribute('data-kategori-name');
-                        const modalBodyName = deleteModal.querySelector('#kategoriNameToDelete');
-                        const deleteForm = deleteModal.querySelector('#deleteKategoriForm');
+                const deleteModalEl = document.getElementById('deleteConfirmationModal');
+                if (deleteModalEl) {
+                    const deleteForm = deleteModalEl.querySelector('#deleteKategoriForm');
+                    const modalBodyName = deleteModalEl.querySelector('#kategoriNameToDelete');
+                    const deleteModalInstance = new bootstrap.Modal(deleteModalEl);
+                    let kategoriSlugToDelete = null;
 
+                    deleteModalEl.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        kategoriSlugToDelete = button.getAttribute('data-kategori-slug');
+                        const kategoriName = button.getAttribute('data-kategori-name');
                         modalBodyName.textContent = kategoriName;
-                        deleteForm.action = `/kategoriproduk/${kategoriSlug}`;
+                    });
+
+                    deleteForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        if (!kategoriSlugToDelete) return;
+
+                        const url = `/kategoriproduk/${kategoriSlugToDelete}`;
+
+                        fetch(url, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                        })
+                        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+                        .then(({ ok, data }) => {
+                            deleteModalInstance.hide();
+                            if (ok && data.success) {
+                                Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 2000, showConfirmButton: false });
+                                document.getElementById(`kategori-row-${kategoriSlugToDelete}`).remove();
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Terjadi kesalahan.' });
+                            }
+                        })
+                        .catch(error => {
+                            deleteModalInstance.hide();
+                            Swal.fire('Error', 'Tidak dapat terhubung ke server.', 'error');
+                        });
                     });
                 }
 
-                // --- FITUR LAIN (Filter, Toast, Scrollbar) ---
+
+                // --- FILTER ---
                 // Filter tabel
                 const searchInput = document.getElementById('searchInput');
                 const statusFilter = document.getElementById('posisiFilter'); // Nama ID dari HTML

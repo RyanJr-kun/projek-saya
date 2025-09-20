@@ -50,7 +50,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('produk', [ProdukController::class, 'getData'])->name('produk');
         Route::get('cek-stok-produk', [ProdukController::class, 'cekStok'])->name('cek-stok');
         Route::get('low-stock-notifications', [ProdukController::class, 'getLowStockNotifications'])->name('notifications.low-stock');
+        Route::get('notifications/unregistered-serials', [ProdukController::class, 'getUnregisteredSerialNotifications'])->name('notifications.unregistered-serials');
+        // Tambahkan ini di dalam grup route yang memerlukan autentikasi
+        Route::get('serial-product-info/{produk}', [App\Http\Controllers\SerialNumberController::class, 'getProductInfoForSerial'])->name('serial-product-info');
     });
+
+    // Rute untuk halaman "Semua Notifikasi"
+
+    Route::get('/notifications/all', [ProdukController::class, 'allNotifications'])->name('notifications.all');
 
     // Grup Rute Produk
     Route::prefix('produk')->name('produk.')->group(function () {
@@ -65,11 +72,13 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('revert', [ProdukController::class, 'revert'])->name('revert');
         // Rute untuk slug
         Route::get('checkSlug', [ProdukController::class, 'checkSlug'])->name('checkSlug');
+
     });
     Route::resource('produk', ProdukController::class)->parameters(['produk' => 'produk:slug']);
 
     //serial-number
-    Route::resource('serialNumber', SerialNumberController::class)->except('show');
+    Route::get('serialNumber/{produk_slug?}', [SerialNumberController::class, 'index'])->name('serialNumber.index');
+    Route::resource('serialNumber', SerialNumberController::class)->except(['show', 'index']);
     Route::get('serialNumber/get-by-product/{produk_id}', [SerialNumberController::class, 'getByProduct'])->name('serialNumber.getByProduct');
 
     //kategori produk
@@ -103,7 +112,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/penjualan/get-products', [PenjualanController::class, 'getProductsForCashier'])->name('penjualan.get-products');
     Route::resource('/penjualan', PenjualanController::class);
     Route::get('/penjualan/{penjualan}/json', [PenjualanController::class, 'getjson'])->name('penjualan.getjson');
-
     Route::get('/pelanggan/{pelanggan}/json', [PelangganController::class, 'getjson'])->name('pelanggan.getjson');
     Route::resource('pelanggan', PelangganController::class)->except('show','create','edit');
 

@@ -4,7 +4,6 @@ import "perfect-scrollbar/css/perfect-scrollbar.css";
 import * as bootstrap from "bootstrap";
 import PerfectScrollbar from "perfect-scrollbar";
 import Scrollbar from "smooth-scrollbar";
-import "bootstrap";
 
 import "./argon-dashboard.js";
 window.bootstrap = bootstrap;

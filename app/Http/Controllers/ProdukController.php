@@ -43,8 +43,6 @@ class ProdukController extends Controller
         ]);
     }
 
-
-
     /**
      * Store a newly created resource in storage.
      */
@@ -95,7 +93,6 @@ class ProdukController extends Controller
         return redirect()->route('produk.index');
     }
 
-
     /**
      * Display the specified resource.
      */
@@ -121,7 +118,6 @@ class ProdukController extends Controller
             'pajak' => Pajak::all(),
         ]);
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -259,7 +255,6 @@ class ProdukController extends Controller
         return redirect()->route('produk.trash');
     }
 
-
     /**
      * Permanently delete the specified resource from storage.
      */
@@ -346,9 +341,9 @@ class ProdukController extends Controller
     public function getLowStockNotifications()
     {
         $lowStockProducts = Produk::whereColumn('qty', '<=', 'stok_minimum')
-                                  ->orderBy('qty', 'asc')
-                                  ->take(5)
-                                  ->get(['id', 'nama_produk', 'slug', 'qty', 'stok_minimum', 'img_produk']);
+                                ->orderBy('qty', 'asc')
+                                ->take(5)
+                                ->get(['id', 'nama_produk', 'slug', 'qty', 'stok_minimum', 'img_produk']);
 
         $lowStockCount = Produk::whereColumn('qty', '<=', 'stok_minimum')->count();
 
@@ -356,13 +351,72 @@ class ProdukController extends Controller
             'count' => $lowStockCount,
             'products' => $lowStockProducts->map(function ($produk) {
                 return [
-                    'nama_produk' => Str::limit($produk->nama_produk, 30),
+                    'nama_produk' => \Illuminate\Support\Str::limit($produk->nama_produk, 30),
                     'qty' => $produk->qty,
                     'stok_minimum' => $produk->stok_minimum,
                     'img_url' => $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp'),
-                    'url' => route('produk.edit', $produk->slug)
+                    // --- PERUBAHAN DI SINI ---
+                    // Sekarang semua link akan mengarah ke halaman laporan stok rendah
+                    'url' => route('stok.rendah')
                 ];
             })
+        ]);
+    }
+
+    public function getUnregisteredSerialNotifications()
+    {
+        // Hitung SN yang BUKAN Terjual atau Hilang
+        $subQueryLogic = function ($query) {
+            $query->whereNotIn('status', ['Terjual', 'Hilang']);
+        };
+
+        $productsNeedingSerials = Produk::where('wajib_seri', true)
+            ->withCount(['serialNumbers as sn_tercatat_count' => $subQueryLogic])
+            // Bandingkan qty dengan total SN yang masih menjadi aset
+            ->whereRaw('produks.qty > (select count(*) from serial_numbers where produks.id = serial_numbers.produk_id and status NOT IN (?, ?))', ['Terjual', 'Hilang'])
+            ->orderBy('updated_at', 'desc')
+            ->take(5)
+            ->get();
+
+        $count = Produk::where('wajib_seri', true)
+            ->whereRaw('produks.qty > (select count(*) from serial_numbers where produks.id = serial_numbers.produk_id and status NOT IN (?, ?))', ['Terjual', 'Hilang'])
+            ->count();
+
+        return response()->json([
+            'count' => $count,
+            'products' => $productsNeedingSerials->map(function ($produk) {
+                $needed = $produk->qty - $produk->sn_tercatat_count;
+                return [
+                    'nama_produk' => \Illuminate\Support\Str::limit($produk->nama_produk, 30),
+                    'needed' => $needed,
+                    'img_url' => $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp'),
+                    'url' => route('serialNumber.index', ['produk_slug' => $produk->slug])
+                ];
+            })
+        ]);
+    }
+
+    public function allNotifications()
+    {
+        $lowStockProducts = Produk::whereColumn('qty', '<=', 'stok_minimum')
+                                ->orderBy('qty', 'asc')
+                                ->get();
+
+        $productsNeedingSerials = Produk::where('wajib_seri', true)
+            ->withCount(['serialNumbers as sn_tercatat_count' => function ($query) {
+                $query->whereNotIn('status', ['Terjual', 'Hilang']);
+            }])
+            ->whereRaw(
+                'produks.qty > (select count(*) from serial_numbers where produks.id = serial_numbers.produk_id and status NOT IN (?, ?))',
+                ['Terjual', 'Hilang']
+            )
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+         return view('dashboard.all', [
+            'title' => 'Semua Notifikasi',
+            'lowStockProducts' => $lowStockProducts,
+            'productsNeedingSerials' => $productsNeedingSerials,
         ]);
     }
 }

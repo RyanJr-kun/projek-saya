@@ -256,11 +256,11 @@
                     labelFileTypeNotAllowed: "Jenis file tidak valid.",
                     server: {
                         process: {
-                            url: "/dashboard/produk/upload",
+                            url: "/produk/upload",
                             headers: { "X-CSRF-TOKEN": csrfToken },
                         },
                         revert: {
-                            url: "/dashboard/produk/revert",
+                            url: "/produk/revert",
                             method: "DELETE",
                             headers: { "X-CSRF-TOKEN": csrfToken },
                         },

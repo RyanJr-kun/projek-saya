@@ -8,6 +8,8 @@ use App\Models\Pelanggan;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
 use App\Models\KategoriProduk;
+// BARU: Import model SerialNumber
+use App\Models\SerialNumber;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -92,6 +94,8 @@ class PenjualanController extends Controller
             'items.*.harga_jual' => 'required|numeric|min:0',
             'items.*.diskon' => 'required|numeric|min:0',
             'items.*.pajak_id' => 'nullable|exists:pajaks,id',
+            'items.*.serial_numbers' => 'nullable|array', // BARU: Validasi bahwa serial_numbers adalah array (jika ada)
+            'items.*.serial_numbers.*' => 'string', // BARU: Validasi setiap elemen di dalamnya adalah string
         ]);
 
         try {
@@ -103,6 +107,7 @@ class PenjualanController extends Controller
             $penjualan = DB::transaction(function () use ($validatedData, $pajaks) {
                 // 2. Ambil semua produk yang dibutuhkan dalam satu query untuk menghindari N+1
                 $produkIds = collect($validatedData['items'])->pluck('produk_id');
+                // DIUBAH: Menggunakan with() untuk eager load relasi wajib_seri jika ada
                 $produks = Produk::whereIn('id', $produkIds)->get()->keyBy('id');
 
                 // Hitung total dari server-side berdasarkan data yang divalidasi
@@ -115,6 +120,24 @@ class PenjualanController extends Controller
                     if (!$produk || $produk->qty < $itemData['jumlah']) {
                         // Rollback transaksi dan kirim pesan error
                         throw new \Exception("Stok untuk produk '{$produk->nama_produk}' tidak mencukupi.");
+                    }
+
+                    // Cek apakah produk ini wajib menggunakan nomor seri
+                    if ($produk->wajib_seri) {
+                        // Jika wajib, pastikan array 'serial_numbers' ada dan jumlahnya cocok
+                        if (!isset($itemData['serial_numbers']) || count($itemData['serial_numbers']) !== (int)$itemData['jumlah']) {
+                            throw new \Exception("Jumlah nomor seri untuk produk '{$produk->nama_produk}' tidak sesuai dengan kuantitas pembelian.");
+                        }
+
+                        // Verifikasi bahwa semua nomor seri yang dikirim valid, tersedia, dan milik produk yang benar
+                        $snCount = SerialNumber::where('produk_id', $produk->id)
+                                            ->whereIn('nomor_seri', $itemData['serial_numbers'])
+                                            ->where('status', 'Tersedia')
+                                            ->count();
+
+                        if ($snCount !== (int)$itemData['jumlah']) {
+                            throw new \Exception("Satu atau lebih nomor seri untuk '{$produk->nama_produk}' tidak valid atau tidak tersedia.");
+                        }
                     }
 
                     // LOGIKA BARU: Harga jual dianggap sudah termasuk pajak
@@ -134,9 +157,9 @@ class PenjualanController extends Controller
                 }
 
                 // Ambil biaya tambahan dari data yang sudah divalidasi
-                $service = (float) $validatedData['service'] ?? 0;
-                $ongkir = (float) $validatedData['ongkir'] ?? 0;
-                $diskon_global = (float) $validatedData['diskon'] ?? 0;
+                $service = (float) ($validatedData['service'] ?? 0);
+                $ongkir = (float) ($validatedData['ongkir'] ?? 0);
+                $diskon_global = (float) ($validatedData['diskon'] ?? 0);
                 $total_akhir = ($subtotal_dpp_keseluruhan + $total_pajak_item + $service + $ongkir) - $diskon_global;
                 $jumlah_dibayar = (float) $validatedData['jumlah_dibayar'];
                 $kembalian = $jumlah_dibayar - $total_akhir;
@@ -176,7 +199,8 @@ class PenjualanController extends Controller
 
                     // Subtotal item sekarang adalah DPP dikurangi diskon item
                     $subtotal_item_final = $dpp_item - $itemData['diskon'];
-                    $penjualan->items()->create([
+                    // DIUBAH: Simpan item yang dibuat ke variabel $penjualanItem
+                    $penjualanItem = $penjualan->items()->create([
                         'produk_id' => $produk->id,
                         'jumlah' => $itemData['jumlah'],
                         'harga_jual' => $itemData['harga_jual'],
@@ -189,6 +213,18 @@ class PenjualanController extends Controller
                     // Kurangi stok produk hanya jika transaksi tidak dibatalkan
                     // Status 'Dibatalkan' tidak bisa dibuat dari sini, jadi stok selalu dikurangi.
                     $produk->decrement('qty', $itemData['jumlah']);
+
+                    // PENYESUAIAN LOGIKA NOMOR SERI
+                    if ($produk->wajib_seri && isset($itemData['serial_numbers'])) {
+                        SerialNumber::whereIn('nomor_seri', $itemData['serial_numbers'])
+                                    ->where('produk_id', $produk->id)
+                                    ->update([
+                                        'status' => 'Terjual',
+                                        // DIUBAH: Tautkan ke item penjualan spesifik yang baru dibuat
+                                        'item_penjualan_id' => $penjualanItem->id
+                                    ]);
+                    }
+
                 }
 
                 return $penjualan;
@@ -211,7 +247,7 @@ class PenjualanController extends Controller
     public function show(Penjualan $penjualan)
     {
         // Eager load relasi untuk menghindari N+1 problem
-        $penjualan->load('items.produk', 'pelanggan', 'user');
+        $penjualan->load('items.produk.serialNumbers', 'pelanggan', 'user');
 
         return view('dashboard.penjualan.show', [
             'title' => 'Faktur Penjualan: ' . $penjualan->referensi,
@@ -329,16 +365,25 @@ class PenjualanController extends Controller
                         }
                     }
 
-                    // Setelah stok dikembalikan (jika perlu), kurangi stok berdasarkan item baru.
+                    // --- PERBAIKAN LOGIKA & N+1 ---
+                    // 1. Pre-fetch current quantities of all products involved in the new transaction
+                    $newProdukIds = collect($validatedData['items'])->pluck('produk_id');
+                    $produkQtysSaatIni = Produk::whereIn('id', $newProdukIds)->pluck('qty', 'id');
+
+                    // 2. Validasi semua stok sebelum melakukan perubahan
                     foreach ($validatedData['items'] as $itemData) {
                         $produk = $produks->get($itemData['produk_id']);
-                        // Re-fetch produk untuk mendapatkan qty terbaru setelah increment
-                        $produkQtySaatIni = Produk::find($itemData['produk_id'])->qty;
-                        if (!$produk || $produkQtySaatIni < $itemData['jumlah']) {
-                            throw new \Exception("Stok untuk produk '{$produk->nama_produk}' tidak mencukupi.");
+                        $stokTersedia = $produkQtysSaatIni->get($itemData['produk_id'], 0);
+                        if (!$produk || $stokTersedia < $itemData['jumlah']) {
+                            throw new \Exception("Stok untuk produk '{$produk->nama_produk}' tidak mencukupi (tersedia: {$stokTersedia}, dibutuhkan: {$itemData['jumlah']}).");
                         }
+                    }
+
+                    // 3. Jika semua validasi lolos, baru kurangi stok
+                    foreach ($validatedData['items'] as $itemData) {
                         Produk::where('id', $itemData['produk_id'])->decrement('qty', $itemData['jumlah']);
                     }
+                    // --- AKHIR PERBAIKAN ---
                 }
 
                 // --- PENGHITUNGAN ULANG TOTAL (SERVER-SIDE) ---
@@ -468,8 +513,8 @@ class PenjualanController extends Controller
                     return [
                         'referensi' => $sale->referensi,
                         'total_akhir' => $sale->total_akhir,
-                        'status' => $sale->status,
-                        'pelanggan_nama' => $sale->pelanggan->nama ?? 'Pelanggan Umum',
+                        'status' => $sale->status_pembayaran, // Disesuaikan
+                        'nama' => $sale->pelanggan->nama ?? 'Pelanggan Umum',
                         'waktu' => $sale->created_at->format('H:i'),
                     ];
                 });

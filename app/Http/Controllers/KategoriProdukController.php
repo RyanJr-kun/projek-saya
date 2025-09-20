@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\KategoriProduk;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,7 +15,7 @@ class KategoriProdukController extends Controller
    public function index() {
     return view('dashboard.inventaris.kategoriproduk', [
         'title' => 'Data Kategori Produk',
-        'kategoris'=>KategoriProduk::withCount('produks')->latest()->paginate(10),
+        'kategoris'=>KategoriProduk::withCount('produks')->latest()->paginate(20),
     ]);
     }
 
@@ -32,7 +33,7 @@ class KategoriProdukController extends Controller
    public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'img_kategori' => 'nullable|string',
+            'img_kategori' => 'nullable|string|starts_with:tmp/',
             'nama' => 'required|max:255|unique:kategori_produks',
             'slug' => 'required|max:255|unique:kategori_produks',
             'status' => 'nullable|boolean',
@@ -48,12 +49,29 @@ class KategoriProdukController extends Controller
             if (Storage::disk('public')->exists($sourcePath)) {
                 Storage::disk('public')->move($sourcePath, $destinationPath);
                 $validatedData['img_kategori'] = $destinationPath; // Simpan path baru
+            } else {
+                // Hapus path jika file tidak ditemukan untuk mencegah error
+                unset($validatedData['img_kategori']);
             }
         }
 
         $validatedData['status'] = $request->has('status');
-        KategoriProduk::create($validatedData);
+        $kategori = KategoriProduk::create($validatedData);
 
+        // Cek jika request adalah AJAX
+        if ($request->wantsJson()) {
+            // Muat relasi dan format tanggal untuk konsistensi dengan data yang ada
+            $kategori->loadCount('produks');
+            $kategori->created_at_formatted = $kategori->created_at->translatedFormat('d M Y');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kategori baru berhasil ditambahkan.',
+                'data'    => $kategori
+            ], 201);
+        }
+
+        // Respons standar jika bukan AJAX
         Alert::success('Berhasil', 'Kategori Baru Berhasil Ditambahkan.');
         return redirect()->route('kategoriproduk.index');
     }
@@ -120,6 +138,18 @@ class KategoriProdukController extends Controller
 
         $validatedData['status'] = $request->has('status');
         $kategoriproduk->update($validatedData);
+
+        if ($request->wantsJson()) {
+            $kategoriproduk->loadCount('produks');
+            $kategoriproduk->created_at_formatted = $kategoriproduk->created_at->translatedFormat('d M Y');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data Kategori Produk Berhasil Diperbarui.',
+                'data'    => $kategoriproduk
+            ]);
+        }
+
         Alert::success('Berhasil', 'Data Kategori Produk Berhasil Diperbarui.');
         return redirect()->route('kategoriproduk.index');
     }
@@ -129,14 +159,25 @@ class KategoriProdukController extends Controller
      */
     public function destroy(KategoriProduk $kategoriproduk)
     {
-        if ($kategoriproduk->produks()->count() > 0) {
-        Alert::error('Gagal','Kategori Produk tidak dapat dihapus karena masih memiliki produk terkait!');
-        return back();
-    }
+        if ($kategoriproduk->produks()->exists()) {
+            $message = 'Kategori Produk tidak dapat dihapus karena masih memiliki produk terkait!';
+            if (request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+            Alert::error('Gagal', $message);
+            return back();
+        }
+
         if ($kategoriproduk->img_kategori) {
-        Storage::disk('public')->delete($kategoriproduk->img_kategori);
-    }
+            Storage::disk('public')->delete($kategoriproduk->img_kategori);
+        }
+
         $kategoriproduk->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Data Kategori Produk Berhasil Dihapus.']);
+        }
+
         Alert::success('Berhasil', 'Data Kategori Produk Berhasil Dihapus.');
         return redirect()->route('kategoriproduk.index');
     }

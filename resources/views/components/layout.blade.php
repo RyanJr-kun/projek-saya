@@ -8,11 +8,11 @@
         <title>Point Of Sales - JO Computer</title>
         @vite(['resources/scss/app.scss', 'resources/js/app.js'])
         @stack('styles')
-        <!--     Fonts and icons     -->
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-        <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
-        <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+        <!-- Fonts and icons -->
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" media="print" onload="this.media='all'">
+        <script defer src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
     </head>
 
     <body class="g-sidenav-show bg-gray-100">
@@ -128,91 +128,115 @@
             document.addEventListener('DOMContentLoaded', function () {
                 // --- NOTIFICATION LOGIC ---
                 const notificationBadge = document.getElementById('notification-badge');
-                const notificationBadgeMobile = document.getElementById('notification-badge-mobile');
                 const notificationList = document.getElementById('notification-list');
                 const notificationLoader = document.getElementById('notification-loader');
 
-                async function fetchLowStockNotifications() {
+                async function getLowStockData() {
                     try {
-                        const response = await fetch('{{ route("get-data.notifications.low-stock") }}');
-                        if (!response.ok) {
-                            throw new Error('Gagal memuat notifikasi');
-                        }
-                        const data = await response.json();
-
-                        // Update badge
-                        if (data.count > 0) {
-                            const badgeContent = data.count > 9 ? '9+' : data.count;
-                            notificationBadge.textContent = badgeContent;
-                            notificationBadge.style.display = 'block';
-                            if (notificationBadgeMobile) {
-                                notificationBadgeMobile.textContent = badgeContent;
-                                notificationBadgeMobile.style.display = 'block';
-                            }
-                        } else {
-                            notificationBadge.style.display = 'none';
-                            if (notificationBadgeMobile) {
-                                notificationBadgeMobile.style.display = 'none';
-                            }
-                        }
-
-                        // Update dropdown list
-                        notificationList.innerHTML = ''; // Kosongkan list
-                        if (data.products.length > 0) {
-                            data.products.forEach(product => {
-                                const listItem = `
-                                    <li>
-                                        <a class="dropdown-item border-radius-md" href="${product.url}">
-                                            <div class="d-flex py-1">
-                                                <div class="my-auto"><img src="${product.img_url}" class="avatar avatar-sm me-3" alt="Product image"></div>
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="text-sm font-weight-normal mb-1">${product.nama_produk}</h6>
-                                                    <p class="text-xs text-secondary mb-0">
-                                                        <i class="bi bi-box-seam-fill me-1"></i> Sisa <span class="text-danger fw-bold">${product.qty}</span> (Min: ${product.stok_minimum})
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                `;
-                                notificationList.insertAdjacentHTML('beforeend', listItem);
-                            });
-                            // Tambahkan link "Lihat Semua"
-                            notificationList.insertAdjacentHTML('beforeend', `<hr class="horizontal dark mt-2 mb-2">`);
-                            notificationList.insertAdjacentHTML('beforeend', `<li><a class="dropdown-item border-radius-md text-center" href="{{ route('stok.rendah') }}"><h6 class="text-sm font-weight-normal mb-0">Lihat Semua Stok Rendah</h6></a></li>`);
-                        } else {
-                            notificationList.innerHTML = `<li class="text-center text-muted px-3 py-2">Tidak ada notifikasi stok rendah.</li>`;
-                        }
-
+                        const response = await fetch("{{ route('get-data.notifications.low-stock') }}"); //
+                        if (!response.ok) throw new Error('Gagal memuat notifikasi');
+                        return await response.json();
                     } catch (error) {
                         console.error('Error fetching notifications:', error);
-                        notificationList.innerHTML = `<li class="text-center text-danger px-3 py-2">Gagal memuat notifikasi.</li>`;
-                    } finally {
-                        if(notificationLoader) {
-                            notificationLoader.style.display = 'none';
-                        }
+                        return { count: 0, products: [] };
                     }
                 }
 
-                // Panggil fungsi saat dropdown notifikasi dibuka
+                async function getUnregisteredSerialData() {
+                    try {
+                        const response = await fetch("{{ route('get-data.notifications.unregistered-serials') }}"); //
+                        if (!response.ok) throw new Error('Gagal memuat notifikasi SN.');
+                        return await response.json();
+                    } catch (error) {
+                        console.error('Error fetching unregistered serial notifications:', error);
+                        return { count: 0, products: [] };
+                    }
+                }
+
+                async function fetchAllNotifications() {
+                    notificationLoader.style.display = 'block';
+                    notificationList.innerHTML = '';
+
+                    const [lowStockData, serialData] = await Promise.all([
+                        getLowStockData(),
+                        getUnregisteredSerialData()
+                    ]);
+
+                    const totalCount = lowStockData.count + serialData.count;
+                    let hasNotifications = false;
+
+                    if (totalCount > 0) {
+                        const badgeContent = totalCount > 9 ? '9+' : totalCount;
+                        notificationBadge.textContent = badgeContent;
+                        notificationBadge.style.display = 'block';
+                    } else {
+                        notificationBadge.style.display = 'none';
+                    }
+
+                    if (serialData.count > 0) {
+                        hasNotifications = true;
+                        notificationList.insertAdjacentHTML('beforeend', `<li class="dropdown-header text-xs text-uppercase fw-bolder">Butuh Nomor Seri (${serialData.count})</li>`);
+                        serialData.products.forEach(product => {
+                            const listItem = `
+                                <li>
+                                    <a class="dropdown-item border-radius-md" href="${product.url}">
+                                        <div class="d-flex py-1">
+                                            <div class="my-auto"><img src="${product.img_url}" class="avatar avatar-sm me-3" alt="Product image"></div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="text-sm font-weight-normal mb-1">${product.nama_produk}</h6>
+                                                <p class="text-xs text-secondary mb-0">
+                                                    <i class="bi bi-upc-scan me-1"></i> Butuh <span class="text-danger fw-bold">${product.needed}</span> SN
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>`;
+                            notificationList.insertAdjacentHTML('beforeend', listItem);
+                        });
+                    }
+
+                    if (lowStockData.count > 0) {
+                        if (hasNotifications) {
+                            notificationList.insertAdjacentHTML('beforeend', `<hr class="horizontal dark mt-2 mb-2">`);
+                        }
+                        hasNotifications = true;
+                        notificationList.insertAdjacentHTML('beforeend', `<li class="dropdown-header text-xs text-uppercase fw-bolder">Stok Rendah (${lowStockData.count})</li>`);
+                        lowStockData.products.forEach(product => {
+                            const listItem = `
+                                <li>
+                                    <a class="dropdown-item border-radius-md" href="${product.url}">
+                                        <div class="d-flex py-1">
+                                            <div class="my-auto"><img src="${product.img_url}" class="avatar avatar-sm me-3" alt="Product image"></div>
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="text-sm font-weight-normal mb-1">${product.nama_produk}</h6>
+                                                <p class="text-xs text-secondary mb-0">
+                                                    <i class="bi bi-box-seam-fill me-1"></i> Sisa <span class="text-danger fw-bold">${product.qty}</span> (Min: ${product.stok_minimum})
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>`;
+                            notificationList.insertAdjacentHTML('beforeend', listItem);
+                        });
+                        // --- PERUBAHAN: Link "Lihat Semua Stok Rendah" dihilangkan dari sini ---
+                    }
+
+                    if (hasNotifications) {
+                        notificationList.insertAdjacentHTML('beforeend', `<hr class="horizontal dark mt-2 mb-2">`);
+                        // --- PERUBAHAN: Hanya tombol ini yang akan muncul di paling bawah ---
+                        notificationList.insertAdjacentHTML('beforeend', `<li><a class="dropdown-item border-radius-md text-center" href="{{ route('notifications.all') }}"><h6 class="text-sm font-weight-normal mb-0">Lihat Semua Notifikasi</h6></a></li>`); //
+                    } else {
+                        notificationList.innerHTML = `<li class="text-center text-muted px-3 py-2">Tidak ada notifikasi baru.</li>`;
+                    }
+
+                    notificationLoader.style.display = 'none';
+                }
+
                 const notificationDropdown = document.getElementById('notificationDropdown');
                 if (notificationDropdown) {
-                    notificationDropdown.addEventListener('show.bs.dropdown', fetchLowStockNotifications);
+                    notificationDropdown.addEventListener('show.bs.dropdown', fetchAllNotifications);
                 }
-                // Panggil juga saat halaman pertama kali dimuat
-                fetchLowStockNotifications();
-
-                // --- MOBILE NOTIFICATION TRIGGER ---
-                const mobileNotificationTrigger = document.getElementById('mobile-notification-trigger');
-                const desktopNotificationButton = document.getElementById('notificationDropdown');
-                const userDropdown = new bootstrap.Dropdown(document.getElementById('userDropdown'));
-
-                if (mobileNotificationTrigger && desktopNotificationButton) {
-                    mobileNotificationTrigger.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        desktopNotificationButton.click(); // Memicu dropdown notifikasi desktop
-                    });
-                }
+                fetchAllNotifications();
             });
         </script>
     </body>

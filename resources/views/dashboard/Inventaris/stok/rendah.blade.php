@@ -10,17 +10,17 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    <div class="container-fluid  d-flex flex-column min-vh-90 p-3 mb-auto">
+    <div class="container-fluid d-flex flex-column min-vh-90 p-3 mb-auto">
         <div class="card">
             <div class="card-header pb-0">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="mb-0">Laporan Stok Rendah</h6>
+                        {{-- Deskripsi diubah menjadi lebih akurat --}}
                         <p class="text-sm mb-0">
-                            Menampilkan produk dengan stok kurang dari atau sama dengan <strong class="text-danger">{{ $threshold }}</strong>.
+                            Menampilkan produk yang stoknya telah mencapai atau di bawah batas stok minimumnya.
                         </p>
                     </div>
-                    {{-- Anda bisa menambahkan filter di sini jika diperlukan --}}
                 </div>
             </div>
             <div class="card-body px-0 mt-1 pb-2">
@@ -30,7 +30,7 @@
                             <tr>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder">Produk</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kategori</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Stok Saat Ini</th>
+                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Stok (Minimum)</th>
                                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Harga Jual</th>
                                 <th class="text-dark"></th>
                             </tr>
@@ -45,7 +45,7 @@
                                             </div>
                                             <div class="d-flex flex-column justify-content-start">
                                                 <h6 class="mb-0 text-sm">{{ $produk->nama_produk }}</h6>
-                                                <p class="text-xs mb-0">{{ $produk->barcode ?? 'Tidak ada kode' }}</p>
+                                                <p class="text-xs mb-0">{{ $produk->sku ?? 'Tidak ada SKU' }}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -53,14 +53,21 @@
                                         <p class="text-xs font-weight-bold mb-0">{{ $produk->kategori_produk->nama ?? 'N/A' }}</p>
                                     </td>
                                     <td>
-                                        <span class="badge badge-sm badge-danger">{{ $produk->qty }}</span>
+                                        {{-- Tampilkan stok saat ini dan batas minimumnya --}}
+                                        <span class="badge badge-sm bg-gradient-danger">{{ $produk->qty }}</span>
+                                        <p class="text-xs text-secondary mb-0">Min: {{ $produk->stok_minimum }}</p>
                                     </td>
                                     <td>
-                                        <span class= text-xs font-weight-bold">Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
+                                        {{-- PERBAIKAN: class, dan variabel harga_jual --}}
+                                        <span class="text-xs font-weight-bold">Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}</span>
                                     </td>
                                     <td class="align-middle">
-                                        <a href="{{ route('produk.edit', $produk->id) }}" class= font-weight-bold text-xs" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Produk">
-                                            <i class="bi bi-pencil-square"></i> Edit
+                                        <a href="{{ route('pembelian.create', ['produk_slug' => $produk->slug]) }}" class="mb-0 me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Beli Produk Ini">
+                                            <i class="bi bi-cart-plus-fill bi-lg"></i>
+                                        </a>
+                                        {{-- PERBAIKAN: class, dan routing ke slug produk --}}
+                                        <a href="{{ route('produk.edit', $produk->slug) }}" class="fw-bolder text-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Produk">
+                                            <i class="bi bi-pencil-square bi-lg"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -73,6 +80,9 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+                 <div class="d-flex justify-content-center mt-4">
+                    {{ $produks->links() }}
                 </div>
             </div>
         </div>

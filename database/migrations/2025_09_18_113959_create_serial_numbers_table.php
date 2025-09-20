@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('nomor_seri');
             $table->enum('status', ['Tersedia', 'Terjual', 'Rusak', 'Hilang'])->default('Tersedia');
             $table->foreignId('pembelian_id')->nullable()->constrained('pembelians');
-            $table->foreignId('penjualan_id')->nullable()->constrained('penjualans');
+            $table->foreignId('item_penjualan_id')->nullable()->constrained('item_penjualans')->onDelete('set null');
             $table->timestamps();
-            
+
             $table->unique(['produk_id', 'nomor_seri']);
             $table->index('status');
         });

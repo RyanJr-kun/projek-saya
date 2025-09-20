@@ -76,22 +76,24 @@
                                 </td>
 
                                 <td class="text-center align-middle">
-                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editModal"
-                                        data-url="{{ route('pelanggan.getjson', $pelanggan->id) }}"
-                                        data-update-url="{{ route('pelanggan.update', $pelanggan->id) }}"
-                                        title="Edit Pelanggan">
-                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                    </a>
-                                    <a href="#" class="text-dark delete-btn me-md-4"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteConfirmationModal"
-                                        data-pelanggan-id="{{ $pelanggan->id }}"
-                                        data-pelanggan-name="{{ $pelanggan->nama }}"
-                                        title="Hapus Pelanggan">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
+                                    @if ($pelanggan->id != 1)
+                                        <a href="#" class="text-dark fw-bold px-3 text-xs"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editModal"
+                                            data-url="{{ route('pelanggan.getjson', $pelanggan->id) }}"
+                                            data-update-url="{{ route('pelanggan.update', $pelanggan->id) }}"
+                                            title="Edit Pelanggan">
+                                            <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
+                                        </a>
+                                        <a href="#" class="text-dark delete-btn me-md-4"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteConfirmationModal"
+                                            data-pelanggan-id="{{ $pelanggan->id }}"
+                                            data-pelanggan-name="{{ $pelanggan->nama }}"
+                                            title="Hapus Pelanggan">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                             @empty

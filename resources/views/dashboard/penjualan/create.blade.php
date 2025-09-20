@@ -1,19 +1,16 @@
 <!DOCTYPE html>
     <html lang="en">
         <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-            <meta name="csrf-token" content="{{ csrf_token() }}">
-            <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/logo.svg') }}">
-            <title>Point Of Sales - JO Computer</title>
-             @vite(['resources/scss/app.scss', 'resources/js/app.js'])
-            <!--     Fonts and icons     -->
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-            <script async defer src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
-            <script async defer src="https://buttons.github.io/buttons.js"></script>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/logo.svg') }}">
+        <title>Point Of Sales - JO Computer</title>
+        @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+        <!--     Fonts and icons     -->
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+        <script defer src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
 
         </head>
     <body class="bg-gray-100">
@@ -138,6 +135,7 @@
                                         data-harga="{{ $produk->harga_jual }}"
                                         data-img="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp') }}"
                                         data-stok="{{ $produk->qty }}"
+                                        data-wajib-seri="{{ $produk->wajib_seri ? 'true' : 'false' }}"
                                         data-disabled="{{ $produk->qty < 1 ? 'true' : 'false' }}">
                                         <img class="card-img-top rounded-2" src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp') }}" alt="Gambar Produk">
                                         <div class="card-body p-2">
@@ -491,6 +489,33 @@
                 </div>
             </div>
         </div>
+        {{-- Modal Pemilihan Nomor Seri --}}
+        <div class="modal fade" id="serialNumberModal" tabindex="-1" aria-labelledby="serialNumberModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="serialNumberModalLabel">Pilih Nomor Seri</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="sn-produk-id">
+                        <div class="alert alert-info text-white p-2 text-sm" role="alert">
+                            Produk: <strong id="sn-nama-produk">Nama Produk</strong><br>
+                            Anda harus memilih <strong id="sn-required-count">1</strong> nomor seri.
+                        </div>
+                        <div id="sn-list-container" class="list-group" style="max-height: 300px; overflow-y: auto;">
+                            {{-- Daftar nomor seri akan dimuat di sini oleh AJAX --}}
+                            <div class="text-center"><div class="spinner-border spinner-border-sm"></div></div>
+                        </div>
+                        <div class="invalid-feedback d-block mt-2" id="sn-error-message"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-info" id="btn-confirm-sn">Simpan Pilihan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <script>
             // Fungsi untuk toggle fullscreen
@@ -505,7 +530,7 @@
                 }
             }
         </script>
-        <script>
+         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // --- UTILITIES ---
                 const formatCurrency = (number) => new Intl.NumberFormat('id-ID', {
@@ -543,9 +568,17 @@
                 const resetButton = document.getElementById('btn-reset-cart');
                 const editItemModal = new bootstrap.Modal(document.getElementById('editCartItemModal'));
                 const editItemForm = document.getElementById('editCartItemForm');
-
-                // --- PAYMENT ELEMENTS (NO MODAL) ---
                 const paymentInput = document.getElementById('jumlah-dibayar-input');
+
+                // --- SERIAL NUMBER MODAL ELEMENTS (BARU) ---
+                const serialNumberModalEl = document.getElementById('serialNumberModal');
+                const serialNumberModal = new bootstrap.Modal(serialNumberModalEl);
+                const snListContainer = document.getElementById('sn-list-container');
+                const snNamaProduk = document.getElementById('sn-nama-produk');
+                const snRequiredCount = document.getElementById('sn-required-count');
+                const snConfirmBtn = document.getElementById('btn-confirm-sn');
+                const snErrorMessage = document.getElementById('sn-error-message');
+                let tempProductDataForSN = {}; // Untuk menyimpan data produk sementara
 
 
                 // --- FUNCTIONS ---
@@ -555,50 +588,79 @@
                     toggleSaveButton();
                 };
 
-                const addToCart = (id, nama, harga, stok, img) => {
-                    id = parseInt(id);
-                    harga = parseFloat(harga);
-                    stok = parseInt(stok);
+                // DIUBAH: Fungsi ini sekarang menangani penambahan produk ke state `cart`
+                const addProductToCart = (productData, serialNumbers = []) => {
+                const { id, nama, harga, stok, img } = productData;
+                const parsedId = parseInt(id);
+                const parsedHarga = parseFloat(harga);
+                const parsedStok = parseInt(stok);
 
-                    if (cart.has(id)) {
-                        const item = cart.get(id);
-                        if (item.jumlah < item.stok) {
-                            item.jumlah++;
-                        } else {
-                            alert(`Stok untuk ${nama} tidak mencukupi.`);
-                        }
+                if (cart.has(parsedId)) {
+                    const item = cart.get(parsedId);
+                    if (item.jumlah < item.stok) {
+                        item.jumlah++;
                     } else {
-                        if (stok > 0) {
-                            cart.set(id, {
-                                id, nama, harga, stok, img,
-                                jumlah: 1,
-                                harga_jual: harga, // Harga jual yang bisa diedit
-                                diskon: 0,
-                                pajak_id: null,
-                                pajak_rate: 0,
-                            });
-                        } else {
-                            alert(`${nama} kehabisan stok.`);
-                        }
+                        alert(`Stok untuk ${nama} tidak mencukupi.`);
                     }
-                    updateCartAndTotals();
-                };
+                } else {
+                    if (parsedStok > 0) {
+                        // Tentukan kuantitas awal. Jika ada nomor seri, kuantitasnya adalah jumlah nomor seri.
+                        // Jika tidak, kuantitasnya adalah 1.
+                        const initialQuantity = serialNumbers.length > 0 ? serialNumbers.length : 1;
+
+                        cart.set(parsedId, {
+                            id: parsedId,
+                            nama,
+                            harga: parsedHarga,
+                            stok: parsedStok,
+                            img,
+                            jumlah: initialQuantity, // <-- SUDAH DIPERBAIKI
+                            harga_jual: parsedHarga,
+                            diskon: 0,
+                            pajak_id: null,
+                            pajak_rate: 0,
+                            serial_numbers: serialNumbers
+                        });
+                    } else {
+                        alert(`${nama} kehabisan stok.`);
+                    }
+                }
+                updateCartAndTotals();
+            };
+
 
                 const updateQuantity = (id, newQuantity) => {
                     if (!cart.has(id)) return;
                     const item = cart.get(id);
                     newQuantity = parseInt(newQuantity);
 
-                    if (newQuantity > 0 && newQuantity <= item.stok) {
-                        item.jumlah = newQuantity;
-                    } else if (newQuantity > item.stok) {
-                        item.jumlah = item.stok;
-                        alert(`Stok maksimum untuk ${item.nama} adalah ${item.stok}.`);
-                    } else {
-                        cart.delete(id);
+                    // Logika baru untuk produk BERSERI (hanya saat dikurangi)
+                    if (item.serial_numbers && item.serial_numbers.length > 0) {
+                        if (newQuantity > 0 && newQuantity < item.jumlah) {
+                            // Jika kuantitas dikurangi, hapus nomor seri terakhir
+                            item.serial_numbers.pop();
+                            item.jumlah = newQuantity;
+                        } else if (newQuantity <= 0) {
+                            // Jika kuantitas menjadi 0 atau kurang, hapus item dari keranjang
+                            cart.delete(id);
+                        }
                     }
-                    updateCartAndTotals();
-                };
+                    // Logika lama untuk produk NON-BERSERI
+                    else {
+                        if (newQuantity > 0 && newQuantity <= item.stok) {
+                            item.jumlah = newQuantity;
+                        } else if (newQuantity > item.stok) {
+                            item.jumlah = item.stok;
+                            alert(`Stok maksimum untuk ${item.nama} adalah ${item.stok}.`);
+                        } else {
+                            // Jika kuantitas menjadi 0 atau kurang, hapus item
+                            cart.delete(id);
+                        }
+                }
+
+                // Perbarui tampilan keranjang dan total
+                updateCartAndTotals();
+            };
 
                 const removeFromCart = (id) => {
                     cart.delete(id);
@@ -620,6 +682,20 @@
                         let formIndex = 0;
                         cart.forEach(item => {
                             const subtotalItem = (item.harga_jual * item.jumlah) - item.diskon; // Subtotal sebelum pajak
+                            // BARU: Buat input hidden untuk nomor seri
+                            let serialNumberInputs = '';
+                            if (item.serial_numbers && item.serial_numbers.length > 0) {
+                                item.serial_numbers.forEach(sn => {
+                                    serialNumberInputs += `<input type="hidden" name="items[${formIndex}][serial_numbers][]" value="${sn}">`;
+                                });
+                            }
+
+                            // BARU: Tampilkan nomor seri di bawah nama produk
+                            let serialNumberDisplay = '';
+                            if (item.serial_numbers && item.serial_numbers.length > 0) {
+                                serialNumberDisplay = `<span class="text-xs text-muted d-block">SN: ${item.serial_numbers.join(', ')}</span>`;
+                            }
+
                             const itemHtml = `
                                 <tr class="cart-item-row">
                                     <input type="hidden" name="items[${formIndex}][produk_id]" value="${item.id}">
@@ -627,11 +703,13 @@
                                     <input type="hidden" name="items[${formIndex}][harga_jual]" value="${item.harga_jual}">
                                     <input type="hidden" name="items[${formIndex}][diskon]" value="${item.diskon}">
                                     <input type="hidden" name="items[${formIndex}][pajak_id]" value="${item.pajak_id || ''}">
+                                    ${serialNumberInputs}
                                     <td style="width: 80%;">
                                         <div class="d-flex align-items-center">
                                             <img src="${item.img}" class="avatar avatar-sm rounded me-2" alt="product image">
                                             <div class="d-flex flex-column" style="min-width: 0;">
                                                 <h6 class="mb-0 text-xs text-wrap">${item.nama}</h6>
+                                                ${serialNumberDisplay}
                                                 <span class="text-xs">${formatCurrency(item.harga_jual)}</span>
                                             </div>
                                         </div>
@@ -696,11 +774,12 @@
 
                 const calculateChange = () => {
                     const total = parseFloat(totalAkhirEl.textContent.replace(/[^0-9]/g, '')) || 0;
-                    const paymentAmount = parseFloat(paymentInput.value.replace(/[^0-9]/g, '')) || 0;
+                    const paymentAmount = parseFloat(paymentInput.value.replace(/[^0-9]/g, '')) || 0; // Get clean value
                     const change = paymentAmount - total;
 
                     changeDisplay.textContent = formatCurrency(change);
-
+                    // FIX: Always set the hidden input with the raw, unformatted number.
+                    paymentInput.value = paymentAmount;
                     if (change < 0) {
                         changeDisplay.classList.add('text-danger');
                     } else {
@@ -736,14 +815,36 @@
                 };
 
                 // --- EVENT LISTENERS ---
+                // DIUBAH: Logika event listener klik produk
                 productList.addEventListener('click', (e) => {
                     const card = e.target.closest('.product-card');
-                    if (card) {
-                        const { id, nama, harga, stok, disabled, img } = card.dataset;
-                        if (disabled === 'true') {
-                            return; // Jangan lakukan apa-apa jika stok habis
+                    if (!card) return;
+
+                    const { id, nama, harga, stok, disabled, img, wajibSeri } = card.dataset;
+
+                    if (disabled === 'true') return;
+
+                    const isWajibSeri = wajibSeri === 'true';
+                    tempProductDataForSN = { id, nama, harga, stok, img }; // Simpan data produk sementara
+
+                    if (isWajibSeri) {
+                        // JIKA WAJIB SERI, SELALU BUKA MODAL
+                        const itemInCart = cart.get(parseInt(id));
+                        const existingSerials = itemInCart ? itemInCart.serial_numbers : [];
+                        const requiredQty = itemInCart ? itemInCart.jumlah + 1 : 1; // Hitung kuantitas yang dibutuhkan
+
+                        openSerialNumberModal(id, nama, requiredQty, existingSerials); // Kirim kuantitas ke modal
+
+                    } else {
+                        // Logika untuk produk non-seri tetap sama
+                        const item = cart.get(parseInt(id));
+                        // Jika sudah ada di keranjang, update kuantitasnya
+                        if (item) {
+                            updateQuantity(parseInt(id), item.jumlah + 1);
+                        } else {
+                            // Jika belum ada, tambahkan produk ke keranjang
+                            addProductToCart(tempProductDataForSN);
                         }
-                        addToCart(id, nama, harga, stok, img);
                     }
                 });
 
@@ -751,15 +852,30 @@
                     const id = parseInt(e.target.closest('[data-id]')?.dataset.id);
                     if (!id) return;
 
-                    const button = e.target.closest('button');
-                    if (!button) return;
+                    const item = cart.get(id); // Ambil data item di awal
+                    if (!item) return;
+
+                    // Logika untuk tombol TAMBAH (+)
                     if (e.target.classList.contains('qty-increase')) {
-                        const item = cart.get(id);
-                        updateQuantity(id, item.jumlah + 1);
-                    } else if (e.target.classList.contains('qty-decrease')) {
-                        const item = cart.get(id);
+                        // JIKA PRODUK BERSERI
+                        if (item.serial_numbers && item.serial_numbers.length > 0) {
+                            // Siapkan data untuk membuka modal
+                            tempProductDataForSN = { id: item.id, nama: item.nama, harga: item.harga, stok: item.stok, img: item.img };
+                            const requiredQty = item.jumlah + 1;
+                            // Buka modal untuk memilih SN tambahan
+                            openSerialNumberModal(item.id, item.nama, requiredQty, item.serial_numbers);
+                        } else {
+                            // Jika produk non-berseri, panggil fungsi updateQuantity seperti biasa
+                            updateQuantity(id, item.jumlah + 1);
+                        }
+                    }
+                    // Logika untuk tombol KURANG (-)
+                    else if (e.target.classList.contains('qty-decrease')) {
+                        // Untuk produk berseri atau non-berseri, panggil fungsi updateQuantity
                         updateQuantity(id, item.jumlah - 1);
-                    } else if (e.target.closest('.remove-item')) {
+                    }
+                    // Logika untuk Hapus dan Edit Item
+                    else if (e.target.closest('.remove-item')) {
                         removeFromCart(id);
                     } else if (e.target.closest('.edit-item')) {
                         openEditModal(id);
@@ -782,11 +898,7 @@
                         alert('Keranjang belanja kosong. Silakan tambahkan produk terlebih dahulu.');
                         return;
                     }
-                    // Bersihkan format angka sebelum submit untuk validasi di server
-                    const paymentInputValue = paymentInput.value;
-                    if (paymentInputValue) {
-                        paymentInput.value = paymentInputValue.replace(/[^0-9]/g, '');
-                    }
+                    // The value is already clean due to the fix in calculateChange, so no extra cleanup is needed here.
                 });
 
                 paymentInput.addEventListener('input', (e) => {
@@ -810,6 +922,12 @@
                 function openEditModal(id) {
                     const item = cart.get(id);
                     if (!item) return;
+
+                     // PENYESUAIAN: Mencegah edit harga/diskon untuk item berseri
+                    if (item.serial_numbers.length > 0) {
+                        alert('Pengeditan item dengan nomor seri tidak diizinkan. Silakan hapus dan tambahkan kembali.');
+                        return;
+                    }
 
                     document.getElementById('edit-item-id').value = id;
                     document.getElementById('edit-item-nama').value = item.nama;
@@ -875,6 +993,84 @@
                     calculateTotals();
                     extraCostModal.hide();
                 });
+
+                // GANTI SELURUH FUNGSI INI
+                async function openSerialNumberModal(produkId, namaProduk, requiredQty = 1, existingSerials = []) {
+                    snNamaProduk.textContent = namaProduk;
+                    snRequiredCount.textContent = requiredQty; // Menampilkan jumlah yang benar di pesan info
+                    snErrorMessage.textContent = '';
+                    snListContainer.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm"></div></div>';
+                    serialNumberModal.show();
+
+                    // Simpan data kuantitas yang dibutuhkan di elemen modal itu sendiri
+                    serialNumberModalEl.dataset.produkId = produkId;
+                    serialNumberModalEl.dataset.requiredQty = requiredQty; // INI SANGAT PENTING
+
+                    try {
+                        const url = "{{ route('serialNumber.getByProduct', ['produk_id' => 'ID_PRODUK']) }}".replace('ID_PRODUK', produkId);
+                        const response = await fetch(url, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        if (!response.ok) throw new Error('Gagal memuat data nomor seri.');
+                        const serialNumbers = await response.json();
+                        snListContainer.innerHTML = '';
+                        if (serialNumbers.length === 0 && existingSerials.length === 0) {
+                            snListContainer.innerHTML = '<p class="text-muted text-center">Tidak ada nomor seri yang tersedia.</p>';
+                            snConfirmBtn.disabled = true;
+                        } else {
+                            const allPossibleSerials = [...new Set([...serialNumbers, ...existingSerials])];
+                            allPossibleSerials.forEach(sn => {
+                                const isChecked = existingSerials.includes(sn) ? 'checked' : '';
+                                const snElement = `
+                                    <label class="list-group-item">
+                                        <input class="form-check-input me-1" type="checkbox" value="${sn}" ${isChecked}>
+                                        ${sn}
+                                    </label>`;
+                                snListContainer.insertAdjacentHTML('beforeend', snElement);
+                            });
+                            snConfirmBtn.disabled = false;
+                        }
+                    } catch (error) {
+                        snListContainer.innerHTML = `<div class="alert alert-danger text-white">${error.message}</div>`;
+                        snConfirmBtn.disabled = true;
+                    }
+                }
+
+                snConfirmBtn.addEventListener('click', () => {
+                    const selectedCheckboxes = snListContainer.querySelectorAll('input[type="checkbox"]:checked');
+
+                    // Mengambil jumlah yang dibutuhkan dari 'dataset' yang sudah kita simpan sebelumnya
+                    const requiredCount = parseInt(serialNumberModalEl.dataset.requiredQty);
+
+                    // Validasi baru berdasarkan jumlah yang dibutuhkan
+                    if (selectedCheckboxes.length !== requiredCount) {
+                        snErrorMessage.textContent = `Anda harus memilih tepat ${requiredCount} nomor seri.`;
+                        return; // Hentikan jika tidak sesuai
+                    }
+
+                    snErrorMessage.textContent = '';
+                    const selectedSerials = Array.from(selectedCheckboxes).map(cb => cb.value);
+                    const produkId = parseInt(tempProductDataForSN.id);
+
+                    if (cart.has(produkId)) {
+                        // Update item yang ada di keranjang
+                        const item = cart.get(produkId);
+                        item.jumlah = selectedSerials.length;
+                        item.serial_numbers = selectedSerials;
+                    } else {
+                        // Tambah item baru ke keranjang
+                        addProductToCart(tempProductDataForSN, selectedSerials);
+                    }
+
+                    updateCartAndTotals();
+                    serialNumberModal.hide();
+                    tempProductDataForSN = {};
+                });
+
 
                 // --- MODAL PELANGGAN BARU (AJAX) ---
                 const addCustomerModalEl = document.getElementById('createPelangganModal');
@@ -1032,6 +1228,7 @@
                         }
                     });
                 }
+                updateCartAndTotals();
             });
         </script>
         <script>

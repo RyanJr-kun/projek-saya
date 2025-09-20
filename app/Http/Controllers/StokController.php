@@ -16,16 +16,14 @@ class StokController extends Controller
     public function index(Request $request)
     {
 
-        $threshold = $request->input('threshold', 5);
         $produks = Produk::with('kategori_produk')
-                         ->where('qty', '<=', $threshold)
+                         ->whereColumn('qty', '<=', 'stok_minimum')
                          ->orderBy('qty', 'asc')
                          ->paginate(15);
 
         return view('dashboard.inventaris.stok.rendah', [
             'title' => 'Laporan Stok Rendah',
-            'produks' => $produks,
-            'threshold' => $threshold
+            'produks' => $produks
         ]);
     }
 }

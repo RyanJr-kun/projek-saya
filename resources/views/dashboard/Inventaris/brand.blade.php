@@ -59,7 +59,7 @@
                 </thead>
                 <tbody id="isiTable">
                     @foreach ($brands as $brand)
-                    <tr>
+                    <tr id="brand-row-{{ $brand->slug }}">
                     <td>
                         <div title="foto & nama brand" class="d-flex ms-2 px-2 py-1 align-items-center">
                             @if ($brand->img_brand)
@@ -95,7 +95,7 @@
                             title="Edit brand">
                             <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
                         </a>
-                        <a href="#" class="text-dark delete-user-btn"
+                        <a href="#" class="text-dark delete-btn"
                             data-bs-toggle="modal"
                             data-bs-target="#deleteConfirmationModal"
                             data-brand-slug="{{ $brand->slug }}"
@@ -106,6 +106,13 @@
                     </td>
                     </tr>
                     @endforeach
+                    @if($brands->isEmpty())
+                        <tr id="brand-row-empty">
+                            <td colspan="5" class="text-center py-4">
+                                <p class="text-dark text-sm fw-bold mb-0">Belum ada data brand.</p>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
                 </table>
                 <div class="my-3 ms-3">{{ $brands->onEachSide(1)->links() }}</div>
@@ -223,6 +230,7 @@
     </div>
 
     @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
         <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
         <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
@@ -230,6 +238,36 @@
         <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
         <script>
+            // Fungsi untuk membuat baris tabel baru dari data
+            function createTableRow(brand) {
+                const statusBadge = brand.status ? '<span class="badge badge-success">Aktif</span>' : '<span class="badge badge-secondary">Tidak Aktif</span>';
+                const imageUrl = brand.img_brand ? `{{ asset('storage') }}/${brand.img_brand}` : `{{ asset('assets/img/produk.webp') }}`;
+                const editUrl = `{{ url('brand/getjson') }}/${brand.slug}`;
+                const updateUrl = `{{ url('brand') }}/${brand.slug}`;
+
+                return `
+                    <tr id="brand-row-${brand.slug}">
+                        <td>
+                            <div title="foto & nama brand" class="d-flex ms-2 px-2 py-1 align-items-center">
+                                <img src="${imageUrl}" class="avatar avatar-sm me-3" alt="${brand.nama}">
+                                <h6 class="mb-0 text-sm">${brand.nama}</h6>
+                            </div>
+                        </td>
+                        <td><p class="text-xs text-dark fw-bold mb-0">${brand.produks_count}</p></td>
+                        <td><p class="text-xs text-dark fw-bold mb-0">${brand.created_at_formatted}</p></td>
+                        <td class="align-middle text-center text-sm">${statusBadge}</td>
+                        <td class="align-middle">
+                            <a href="#" class="text-dark fw-bold px-3 text-xs" data-bs-toggle="modal" data-bs-target="#editModal" data-url="${editUrl}" data-update-url="${updateUrl}" title="Edit brand">
+                                <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
+                            </a>
+                            <a href="#" class="text-dark delete-btn" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal" data-brand-slug="${brand.slug}" data-brand-name="${brand.nama}" title="Hapus Unit">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
                 // --- FILEPOND SETUP ---
                 FilePond.registerPlugin(
@@ -310,24 +348,36 @@
                                 body: formData
                             })
                             .then(response => {
-                                if (response.ok) {
-                                    // Jika berhasil, reload halaman untuk melihat data baru
-                                    window.location.reload();
-                                } else if (response.status === 422) {
-                                    // Jika ada error validasi, tampilkan pesan error di form.
-                                    response.json().then(data => {
-                                        Object.keys(data.errors).forEach(key => {
+                                if (!response.ok) {
+                                    return response.json().then(data => { throw data; });
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    const tableBody = document.getElementById('isiTable');
+                                    const newRowHtml = createTableRow(data.data);
+                                    tableBody.insertAdjacentHTML('afterbegin', newRowHtml);
+                                    document.getElementById('brand-row-empty')?.remove();
+
+                                    const modalInstance = bootstrap.Modal.getInstance(createModal);
+                                    modalInstance.hide();
+
+                                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, showConfirmButton: false, timer: 1500 });
+                                }
+                            })
+                            .catch(errorData => {
+                                if (errorData.errors) {
+                                        Object.keys(errorData.errors).forEach(key => {
                                             const input = createForm.querySelector(`[name="${key}"]`);
                                             const errorDiv = createForm.querySelector(`#${key}-error`);
                                             if (input) input.classList.add('is-invalid');
-                                            if (errorDiv) errorDiv.textContent = data.errors[key][0];
+                                            if (errorDiv) errorDiv.textContent = errorData.errors[key][0];
                                         });
-                                    });
                                 } else {
-                                    alert('Terjadi kesalahan pada server. Silakan coba lagi.');
+                                    Swal.fire({ icon: 'error', title: 'Gagal!', text: errorData.message || 'Terjadi kesalahan server.' });
                                 }
-                            })
-                            .catch(error => console.error('An unexpected network error occurred:', error));
+                            });
                         });
                     }
                 }
@@ -359,6 +409,7 @@
                 // --- MODAL EDIT ---
                 const editModal = document.getElementById('editModal');
                 let editPond = null; // Untuk menyimpan instance FilePond modal edit
+                const csrfToken = '{{ csrf_token() }}';
 
                 if (editModal) {
                     const editForm = editModal.querySelector('#editBrandForm');
@@ -372,6 +423,7 @@
                         const dataUrl = button.getAttribute('data-url');
                         const updateUrl = button.getAttribute('data-update-url');
 
+                        // Set action form untuk update
                         editForm.action = updateUrl;
 
                         fetch(dataUrl)
@@ -405,11 +457,11 @@
                                     server: {
                                         process: {
                                             url: '/dashboard/brand/upload', // Pastikan route ini ada
-                                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                            headers: { 'X-CSRF-TOKEN': csrfToken }
                                         },
                                         revert: {
                                             url: '/dashboard/brand/revert',
-                                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                            headers: { 'X-CSRF-TOKEN': csrfToken }
                                         }
                                     }
                                 });
@@ -439,6 +491,39 @@
                             .catch(error => console.error('Error fetching brand data:', error));
                     });
 
+                    editForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
+                        const updateUrl = this.action;
+
+                        fetch(updateUrl, {
+                            method: 'POST', // Laravel handles PUT/PATCH via _method field
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const updatedRow = createTableRow(data.data);
+                                const oldRow = document.getElementById(`brand-row-${data.data.slug}`);
+                                if (oldRow) {
+                                    oldRow.outerHTML = updatedRow;
+                                }
+                                bootstrap.Modal.getInstance(editModal).hide();
+                                Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, showConfirmButton: false, timer: 1500 });
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Terjadi kesalahan.' });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('Error', 'Tidak dapat terhubung ke server.', 'error');
+                        });
+                    });
+
                     // Event listener untuk slug otomatis di modal edit
                     inputNama.addEventListener('change', function() {
                         fetch(`/dashboard/brand/chekSlug?nama=${inputNama.value}`)
@@ -463,10 +548,8 @@
                             if (newFile && newFile.serverId) {
                                 // Jika ada file baru yang sudah diunggah, hapus dulu dari server
                                 fetch('{{ route("brand.revert") }}', {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    },
+                                    method: 'DELETE', // Laravel handles PUT/PATCH via _method field
+                                    headers: { 'X-CSRF-TOKEN': csrfToken },
                                     body: newFile.serverId
                                 }).finally(() => {
                                     modalInstance.hide();
@@ -488,19 +571,47 @@
                 }
 
                 // --- MODAL DELETE ---
-                const deleteModal = document.getElementById('deleteConfirmationModal');
-                if (deleteModal) {
-                    deleteModal.addEventListener('show.bs.modal', function (event) {
-                        const button = event.relatedTarget;
-                        const brandSlug = button.getAttribute('data-brand-slug');
-                        const brandName = button.getAttribute('data-brand-name');
-                        const modalBodyName = deleteModal.querySelector('#brandNameToDelete');
-                        const deleteForm = deleteModal.querySelector('#deleteBrandForm');
+                const deleteModalEl = document.getElementById('deleteConfirmationModal');
+                if (deleteModalEl) {
+                    const deleteForm = deleteModalEl.querySelector('#deleteBrandForm');
+                    const modalBodyName = deleteModalEl.querySelector('#brandNameToDelete');
+                    const deleteModalInstance = new bootstrap.Modal(deleteModalEl);
+                    let brandSlugToDelete = null;
 
+                    deleteModalEl.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        brandSlugToDelete = button.getAttribute('data-brand-slug');
+                        const brandName = button.getAttribute('data-brand-name');
                         modalBodyName.textContent = brandName;
-                        deleteForm.action = `/brand/${brandSlug}`;
+                    });
+
+                    deleteForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        if (!brandSlugToDelete) return;
+
+                        const url = `/brand/${brandSlugToDelete}`;
+
+                        fetch(url, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                        })
+                        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+                        .then(({ ok, data }) => {
+                            deleteModalInstance.hide();
+                            if (ok && data.success) {
+                                Swal.fire({ icon: 'success', title: 'Berhasil!', text: data.message, timer: 2000, showConfirmButton: false });
+                                document.getElementById(`brand-row-${brandSlugToDelete}`).remove();
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Gagal!', text: data.message || 'Terjadi kesalahan.' });
+                            }
+                        })
+                        .catch(error => {
+                            deleteModalInstance.hide();
+                            Swal.fire('Error', 'Tidak dapat terhubung ke server.', 'error');
+                        });
                     });
                 }
+
                 // Filter tabel
                 const searchInput = document.getElementById('searchInput');
                 const statusFilter = document.getElementById('statusFilter');
