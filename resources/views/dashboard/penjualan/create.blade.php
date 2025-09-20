@@ -136,6 +136,8 @@
                                         data-img="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp') }}"
                                         data-stok="{{ $produk->qty }}"
                                         data-wajib-seri="{{ $produk->wajib_seri ? 'true' : 'false' }}"
+                                        data-pajak-id="{{ $produk->pajak_id }}"
+                                        data-pajak-rate="{{ $produk->pajak->rate ?? 0 }}"
                                         data-disabled="{{ $produk->qty < 1 ? 'true' : 'false' }}">
                                         <img class="card-img-top rounded-2" src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp') }}" alt="Gambar Produk">
                                         <div class="card-body p-2">
@@ -226,6 +228,7 @@
                                             <tr>
                                                 <th class="text-uppercase text-dark text-xs font-weight-bolder">Produk</th>
                                                 <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">Qty</th>
+                                                <th class="text-end text-uppercase text-dark text-xs font-weight-bolder ">PPN</th>
                                                 <th class="text-end text-uppercase text-dark text-xs font-weight-bolder ">Subtotal</th>
                                                 <th class="text-end text-uppercase text-dark text-xs font-weight-bolder">Aksi</th>
                                             </tr>
@@ -548,6 +551,11 @@
                 // --- STATE ---
                 const cart = new Map(); // Using Map for easier item management
 
+                const pajakRates = new Map();
+                @foreach($pajaks as $pajak)
+                    pajakRates.set({{ $pajak->id }}, {{ $pajak->rate }});
+                @endforeach
+
                 // --- DOM ELEMENTS ---
                 const productList = document.getElementById('product-list');
                 const allProductCards = document.querySelectorAll('.product-card'); // Ambil semua kartu produk
@@ -590,43 +598,42 @@
 
                 // DIUBAH: Fungsi ini sekarang menangani penambahan produk ke state `cart`
                 const addProductToCart = (productData, serialNumbers = []) => {
-                const { id, nama, harga, stok, img } = productData;
-                const parsedId = parseInt(id);
-                const parsedHarga = parseFloat(harga);
-                const parsedStok = parseInt(stok);
+                    const { id, nama, harga, stok, img, wajibSeri, pajakId, pajakRate } = productData; // Destructure all needed data
+                    const parsedId = parseInt(id);
+                    const parsedHarga = parseFloat(harga);
+                    const parsedStok = parseInt(stok);
 
-                if (cart.has(parsedId)) {
-                    const item = cart.get(parsedId);
-                    if (item.jumlah < item.stok) {
-                        item.jumlah++;
+                    if (cart.has(parsedId)) {
+                        const item = cart.get(parsedId);
+                        if (item.jumlah < item.stok) {
+                            item.jumlah++;
+                        } else {
+                            alert(`Stok untuk ${nama} tidak mencukupi.`);
+                        }
                     } else {
-                        alert(`Stok untuk ${nama} tidak mencukupi.`);
-                    }
-                } else {
-                    if (parsedStok > 0) {
-                        // Tentukan kuantitas awal. Jika ada nomor seri, kuantitasnya adalah jumlah nomor seri.
-                        // Jika tidak, kuantitasnya adalah 1.
-                        const initialQuantity = serialNumbers.length > 0 ? serialNumbers.length : 1;
+                        if (parsedStok > 0) {
+                            const initialQuantity = serialNumbers.length > 0 ? serialNumbers.length : 1;
 
-                        cart.set(parsedId, {
-                            id: parsedId,
-                            nama,
-                            harga: parsedHarga,
-                            stok: parsedStok,
-                            img,
-                            jumlah: initialQuantity, // <-- SUDAH DIPERBAIKI
-                            harga_jual: parsedHarga,
-                            diskon: 0,
-                            pajak_id: null,
-                            pajak_rate: 0,
-                            serial_numbers: serialNumbers
-                        });
-                    } else {
-                        alert(`${nama} kehabisan stok.`);
+                            cart.set(parsedId, {
+                                id: parsedId,
+                                nama,
+                                harga: parsedHarga,
+                                stok: parsedStok,
+                                img,
+                                jumlah: initialQuantity,
+                                harga_jual: parsedHarga,
+                                diskon: 0,
+                                pajak_id: pajakId ? parseInt(pajakId) : null,
+                                pajak_rate: pajakRate ? parseFloat(pajakRate) : 0,
+                                serial_numbers: serialNumbers,
+                                wajib_seri: wajibSeri === 'true'
+                            });
+                        } else {
+                            alert(`${nama} kehabisan stok.`);
+                        }
                     }
-                }
-                updateCartAndTotals();
-            };
+                    updateCartAndTotals();
+                };
 
 
                 const updateQuantity = (id, newQuantity) => {
@@ -671,8 +678,8 @@
                     cartContainer.innerHTML = '';
                     if (cart.size === 0) {
                         const emptyRow = `
-                            <tr id="cart-empty-message">
-                                <td colspan="4" class="text-center py-4 text-muted">
+                            <tr id="cart-empty-message" >
+                                <td colspan="5" class="text-center py-4 text-muted">
                                     <i class="fas fa-shopping-cart fa-2x mb-2"></i>
                                     <p>Keranjang masih kosong</p>
                                 </td>
@@ -682,6 +689,7 @@
                         let formIndex = 0;
                         cart.forEach(item => {
                             const subtotalItem = (item.harga_jual * item.jumlah) - item.diskon; // Subtotal sebelum pajak
+                            const pajakItem = subtotalItem * (item.pajak_rate / 100); // Hitung PPN untuk item ini
                             // BARU: Buat input hidden untuk nomor seri
                             let serialNumberInputs = '';
                             if (item.serial_numbers && item.serial_numbers.length > 0) {
@@ -696,6 +704,13 @@
                                 serialNumberDisplay = `<span class="text-xs text-muted d-block">SN: ${item.serial_numbers.join(', ')}</span>`;
                             }
 
+                            // BARU: Logika untuk menampilkan/menyembunyikan tombol edit
+                            const editButtonHtml = item.wajib_seri ? '' : `
+                                <button class="btn btn-link text-dark p-0 cart-action-btn edit-item" data-id="${item.id}" title="Edit Item" type="button">
+                                    <i class="bi bi-pencil-square bi-sm"></i>
+                                </button>
+                            `;
+
                             const itemHtml = `
                                 <tr class="cart-item-row">
                                     <input type="hidden" name="items[${formIndex}][produk_id]" value="${item.id}">
@@ -704,7 +719,7 @@
                                     <input type="hidden" name="items[${formIndex}][diskon]" value="${item.diskon}">
                                     <input type="hidden" name="items[${formIndex}][pajak_id]" value="${item.pajak_id || ''}">
                                     ${serialNumberInputs}
-                                    <td style="width: 80%;">
+                                    <td>
                                         <div class="d-flex align-items-center">
                                             <img src="${item.img}" class="avatar avatar-sm rounded me-2" alt="product image">
                                             <div class="d-flex flex-column" style="min-width: 0;">
@@ -714,19 +729,18 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="align-middle text-center" style="width: 25%;">
+                                    <td class="align-middle text-center">
                                         <button class="btn btn-outline-primary btn-sm rounded-circle p-0 mt-3 qty-decrease" data-id="${item.id}" type="button" style="width: 20px; height: 20px;">-</button>
                                         <span class="fw-bold px-1 text-sm">${item.jumlah}</span>
                                         <button class="btn btn-outline-primary btn-sm rounded-circle p-0 mt-3 qty-increase" data-id="${item.id}" type="button" style="width: 20px; height: 20px;">+</button>
                                     </td>
-                                    <td class="align-middle text-end"><span class="text-sm fw-bold">${formatCurrency(subtotalItem)}</span></td>
-                                    <td class="align-middle text-end">
+                                    <td class="align-middle text-end"><span class="text-xs fw-bold">${formatCurrency(pajakItem)}</span></td>
+                                    <td class="align-middle text-end"><span class="text-xs fw-bold">${formatCurrency(subtotalItem)}</span></td>
+                                    <td class="align-middle text-end" style="padding-top: 25px;">
                                         <div class="d-flex justify-content-end">
-                                            <button class="btn btn-link text-info p-0 cart-action-btn edit-item" data-id="${item.id}" title="Edit Item" type="button">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-                                            <button class="btn btn-link text-danger p-0 ms-2 cart-action-btn remove-item" data-id="${item.id}" title="Hapus Item" type="button">
-                                                <i class="bi bi-trash"></i>
+                                            ${editButtonHtml}
+                                            <button class="btn btn-link text-danger p-0 mx-2 cart-action-btn remove-item" data-id="${item.id}" title="Hapus Item" type="button">
+                                                <i class="bi bi-trash bi-sm"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -751,11 +765,12 @@
                     let subtotal = 0;
                     let totalPajak = 0;
                     cart.forEach(item => {
-                        const hargaTotalItem = item.harga_jual * item.jumlah;
-                        const dpp = hargaTotalItem / (1 + item.pajak_rate / 100); // Dasar Pengenaan Pajak
-                        const pajakItem = hargaTotalItem - dpp;
-
-                        subtotal += dpp;
+                        // PERBAIKAN: Logika kalkulasi diubah menjadi Tax-Exclusive
+                        // Subtotal item adalah harga jual dikali jumlah, dikurangi diskon item.
+                        const subtotalItem = (item.harga_jual * item.jumlah) - item.diskon;
+                        // Pajak dihitung dari subtotal item.
+                        const pajakItem = subtotalItem * (item.pajak_rate / 100);
+                        subtotal += subtotalItem;
                         totalPajak += pajakItem;
                     });
 
@@ -815,38 +830,36 @@
                 };
 
                 // --- EVENT LISTENERS ---
-                // DIUBAH: Logika event listener klik produk
+                // --- PERUBAHAN 3: Membaca data-pajak-id saat produk diklik ---
                 productList.addEventListener('click', (e) => {
                     const card = e.target.closest('.product-card');
                     if (!card) return;
 
-                    const { id, nama, harga, stok, disabled, img, wajibSeri } = card.dataset;
+                    // Ambil pajakId dari dataset card
+                    const { id, nama, harga, stok, disabled, img, wajibSeri, pajakId, pajakRate } = card.dataset;
 
                     if (disabled === 'true') return;
 
                     const isWajibSeri = wajibSeri === 'true';
-                    tempProductDataForSN = { id, nama, harga, stok, img }; // Simpan data produk sementara
+                    // Simpan semua data termasuk pajakId ke objek sementara
+                    tempProductDataForSN = { id, nama, harga, stok, img, wajibSeri, pajakId, pajakRate };
 
                     if (isWajibSeri) {
-                        // JIKA WAJIB SERI, SELALU BUKA MODAL
                         const itemInCart = cart.get(parseInt(id));
                         const existingSerials = itemInCart ? itemInCart.serial_numbers : [];
-                        const requiredQty = itemInCart ? itemInCart.jumlah + 1 : 1; // Hitung kuantitas yang dibutuhkan
-
-                        openSerialNumberModal(id, nama, requiredQty, existingSerials); // Kirim kuantitas ke modal
-
+                        const requiredQty = itemInCart ? itemInCart.jumlah + 1 : 1;
+                        openSerialNumberModal(id, nama, requiredQty, existingSerials);
                     } else {
-                        // Logika untuk produk non-seri tetap sama
                         const item = cart.get(parseInt(id));
-                        // Jika sudah ada di keranjang, update kuantitasnya
                         if (item) {
                             updateQuantity(parseInt(id), item.jumlah + 1);
                         } else {
-                            // Jika belum ada, tambahkan produk ke keranjang
+                            // Kirim objek lengkap ke fungsi addProductToCart
                             addProductToCart(tempProductDataForSN);
                         }
                     }
                 });
+                // --- AKHIR PERUBAHAN 3 ---
 
                 cartContainer.addEventListener('click', (e) => {
                     const id = parseInt(e.target.closest('[data-id]')?.dataset.id);
@@ -860,7 +873,7 @@
                         // JIKA PRODUK BERSERI
                         if (item.serial_numbers && item.serial_numbers.length > 0) {
                             // Siapkan data untuk membuka modal
-                            tempProductDataForSN = { id: item.id, nama: item.nama, harga: item.harga, stok: item.stok, img: item.img };
+                        tempProductDataForSN = { id: item.id, nama: item.nama, harga: item.harga, stok: item.stok, img: item.img, wajibSeri: item.wajib_seri, pajakId: item.pajak_id, pajakRate: item.pajak_rate };
                             const requiredQty = item.jumlah + 1;
                             // Buka modal untuk memilih SN tambahan
                             openSerialNumberModal(item.id, item.nama, requiredQty, item.serial_numbers);
@@ -933,7 +946,7 @@
                     document.getElementById('edit-item-nama').value = item.nama;
                     editItemHargaInput.value = new Intl.NumberFormat('id-ID').format(item.harga_jual);
                     editItemDiskonInput.value = new Intl.NumberFormat('id-ID').format(item.diskon);
-                    document.getElementById('edit-item-pajak-id').value = item.pajak_id || '';
+                    document.getElementById('edit-item-pajak-id').value = item.pajak_id || "";
 
                     editItemModal.show();
                 }
@@ -996,7 +1009,7 @@
 
                 // GANTI SELURUH FUNGSI INI
                 async function openSerialNumberModal(produkId, namaProduk, requiredQty = 1, existingSerials = []) {
-                    snNamaProduk.textContent = namaProduk;
+                    snNamaProduk.textContent = tempProductDataForSN.nama || namaProduk;
                     snRequiredCount.textContent = requiredQty; // Menampilkan jumlah yang benar di pesan info
                     snErrorMessage.textContent = '';
                     snListContainer.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm"></div></div>';

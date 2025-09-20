@@ -36,7 +36,8 @@ class PenjualanController extends Controller
     public function create()
     {
 
-        $produks = Produk::where('qty', '>', 0)->orderBy('nama_produk')->get();
+        // PERBAIKAN: Eager load relasi untuk efisiensi dan ketersediaan data di view
+        $produks = Produk::with(['kategori_produk', 'unit', 'pajak'])->where('qty', '>', 0)->orderBy('nama_produk')->get();
         $pelanggans = Pelanggan::where('status', 1)->orderBy('nama')->get();
         $kategoris = KategoriProduk::where('status', 1)->orderBy('nama')->get();
         $pajaks = Pajak::all(); // Ambil semua data pajak

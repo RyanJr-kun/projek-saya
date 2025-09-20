@@ -13,6 +13,7 @@ class PajakSeeder extends Seeder
      */
     public function run(): void
     {
+        Pajak::firstOrCreate(['nama_pajak' => 'Bebas Pajak', 'rate' => '0']);
         Pajak::firstOrCreate(['nama_pajak' => 'PPN', 'rate' => '12']);
     }
 }
