@@ -1,10 +1,13 @@
 <?php
 
 
+
+use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Gate;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -23,4 +26,5 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('uploads:clean-tmp')->daily();
+
     })->create();

@@ -55,7 +55,7 @@
                 </div>
             </li>
 
-            @if (Auth::user()->role_id == 1)
+            @can('is-admin')
             {{-- pembelian --}}
             <li class="nav-item">@php $isPembelianActive = request()->routeIs('pembelian.*', 'pemasok.*'); @endphp
                 <a data-bs-toggle="collapse" href="#pembelian" class="nav-link {{ $isPembelianActive ? 'active' : '' }}" aria-controls="pembelian" role="button" aria-expanded="{{ $isPembelianActive ? 'true' : 'false' }}">
@@ -84,7 +84,7 @@
                     </ul>
                 </div>
             </li>
-            @endif
+            @endcan
 
             <hr class="horizontal dark my-2">
             <li class="nav-item">
@@ -216,7 +216,7 @@
                     </ul>
                 </div>
             </li>
-            <li class="nav-item">@php $isLaporanActive = request()->routeIs('stok.rendah', 'laporan.inventaris'); @endphp
+            <li class="nav-item">@php $isLaporanActive = request()->routeIs('laporan.*', 'stok.rendah'); @endphp
                 <a data-bs-toggle="collapse" href="#laporan" class="nav-link {{ $isLaporanActive ? 'active' : '' }}" aria-controls="laporan" role="button" aria-expanded="{{ $isLaporanActive ? 'true' : 'false' }}">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="bi bi-bar-chart-fill text-dark text-sm opacity-10"></i>
@@ -224,34 +224,34 @@
                     <span class="nav-link-text ms-1">Laporan</span>
                 </a>
                 <div class="collapse {{ $isLaporanActive ? 'show' : '' }}" id="laporan">
-                    <ul class="nav ms-4">
+                    <ul class="nav ms-4 ps-0">
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('laporan.inventaris') ? 'active' : '' }}" href="{{ route('laporan.inventaris') }}">
                         <span class="sidenav-normal"> Pergerakan Stok</span>
                         </a>
                     </li>
-                    <li class="nav-item ">
-                        <a class="nav-link " href="#jual">
-                        <span class="sidenav-normal"> Laporan Penjualan </span>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('laporan.penjualan') ? 'active' : '' }}" href="{{ route('laporan.penjualan') }}">
+                            <span class="sidenav-normal"> Laporan Penjualan </span>
                         </a>
                     </li>
-                    @if (Auth::user()->role_id == 1) {{-- TODO: Ganti dengan Gate atau Policy --}}
+                    @can('is-admin')
                     <li class="nav-item ">
-                        <a class="nav-link " href="#beli">
-                        <span class="sidenav-normal"> Laporan Pembelian </span>
+                        <a class="nav-link {{ request()->routeIs('laporan.pembelian') ? 'active' : '' }}" href="{{ route('laporan.pembelian') }}">
+                        <span class="sidenav-normal">Laporan Pembelian</span>
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link " href="#laba">
-                        <span class="sidenav-normal"> Laporan Laba Bersih </span>
+                        <a class="nav-link {{ request()->routeIs('laporan.laba-rugi') ? 'active' : '' }}" href="{{ route('laporan.laba-rugi') }}">
+                        <span class="sidenav-normal"> Laporan Laba Rugi </span>
                         </a>
                     </li>
-                    @endif
+                    @endcan
                     </ul>
                 </div>
             </li>
 
-            @if (Auth::user()->role_id == 1) {{-- TODO: Ganti dengan Gate atau Policy --}}
+            @can('is-admin')
             <hr class="horizontal dark my-2">
             {{-- Autentikasi --}}
             <li class="nav-item">
@@ -265,7 +265,15 @@
                     <span class="nav-link-text ms-1">Users</span>
                 </a>
             </li>
-            @endif
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('pengaturan.profil-toko.edit*') ? 'active' : '' }}" href="{{ route('pengaturan.profil-toko.edit') }}">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-gear-fill text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Setting</span>
+                </a>
+            </li>
+            @endcan
         </ul>
     </div>
 </aside>

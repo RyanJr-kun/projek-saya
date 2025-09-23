@@ -18,11 +18,12 @@ use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\SerialNumberController;
+use App\Http\Controllers\Pengaturan\ProfilTokoController;
+use App\Http\Controllers\ProfilTokoController as PengaturanProfilTokoController;
 use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\StokPenyesuaianController;
-use App\Http\Controllers\KategoriPemasukanController;
 use App\Http\Controllers\KategoriTransaksiController;
-use App\Http\Controllers\KategoriPengeluaranController;
+use App\Http\Controllers\DashboardController;
 
 //Autentikasi
 Route::get('login', [LoginController::class, 'index'])->name('login')->middleware('guest');
@@ -39,13 +40,8 @@ Route::get('/', function () {
 
 
 Route::middleware(['auth'])->group(function () {
-    //dashboard
-    Route::get('/dashboard', function () {
-        return view('dashboard.index', [
-            'title'=>'Dashboard',
-        ]);
-    })->name('dashboard');
 
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
     Route::get('keuangan', [KeuanganController::class, 'index'])->name('keuangan');
     Route::get('stok-opname', [StokOpnameController::class, 'index'])->name('stok-opname.index');
     Route::post('stok-opname', [StokOpnameController::class, 'store'])->name('stok-opname.store');
@@ -143,6 +139,17 @@ Route::middleware(['auth'])->group(function () {
     // Laporan
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('inventaris', [LaporanController::class, 'inventaris'])->name('inventaris');
+        Route::get('pembelian', [LaporanController::class, 'pembelian'])->name('pembelian');
+        Route::get('penjualan', [LaporanController::class, 'penjualan'])->name('penjualan');
+        Route::get('laba-rugi', [LaporanController::class, 'labaRugi'])->name('laba-rugi');
+    });
+
+    // Pengaturan
+    Route::prefix('pengaturan')->name('pengaturan.')->group(function () {
+        Route::get('profil-toko', [PengaturanProfilTokoController::class, 'edit'])->name('profil-toko.edit');
+        Route::put('profil-toko', [PengaturanProfilTokoController::class, 'update'])->name('profil-toko.update');
+        Route::post('profil-toko/upload', [PengaturanProfilTokoController::class, 'upload'])->name('profil-toko.upload');
+        Route::delete('profil-toko/revert', [PengaturanProfilTokoController::class, 'revert'])->name('profil-toko.revert');
     });
 });
 

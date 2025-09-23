@@ -81,7 +81,7 @@
                                     <p title="tanggal pengeluaran" class="text-xs text-dark fw-bold mb-0">{{ $pengeluaran->tanggal }}</p>
                                 </td>
                                 <td>
-                                    <p title="jumlah pengeluaran" class="text-xs text-dark fw-bold mb-0">{{ $pengeluaran->harga_formatted }}</p>
+                                    <p title="jumlah pengeluaran" class="text-xs text-dark fw-bold mb-0">@money($pengeluaran->jumlah)</p>
                                 </td>
                                 <td>
                                     <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">

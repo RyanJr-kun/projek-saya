@@ -2,10 +2,9 @@
     {{-- breadcrumb --}}
     @section('breadcrumb')
         @php
-        $breadcrumbItems = [
-            ['name' => 'Page', 'url' => '/dashboard'],
-            ['name' => 'Dashboard', 'url' => route('garansi.index')],
-        ];
+            $breadcrumbItems = [
+                ['name' => 'Dashboard', 'url' => route('dashboard')],
+            ];
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
@@ -18,14 +17,19 @@
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase text-dark font-weight-bold">Total Penjualan</p>
-                                    <h5 class="font-weight-bolder">$53,000</h5>
-                                    <p class="mb-0"><span class="text-success text-sm font-weight-bolder">+55%</span>Dari Kemarin</p>
+                                    <p class="text-sm mb-0 text-uppercase text-dark font-weight-bold">Pendapatan Hari Ini</p>
+                                    <h5 class="font-weight-bolder">Rp {{ number_format($pendapatanHariIni, 0, ',', '.') }}</h5>
+                                    <p class="mb-0">
+                                        <span class="text-sm font-weight-bolder {{ $persentasePendapatan >= 0 ? 'text-success' : 'text-danger' }}">
+                                            {{ $persentasePendapatan >= 0 ? '+' : '' }}{{ number_format($persentasePendapatan, 2) }}%
+                                        </span>
+                                        dari kemarin
+                                    </p>
                                 </div>
                             </div>
                             <div class="col text-end">
-                                <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                                    <i class="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
+                                <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
+                                    <i class="bi bi-cash-coin text-lg opacity-10" aria-hidden="true"></i>
                                 </div>
                             </div>
                         </div>
@@ -38,49 +42,63 @@
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase text-dark font-weight-bold">Total Penjualan</p>
-                                    <h5 class="font-weight-bolder">$53,000</h5>
-                                    <p class="mb-0"><span class="text-success text-sm font-weight-bolder">+55%</span>Dari Kemarin</p>
+                                    <p class="text-sm mb-0 text-uppercase text-dark font-weight-bold">Transaksi Hari Ini</p>
+                                    <h5 class="font-weight-bolder">{{ $transaksiHariIni }}</h5>
+                                    <p class="mb-0">
+                                        <span class="text-sm font-weight-bolder {{ $persentaseTransaksi >= 0 ? 'text-success' : 'text-danger' }}">
+                                            {{ $persentaseTransaksi >= 0 ? '+' : '' }}{{ number_format($persentaseTransaksi, 2) }}%
+                                        </span>
+                                        dari kemarin
+                                    </p>
                                 </div>
                             </div>
                             <div class="col text-end">
                                 <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
-                                    <i class="ni ni-money-coins text-lg opacity-10" aria-hidden="true"></i>
+                                    <i class="bi bi-receipt-cutoff text-lg opacity-10" aria-hidden="true"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4 ">
+            <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
                 <div class="card rounded-2">
                     <div class="card-body p-3">
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">New Clients</p>
-                                    <h5 class="font-weight-bolder">+3,462</h5>
-                                    <p class="mb-0"><span class="text-danger text-sm font-weight-bolder">-2%</span>since last quarter</p>
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Stok Rendah</p>
+                                    <h5 class="font-weight-bolder">{{ $stokRendahCount }} Produk</h5>
+                                    <p class="mb-0">
+                                        <a href="{{ route('stok.rendah') }}" class="text-warning text-sm font-weight-bolder">Lihat Detail</a>
+                                    </p>
                                 </div>
                             </div>
                             <div class="col-4 text-end">
-                                <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
-                                    <i class="ni ni-paper-diploma text-lg opacity-10" aria-hidden="true"></i>
+                                <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
+                                    <i class="bi bi-box-seam text-lg opacity-10" aria-hidden="true"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-sm-4">
+            <div class="col-xl-3 col-sm-6">
                 <div class="card rounded-2">
-                    <div class="card-body p-2">
+                    <div class="card-body p-3">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Sales</p>
-                                    <h6 class="font-weight-bolder">$103,430</h6>
-                                    <p class="mb-0"><span class="text-success text-sm font-weight-bolder">+5%</span> Dari Bulan Lalu</p>
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pelanggan Baru</p>
+                                    <h5 class="font-weight-bolder">{{ $pelangganBaruCount }}</h5>
+                                    <p class="mb-0">
+                                        <span class="text-dark text-sm font-weight-bolder">Bulan Ini</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="icon icon-shape bg-gradient-info shadow-info text-center rounded-circle">
+                                    <i class="bi bi-people-fill text-lg opacity-10" aria-hidden="true"></i>
                                 </div>
                             </div>
                         </div>
@@ -89,231 +107,45 @@
             </div>
         </div>
         <div class="row mt-4">
-            <div class="col-lg-7 mb-lg-0 mb-4">
+            <div class="col-lg-8 mb-lg-0 mb-4">
                 <div class="card z-index-2 rounded-2 ">
                     <div class="card-header pb-0 pt-3 bg-transparent">
-                        <h6 class="text-capitalize">Sales overview</h6>
+                        <h6 class="text-capitalize">Grafik Penjualan (30 Hari Terakhir)</h6>
                         <p class="text-sm mb-0">
-                            <i class="fa fa-arrow-up text-success"></i>
-                            <span class="font-weight-bold">4% more</span> in 2021
+                            <i class="fa fa-arrow-up text-success me-1"></i>
+                            <span class="font-weight-bold">Total Pendapatan</span> bulan ini
                         </p>
                     </div>
                     <div class="card-body p-3">
                         <div class="chart">
-                            <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+                            <canvas id="chart-line" class="chart-canvas" height="350"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5">
-                    <div class="card rounded-2">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between ">
-                                <h6 class="mb-2">Produk Terlaris</h6>
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table align-items-center ">
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                        <div class="d-flex px-2 py-1 align-items-center">
-                                            <div>
-                                            <img src="../assets/img/icons/flags/US.png" alt="Country flag">
-                                            </div>
-                                            <div class="ms-4">
-                                            <p class="text-xs font-weight-bold mb-0">Country:</p>
-                                            <h6 class="text-sm mb-0">United States</h6>
-                                            </div>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <div class="text-center">
-                                            <p class="text-xs font-weight-bold mb-0">Sales:</p>
-                                            <h6 class="text-sm mb-0">2500</h6>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <div class="text-center">
-                                            <p class="text-xs font-weight-bold mb-0">Value:</p>
-                                            <h6 class="text-sm mb-0">$230,900</h6>
-                                        </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <div class="d-flex px-2 py-1 align-items-center">
-                                            <div>
-                                            <img src="../assets/img/icons/flags/DE.png" alt="Country flag">
-                                            </div>
-                                            <div class="ms-4">
-                                            <p class="text-xs font-weight-bold mb-0">Country:</p>
-                                            <h6 class="text-sm mb-0">Germany</h6>
-                                            </div>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <div class="text-center">
-                                            <p class="text-xs font-weight-bold mb-0">Sales:</p>
-                                            <h6 class="text-sm mb-0">3.900</h6>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <div class="text-center">
-                                            <p class="text-xs font-weight-bold mb-0">Value:</p>
-                                            <h6 class="text-sm mb-0">$440,000</h6>
-                                        </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <div class="d-flex px-2 py-1 align-items-center">
-                                            <div>
-                                            <img src="../assets/img/icons/flags/GB.png" alt="Country flag">
-                                            </div>
-                                            <div class="ms-4">
-                                            <p class="text-xs font-weight-bold mb-0">Country:</p>
-                                            <h6 class="text-sm mb-0">Great Britain</h6>
-                                            </div>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <div class="text-center">
-                                            <p class="text-xs font-weight-bold mb-0">Sales:</p>
-                                            <h6 class="text-sm mb-0">1.400</h6>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <div class="text-center">
-                                            <p class="text-xs font-weight-bold mb-0">Value:</p>
-                                            <h6 class="text-sm mb-0">$190,700</h6>
-                                        </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                        <div class="d-flex px-2 py-1 align-items-center">
-                                            <div>
-                                            <img src="../assets/img/icons/flags/BR.png" alt="Country flag">
-                                            </div>
-                                            <div class="ms-4">
-                                            <p class="text-xs font-weight-bold mb-0">Country:</p>
-                                            <h6 class="text-sm mb-0">Brasil</h6>
-                                            </div>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <div class="text-center">
-                                            <p class="text-xs font-weight-bold mb-0">Sales:</p>
-                                            <h6 class="text-sm mb-0">562</h6>
-                                        </div>
-                                        </td>
-                                        <td>
-                                        <div class="text-center">
-                                            <p class="text-xs font-weight-bold mb-0">Value:</p>
-                                            <h6 class="text-sm mb-0">$143,960</h6>
-                                        </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+            <div class="col-lg-4">
+                <div class="card rounded-2">
+                    <div class="card-header pb-0">
+                        <h6 class="mb-0">Produk Terlaris Bulan Ini</h6>
                     </div>
-                </div>
-            <div class="row">
-                <div class="col-md-6 my-3">
-                    <div class="card rounded-2">
-                        <div class="card-header pb-0 p-3">
-                        <h6 class="mb-0">Categories</h6>
-                        </div>
-                        <div class="card-body p-3">
+                    <div class="card-body p-3">
                         <ul class="list-group">
-                            <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                            <div class="d-flex align-items-center">
-                                <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                                <i class="ni ni-mobile-button text-white opacity-10"></i>
-                                </div>
-                                <div class="d-flex flex-column">
-                                <h6 class="mb-1 text-dark text-sm">Devices</h6>
-                                <span class="text-xs">250 in stock, <span class="font-weight-bold">346+ sold</span></span>
-                                </div>
-                            </div>
-                            <div class="d-flex">
-                                <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
-                            </div>
-                            </li>
-                            <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                            <div class="d-flex align-items-center">
-                                <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                                <i class="ni ni-tag text-white opacity-10"></i>
-                                </div>
-                                <div class="d-flex flex-column">
-                                <h6 class="mb-1 text-dark text-sm">Tickets</h6>
-                                <span class="text-xs">123 closed, <span class="font-weight-bold">15 open</span></span>
-                                </div>
-                            </div>
-                            <div class="d-flex">
-                                <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
-                            </div>
-                            </li>
-                            <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
-                            <div class="d-flex align-items-center">
-                                <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                                <i class="ni ni-box-2 text-white opacity-10"></i>
-                                </div>
-                                <div class="d-flex flex-column">
-                                <h6 class="mb-1 text-dark text-sm">Error logs</h6>
-                                <span class="text-xs">1 is active, <span class="font-weight-bold">40 closed</span></span>
-                                </div>
-                            </div>
-                            <div class="d-flex">
-                                <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
-                            </div>
-                            </li>
-                            <li class="list-group-item border-0 d-flex justify-content-between ps-0 border-radius-lg">
-                            <div class="d-flex align-items-center">
-                                <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                                <i class="ni ni-satisfied text-white opacity-10"></i>
-                                </div>
-                                <div class="d-flex flex-column">
-                                <h6 class="mb-1 text-dark text-sm">Happy users</h6>
-                                <span class="text-xs font-weight-bold">+ 430</span>
-                                </div>
-                            </div>
-                            <div class="d-flex">
-                                <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
-                            </div>
-                            </li>
-                            <li class="list-group-item border-0 d-flex justify-content-between ps-0 border-radius-lg">
-                            <div class="d-flex align-items-center">
-                                <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                                <i class="ni ni-satisfied text-white opacity-10"></i>
-                                </div>
-                                <div class="d-flex flex-column">
-                                <h6 class="mb-1 text-dark text-sm">Happy users</h6>
-                                <span class="text-xs font-weight-bold">+ 430</span>
-                                </div>
-                            </div>
-                            <div class="d-flex">
-                                <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
-                            </div>
-                            </li>
-                            <li class="list-group-item border-0 d-flex justify-content-between ps-0 border-radius-lg">
-                            <div class="d-flex align-items-center">
-                                <div class="icon icon-shape icon-sm me-3 bg-gradient-dark shadow text-center">
-                                <i class="ni ni-satisfied text-white opacity-10"></i>
-                                </div>
-                                <div class="d-flex flex-column">
-                                <h6 class="mb-1 text-dark text-sm">Happy users</h6>
-                                <span class="text-xs font-weight-bold">+ 430</span>
-                                </div>
-                            </div>
-                            <div class="d-flex">
-                                <button class="btn btn-link btn-icon-only btn-rounded btn-sm text-dark icon-move-right my-auto"><i class="ni ni-bold-right" aria-hidden="true"></i></button>
-                            </div>
-                            </li>
+                            @forelse ($produkTerlaris as $produk)
+                                <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk">
+                                        <div class="d-flex flex-column">
+                                            <h6 class="mb-1 text-dark text-sm">{{ $produk->nama_produk }}</h6>
+                                            <span class="text-xs"><span class="font-weight-bold">{{ $produk->total_terjual }}</span> terjual</span>
+                                        </div>
+                                    </div>
+                                </li>
+                            @empty
+                                <li class="list-group-item border-0 ps-0 text-center">
+                                    <p class="text-sm text-muted">Belum ada produk yang terjual bulan ini.</p>
+                                </li>
+                            @endforelse
                         </ul>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -332,18 +164,16 @@
     new Chart(ctx1, {
       type: "line",
       data: {
-        labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        labels: {!! json_encode($salesChartLabels) !!},
         datasets: [{
-          label: "Mobile apps",
+          label: "Pendapatan",
           tension: 0.4,
-          borderWidth: 0,
-          pointRadius: 0,
+          pointRadius: 2,
           borderColor: "#5e72e4",
           backgroundColor: gradientStroke1,
           borderWidth: 3,
           fill: true,
-          data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
-          maxBarThickness: 6
+          data: {!! json_encode($salesChartData) !!}
 
         }],
       },
@@ -353,6 +183,18 @@
         plugins: {
           legend: {
             display: false,
+          },
+          tooltip: {
+            callbacks: {
+                label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) { label += ': '; }
+                    if (context.parsed.y !== null) {
+                        label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(context.parsed.y);
+                    }
+                    return label;
+                }
+            }
           }
         },
         interaction: {
@@ -369,15 +211,18 @@
               borderDash: [5, 5]
             },
             ticks: {
-              display: true,
-              padding: 10,
-              color: '#fbfbfb',
-              font: {
-                size: 11,
-                family: "Open Sans",
-                style: 'normal',
-                lineHeight: 2
-              },
+                display: true,
+                padding: 10,
+                color: '#6c757d',
+                font: {
+                    size: 11,
+                    family: "Open Sans",
+                    style: 'normal',
+                    lineHeight: 2
+                },
+                callback: function(value, index, values) {
+                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                }
             }
           },
           x: {
@@ -390,7 +235,7 @@
             },
             ticks: {
               display: true,
-              color: '#ccc',
+              color: '#6c757d',
               padding: 20,
               font: {
                 size: 11,
