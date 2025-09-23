@@ -13,6 +13,8 @@
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" media="print" onload="this.media='all'">
         <script defer src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
+
+
     </head>
 
     <body class="g-sidenav-show bg-gray-100">
@@ -21,7 +23,7 @@
         {{-- Wrapper for main content and footer to enable sticky footer --}}
         <div class="main-content position-relative border-radius-lg d-flex flex-column min-vh-100">
             <main>
-                <nav class="navbar navbar-main navbar-expand-lg px-0 px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false">
+                <nav class="navbar navbar-main navbar-expand-lg px-0 px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false" >
                     <div class="container-fluid py-0 px-3">
                         @yield('breadcrumb')
                         <div class="collapse navbar-collapse mt-md-0 mt-2" id="navbar">
@@ -239,5 +241,6 @@
                 fetchAllNotifications();
             });
         </script>
+
     </body>
 </html>

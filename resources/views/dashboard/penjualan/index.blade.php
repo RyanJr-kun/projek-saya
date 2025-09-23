@@ -30,99 +30,25 @@
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
-                <div class="filter-container">
+                <div class="filter-container p-3">
                     <div class="row g-3 align-items-center justify-content-between">
                         <!-- Filter Pencarian Unit -->
-                        <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari invoice ...">
+                        <div class="col-md-4">
+                            <input type="text" name="search" id="searchInput" class="form-control" placeholder="Cari invoice atau pelanggan..." value="{{ request('search') }}">
                         </div>
                         <!-- Filter Dropdown Status -->
-                        <div class="col-5 col-lg-2 me-3">
-                            <select id="statusFilter" class="form-select">
+                        <div class="col-md-3">
+                            <select name="status" id="statusFilter" class="form-select">
                                 <option value="">Semua Status</option>
+                                @foreach ($statuses as $status)
+                                    <option value="{{ $status }}" @selected(request('status') == $status)>{{ $status }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 mt-3">
-                    <table class="table table-hover align-items-center mb-0">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs fw-bolder">Pelanggan</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Invoice</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Tanggal</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Total</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder text-center">Status</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder">Pembuat</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($penjualan as $item)
-                                <tr>
-                                    <td>
-                                        <div class="d-flex flex-column justify-content-center ms-3">
-                                            <h6 class="mb-0 text-sm">{{ $item->pelanggan->nama ?? 'Pelanggan Umum' }}</h6>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm">{{ $item->referensi }}</h6>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <p class="text-sm fw-bolder mb-0">{{ $item->created_at->translatedFormat('d M Y, H:i') }}</p>
-                                    </td>
-                                    <td class="align-middle">
-                                        <span class="text-secondary text-sm fw-bolder">{{ $item->total }}</span>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        @php
-                                            $statusClass = '';
-                                            if ($item->status_pembayaran === 'Lunas') $statusClass = 'badge-success';
-                                            elseif ($item->status_pembayaran === 'Belum Lunas') $statusClass = 'badge-danger';
-                                            elseif ($item->status_pembayaran === 'Dibatalkan') $statusClass = 'badge-warning';
-                                        @endphp
-                                        <span class="badge badge-sm {{ $statusClass }}">{{ str_replace('_', ' ', $item->status_pembayaran) }}</span>
-                                    </td>
-                                    <td>
-                                        <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">
-                                            @if ($item->user->img_user)
-                                                <img src="{{ asset('storage/' . $item->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
-                                            @else
-                                                <img src="{{ asset('assets/img/user.webp') }}" class="avatar avatar-sm me-3" alt="Gambar User default">
-                                            @endif
-                                            <h6 class="mb-0 text-sm">{{ $item->user->nama }}</h6>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <a href="{{ route('penjualan.show', $item->referensi) }}" class="text-dark fw-bold text-sm px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
-                                            <i class="fa fa-eye "></i>
-                                        </a>
-                                        <a href="{{ route('penjualan.edit', $item->referensi) }}" class="text-dark fw-bold text-sm px-2"data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Transaksi">
-                                            <i class="fa fa-pen-to-square"></i>
-                                        </a>
-                                        <a href="#" class="text-dark fw-bold text-sm px-2"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#cancelConfirmationModal"
-                                            data-invoice-number="{{ $item->referensi }}"
-                                            title="Batalkan Transaksi">
-                                            <i class="fa fa-ban"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center py-3">
-                                        <p class=" text-dark text-sm fw-bold mb-0">Belum ada data penjualan.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mt-3 px-3">
-                    {{ $penjualan->links() }}
+                <div id="penjualan-table-container" class="mt-3">
+                    @include('dashboard.penjualan._penjualan_table')
                 </div>
             </div>
         </div>
@@ -173,6 +99,57 @@
                     if (form) form.action = `/penjualan/${invoiceNumber}`;
                 });
             }
+        });
+
+        // AJAX untuk filter dan pencarian
+        $(document).ready(function() {
+            // Fungsi untuk menunda eksekusi (debounce)
+            function debounce(func, delay) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+
+            // Fungsi untuk mengambil data dengan AJAX
+            function fetchData(page = 1) {
+                let search = $('#searchInput').val();
+                let status = $('#statusFilter').val();
+                let url = '{{ route('penjualan.index') }}';
+
+                $('#penjualan-table-container').css('opacity', 0.5); // Efek loading
+
+                $.ajax({
+                    url: url,
+                    data: { search: search, status: status, page: page },
+                    success: function(data) {
+                        $('#penjualan-table-container').html(data).css('opacity', 1);
+                        window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&status=' + status},'',url + '?page=' + page + '&search=' + search + '&status=' + status);
+                    },
+                    error: function() {
+                        $('#penjualan-table-container').css('opacity', 1);
+                        alert('Gagal memuat data. Silakan coba lagi.');
+                    }
+                });
+            }
+
+            // Event listener untuk input pencarian dengan debounce
+            $('#searchInput').on('keyup', debounce(function() {
+                fetchData(1); // Kembali ke halaman 1 saat mencari
+            }, 500));
+
+            // Event listener untuk filter status
+            $('#statusFilter').on('change', function() {
+                fetchData(1); // Kembali ke halaman 1 saat filter berubah
+            });
+
+            // Event listener untuk klik paginasi (delegasi event)
+            $(document).on('click', '#penjualan-table-container .pagination a', function(e) {
+                e.preventDefault();
+                let page = $(this).attr('href').split('page=')[1];
+                if (page) fetchData(page);
+            });
         });
     </script>
     @endpush

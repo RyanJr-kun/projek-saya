@@ -20,13 +20,42 @@ class PenjualanController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('dashboard.penjualan.index',[
-            'title' => 'Daftar Invoice Penjualan',
-            'pelanggans' => Pelanggan::where('status', 1)->orderBy('nama')->get(), // Ambil pelanggan yang aktif saja
-            'penjualan' => Penjualan::with('pelanggan', 'user', 'items')->latest()->paginate(15)
+        // Ambil semua status pembayaran yang unik untuk dropdown filter
+        $statuses = Penjualan::select('status_pembayaran')->distinct()->pluck('status_pembayaran');
 
+        // Mulai query builder
+        $query = Penjualan::with(['pelanggan', 'user'])->latest();
+
+        // Terapkan filter pencarian jika ada input 'search'
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('referensi', 'like', "%{$search}%")
+                  ->orWhereHas('pelanggan', function($q_pelanggan) use ($search) {
+                      $q_pelanggan->where('nama', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Terapkan filter status jika ada input 'status'
+        if ($request->filled('status')) {
+            $query->where('status_pembayaran', $request->input('status'));
+        }
+
+        $penjualan = $query->paginate(15)->withQueryString();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('dashboard.penjualan._penjualan_table', compact('penjualan'))->render();
+        }
+
+        // Jika request biasa, kembalikan view lengkap
+        return view('dashboard.penjualan.index', [
+            'title' => 'Daftar Invoice Penjualan',
+            'penjualan' => $penjualan,
+            'statuses' => $statuses,
         ]);
     }
 

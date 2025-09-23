@@ -16,15 +16,15 @@ return new class extends Migration
             $table->date('tanggal');
             $table->decimal('jumlah', 15, 0);
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('kategori_pengeluaran_id')->constrained('kategori_pengeluarans');
+            $table->foreignId('kategori_transaksi_id')->constrained('kategori_transaksis')->onDelete('restrict');
             $table->string('referensi');
             $table->string('keterangan');
             $table->text('deskripsi')->nullable();
             $table->timestamps();
-            
+
             $table->index('tanggal');
             $table->index('user_id');
-            $table->index('kategori_pengeluaran_id');
+            $table->index('kategori_transaksi_id');
         });
     }
 

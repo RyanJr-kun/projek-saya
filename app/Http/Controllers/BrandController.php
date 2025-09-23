@@ -17,7 +17,7 @@ class BrandController extends Controller
      */
     public function index()
     {
-        return view('dashboard.inventaris.brand',[
+        return view('dashboard.produk.brand',[
             'title' => 'Data Brand',
             'brands' => Brand::withCount('produks')->latest()->paginate(20)
         ]);

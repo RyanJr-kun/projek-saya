@@ -26,114 +26,26 @@
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
-                <div class="filter-container">
+                <div class="filter-container p-3">
                     <div class="row g-3 align-items-center justify-content-between">
-                        <!-- Filter Pencarian Unit -->
-                        <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari invoice ...">
+                        <!-- Filter Pencarian -->
+                        <div class="col-md-4">
+                            <input type="text" name="search" id="searchInput" class="form-control" placeholder="Cari invoice atau pemasok..." value="{{ request('search') }}">
                         </div>
                         <!-- Filter Dropdown Status -->
-                        <div class="col-5 col-lg-2 me-3">
-                            <select id="statusFilter" class="form-select">
-                                <option value="">Semua Status</option>
+                        <div class="col-md-3">
+                            <select name="status" id="statusFilter" class="form-select">
+                                <option value="">Semua Status Pembayaran</option>
+                                @foreach ($statuses as $status)
+                                    <option value="{{ $status }}" @selected(request('status') == $status)>{{ $status }}</option>
+                                @endforeach
+                                <option value="Dibatalkan" @selected(request('status') == 'Dibatalkan')>Dibatalkan</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 mt-3">
-                    <table class="table table-hover align-items-center mb-0">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs fw-bolder">Pemasok</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Invoice</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Tanggal</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder text-center">Status Barang</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Total Akhir</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Dibayar</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder ps-2">Sisa Tagihan</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder text-center">Status Pembayaran</th>
-                                <th class="text-uppercase text-dark text-xs fw-bolder">Pembuat</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($pembelian as $item)
-                                <tr>
-                                    <td>
-                                        <div class="d-flex flex-column justify-content-center ms-3 py-1">
-                                            <h6 class="mb-0 text-sm">{{ $item->pemasok->nama}}</h6>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ $item->referensi }}</p>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ \Carbon\Carbon::parse($item->tanggal_pembelian)->translatedFormat('d M Y') }}</p>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <span class="badge badge-sm {{ $item->status_barang == 'Diterima' ? 'badge-success' : 'badge-danger' }}">
-                                            {{ $item->status_barang }}
-                                        </span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <span class="text-dark text-xs font-weight-bold">{{ 'Rp ' . number_format($item->total_akhir, 0, ',', '.') }}</span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <span class="text-dark text-xs font-weight-bold">{{ 'Rp ' . number_format($item->jumlah_dibayar, 0, ',', '.') }}</span>
-                                    </td>
-                                    <td class="align-middle">
-                                        <span class="text-dark text-xs font-weight-bold">{{ 'Rp ' . number_format($item->sisa_hutang, 0, ',', '.') }}</span>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        @php
-                                            $statusClass = '';
-                                            if ($item->status_pembayaran == 'Lunas') $statusClass = 'badge-success';
-                                            elseif ($item->status_pembayaran == 'Lunas Sebagian') $statusClass = 'badge-warning';
-                                            else $statusClass = 'badge-danger';
-                                        @endphp
-                                        <span class="badge badge-sm {{ $statusClass }}">
-                                            {{ $item->status_pembayaran }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">
-                                            {{-- Tambahkan pengecekan $item->user untuk menghindari error jika user null --}}
-                                            @if ($item->user && $item->user->img_user)
-                                                <img src="{{ asset('storage/' . $item->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
-                                            @else
-                                                <img src="{{ asset('assets/img/user.webp') }}" class="avatar avatar-sm me-3" alt="Gambar User default">
-                                            @endif
-                                            <h6 class="mb-0 text-sm">{{ $item->user->nama ?? 'User Dihapus' }}</h6>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-start">
-                                        <a href="{{ route('pembelian.show', $item->referensi) }}" class="text-secondary font-weight-bold text-xs px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
-                                            <i class="fa fa-eye text-dark text-sm opacity-10"></i>
-                                        </a>
-                                        <a href="{{ route('pembelian.edit', $item->referensi) }}" class="text-dark mx-3" data-toggle="tooltip" data-original-title="Edit pembelian">
-                                            <i class="fa fa-pen-to-square text-dark text-sm opacity-10"></i>
-                                        </a>
-                                        <a href="#" class="text-dark font-weight-bold text-xs"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#deleteConfirmationModal"
-                                            data-pembelian-referensi="{{ $item->referensi }}"
-                                            title="Hapus Transaksi">
-                                            <i class="bi bi-trash text-sm opacity-10"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="10" class="text-center py-3 ">
-                                        <p class=" text-dark text-sm fw-bold mb-0">Belum ada data pembelian.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                <div class="mt-3 px-3">
-                    {{ $pembelian->links() }}
+                <div id="pembelian-table-container" class="mt-3">
+                    @include('dashboard.pembelian._pembelian_table')
                 </div>
             </div>
         </div>
@@ -181,20 +93,21 @@
         </div>
     </div>
 
-    {{-- Modal Delete --}}
-    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    {{-- Modal Batalkan Transaksi --}}
+    <div class="modal fade" id="cancelConfirmationModal" tabindex="-1" aria-labelledby="cancelConfirmationModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body text-center mt-3 mx-n5">
-                    <i class="bi bi-trash fa-2x text-danger mb-3"></i>
-                    <p class="mb-0">Anda yakin ingin menghapus transaksi ini?</p>
-                    <h6 class="mt-2" id="invoiceNumberToDelete"></h6>
-                    <small class="text-warning">Tindakan ini akan mengurangi stok produk dari transaksi pembelian ini.</small>
+                    <i class="bi bi-exclamation-triangle fa-2x text-warning mb-3"></i>
+                    <p class="mb-0">Anda yakin ingin membatalkan transaksi ini?</p>
+                    <h6 class="mt-2" id="invoiceNumberToCancel"></h6>
+                    <small class="text-warning">Tindakan ini akan mengembalikan stok produk yang telah ditambahkan.</small>
                     <div class="mt-4">
-                        <form id="deleteInvoiceForm" method="POST" action="#">
-                            @method('delete')
+                        <form id="cancelInvoiceForm" method="POST" action="#">
+                            @method('PUT')
                             @csrf
-                            <button type="submit" class="btn btn-danger btn-sm">Ya, Hapus</button>
+                            <input type="hidden" name="status_pembayaran" value="Dibatalkan">
+                            <button type="submit" class="btn btn-warning btn-sm">Ya, Batalkan</button>
                             <button type="button" class="btn btn-outline-secondary btn-sm ms-2" data-bs-dismiss="modal">Batal</button>
                         </form>
                     </div>
@@ -202,17 +115,78 @@
             </div>
         </div>
     </div>
-
     @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Fungsi untuk menunda eksekusi (debounce)
+            function debounce(func, delay) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+
+            // Fungsi untuk mengambil data dengan AJAX
+            function fetchData(page = 1) {
+                let search = $('#searchInput').val();
+                let status = $('#statusFilter').val();
+                let url = '{{ route('pembelian.index') }}';
+
+                // Tambahkan spinner atau loading state di sini jika diinginkan
+                $('#pembelian-table-container').css('opacity', 0.5);
+
+                $.ajax({
+                    url: url,
+                    data: {
+                        search: search,
+                        status: status,
+                        page: page
+                    },
+                    success: function(data) {
+                        $('#pembelian-table-container').html(data);
+                        $('#pembelian-table-container').css('opacity', 1);
+                        // Update URL di browser
+                        window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&status=' + status},'',url + '?page=' + page + '&search=' + search + '&status=' + status);
+                    },
+                    error: function() {
+                        // Handle error, misalnya tampilkan pesan
+                        $('#pembelian-table-container').css('opacity', 1);
+                        alert('Gagal memuat data. Silakan coba lagi.');
+                    }
+                });
+            }
+
+            // Event listener untuk input pencarian dengan debounce
+            $('#searchInput').on('keyup', debounce(function() {
+                fetchData(1); // Selalu kembali ke halaman 1 saat melakukan pencarian baru
+            }, 500)); // Tunggu 500ms setelah user berhenti mengetik
+
+            // Event listener untuk filter status
+            $('#statusFilter').on('change', function() {
+                fetchData(1); // Selalu kembali ke halaman 1 saat filter diubah
+            });
+
+            // Event listener untuk klik paginasi
+            $(document).on('click', '#pembelian-table-container .pagination a', function(e) {
+                e.preventDefault();
+                let page = $(this).attr('href').split('page=')[1];
+                if (page) {
+                    fetchData(page);
+                }
+            });
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const deleteModal = document.getElementById('deleteConfirmationModal');
-            if (deleteModal) {
-                deleteModal.addEventListener('show.bs.modal', function (event) {
+            const cancelModal = document.getElementById('cancelConfirmationModal');
+            if (cancelModal) {
+                cancelModal.addEventListener('show.bs.modal', function (event) {
                     const button = event.relatedTarget;
                     const pembelianReferensi = button.getAttribute('data-pembelian-referensi');
-                    deleteModal.querySelector('#invoiceNumberToDelete').textContent = pembelianReferensi;
-                    deleteModal.querySelector('#deleteInvoiceForm').action = `{{ url('pembelian') }}/${pembelianReferensi}`;
+                    cancelModal.querySelector('#invoiceNumberToCancel').textContent = pembelianReferensi;
+                    cancelModal.querySelector('#cancelInvoiceForm').action = `{{ url('pembelian') }}/${pembelianReferensi}`;
                 });
             }
         });

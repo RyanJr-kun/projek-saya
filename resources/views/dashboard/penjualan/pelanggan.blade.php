@@ -11,7 +11,7 @@
     @endsection
 
     <div class="container-fluid p-3">
-        <div class="card mb-4">
+        <div class="card rounded-2">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -35,79 +35,16 @@
                         <div class="col-5 col-lg-2 me-3">
                             <select id="statusFilter" class="form-select">
                                 <option value="">Semua Status</option>
+                                <option value="1">Aktif</option>
+                                <option value="0">Tidak Aktif</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 mt-3">
-                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kontak</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Email</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Alamat</th>
-                                <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">Status</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="isiTable">
-                            @forelse ($pelanggans as $pelanggan)
-                            <tr id="pelanggan-row-{{ $pelanggan->id }}">
-                                <td>
-                                    <p title="Nama Pelanggan" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $pelanggan->nama }}</p>
-                                </td>
-                                <td>
-                                    <p title="Kontak" class="text-xs text-dark fw-bold mb-0">{{ $pelanggan->kontak }}</p>
-                                </td>
-                                <td>
-                                    <p title="Email" class="text-xs text-dark fw-bold mb-0" >{{ $pelanggan->email }}</p>
-                                </td>
-                                <td>
-                                    <p title="Alamat" class="text-xs text-dark fw-bold mb-0">{{ Str::limit($pelanggan->alamat, 20) }}</p>
-                                </td>
-
-                                <td class="align-middle text-center text-sm">
-                                    @if ($pelanggan->status)
-                                        <span class="badge badge-success">Aktif</span>
-                                    @else
-                                        <span class="badge badge-secondary">Tidak Aktif</span>
-                                    @endif
-                                </td>
-
-                                <td class="text-center align-middle">
-                                    @if ($pelanggan->id != 1)
-                                        <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editModal"
-                                            data-url="{{ route('pelanggan.getjson', $pelanggan->id) }}"
-                                            data-update-url="{{ route('pelanggan.update', $pelanggan->id) }}"
-                                            title="Edit Pelanggan">
-                                            <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                        </a>
-                                        <a href="#" class="text-dark delete-btn me-md-4"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#deleteConfirmationModal"
-                                            data-pelanggan-id="{{ $pelanggan->id }}"
-                                            data-pelanggan-name="{{ $pelanggan->nama }}"
-                                            title="Hapus Pelanggan">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center py-3 ">
-                                        <p class=" text-dark text-sm fw-bold mb-0">Belum ada data Pelanggan.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <div class="my-3 ms-3">
-                        {{ $pelanggans->onEachSide(1)->links() }}
-                    </div>
+                {{-- Container untuk tabel yang akan di-update oleh AJAX --}}
+                <div id="pelanggan-table-container" class="mt-3">
+                    {{-- Memuat tabel parsial untuk tampilan awal --}}
+                    @include('dashboard.penjualan._pelanggan_table', ['pelanggans' => $pelanggans])
                 </div>
             </div>
         </div>
@@ -120,56 +57,41 @@
                         <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ route('pelanggan.store') }}" method="post">
+                        <form id="createPelangganForm" action="{{ route('pelanggan.store') }}" method="post">
                             @csrf
                             <div class="mb-2">
                                 <label for="nama" class="form-label">Nama</label>
-                                <input id="nama" name="nama" type="text" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
-                                @error('nama')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <input id="nama" name="nama" type="text" class="form-control" required>
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="mb-1">
                                 <label for="kontak" class="form-label">Kontak</label>
-                                <input id="kontak" name="kontak" type="text" class="form-control @error('kontak') is-invalid @enderror" value="{{ old('kontak') }}" required>
-                                @error('kontak')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <input id="kontak" name="kontak" type="text" class="form-control" required>
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="mb-1">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="example@gmail.com" value="{{ old('email') }}">
-                                @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <input type="email" class="form-control" id="email" name="email" placeholder="example@gmail.com">
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="mb-1">
                                 <label for="alamat" class="form-label">Alamat</label>
-                                <textarea id="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror" rows="3">{{ old('alamat') }}</textarea>
-                                @error('alamat')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <textarea id="alamat" name="alamat" class="form-control" rows="3"></textarea>
+                                <div class="invalid-feedback"></div>
                             </div>
                             <div class="justify-content-end form-check form-switch form-check-reverse mb-2">
                                 <label class="me-auto fw-bold form-check-label" for="status">Status</label>
                                 <input id="status" class="form-check-input" type="checkbox" name="status" value="1" checked>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-outline-info btn-sm">Buat Pelanggan</button>
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm p-2">Tambah Pelanggan</button>
+                                <button type="button" class="btn btn-danger btn-sm p-2" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-        {{-- Menggunakan komponen modal create pelanggan --}}
-        <x-modal-create-customer
-            id="createModal"
-            formId="createPelangganForm"
-            action="{{ route('pelanggan.store') }}"
-            title="Buat Pelanggan Baru"
-        />
 
         {{-- modal edit --}}
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -236,36 +158,130 @@
     </div>
 
     @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // --- AJAX UNTUK FILTER, PENCARIAN, DAN PAGINASI ---
+            // Fungsi untuk menunda eksekusi (debounce)
+            function debounce(func, delay) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+
+            // Fungsi untuk mengambil data dengan AJAX
+            function fetchData(page = 1) {
+                let search = $('#searchInput').val();
+                let status = $('#statusFilter').val();
+                let url = '{{ route('pelanggan.index') }}';
+
+                $('#pelanggan-table-container').css('opacity', 0.5); // Efek loading
+
+                $.ajax({
+                    url: url,
+                    data: { search: search, status: status, page: page },
+                    success: function(data) {
+                        $('#pelanggan-table-container').html(data).css('opacity', 1);
+                        // Update URL di browser
+                        window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&status=' + status},'',url + '?page=' + page + '&search=' + search + '&status=' + status);
+                    },
+                    error: function() {
+                        $('#pelanggan-table-container').css('opacity', 1);
+                        alert('Gagal memuat data. Silakan coba lagi.');
+                    }
+                });
+            }
+
+            // Event listener untuk input pencarian dengan debounce
+            $('#searchInput').on('keyup', debounce(function() {
+                fetchData(1); // Kembali ke halaman 1 saat mencari
+            }, 500)); // tunda 500ms
+
+            // Event listener untuk filter status
+            $('#statusFilter').on('change', function() {
+                fetchData(1); // Kembali ke halaman 1 saat filter berubah
+            });
+
+            // Event listener untuk klik paginasi (delegasi event)
+            $(document).on('click', '#pelanggan-table-container .pagination a', function(e) {
+                e.preventDefault();
+                let pageUrl = $(this).attr('href');
+                let page = new URL(pageUrl).searchParams.get("page");
+                if (page) {
+                    fetchData(page);
+                }
+            });
+
+            // Fungsi untuk mendapatkan halaman saat ini dari URL
+            const getCurrentPage = () => new URL(window.location.href).searchParams.get('page') || 1;
+
             // --- MODAL EDIT ---
             const editModal = document.getElementById('editModal');
+            const editForm = document.getElementById('editPelangganForm');
+
             if (editModal) {
                 editModal.addEventListener('show.bs.modal', function (event) {
                     const button = event.relatedTarget;
                     const dataUrl = button.getAttribute('data-url');
                     const updateUrl = button.getAttribute('data-update-url');
 
-                    const editForm = document.getElementById('editPelangganForm');
                     const inputNama = document.getElementById('edit_nama');
                     const inputKontak = document.getElementById('edit_kontak');
                     const inputEmail = document.getElementById('edit_email');
                     const inputAlamat = document.getElementById('edit_alamat');
                     const inputStatus = document.getElementById('edit_status');
 
-                    editForm.action = updateUrl;
+                    if (editForm) {
+                        editForm.action = updateUrl;
+                    }
 
                     fetch(dataUrl)
                         .then(response => response.json())
                         .then(data => {
-                            inputNama.value = data.nama;
-                            inputKontak.value = data.kontak;
-                            inputEmail.value = data.email;
-                            inputAlamat.value = data.alamat;
-                            inputStatus.checked = data.status == 1;
+                            if(inputNama) inputNama.value = data.nama;
+                            if(inputKontak) inputKontak.value = data.kontak;
+                            if(inputEmail) inputEmail.value = data.email;
+                            if(inputAlamat) inputAlamat.value = data.alamat;
+                            if(inputStatus) inputStatus.checked = data.status == 1;
                         })
                         .catch(error => console.error('Error fetching pelanggan data:', error));
+                });
+
+                // AJAX untuk submit form edit
+                $(editForm).on('submit', function(e) {
+                    e.preventDefault();
+                    const form = $(this);
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        method: 'POST', // Laravel handles PUT via _method field
+                        data: form.serialize(),
+                        success: function(response) {
+                            // PERBAIKAN: Tambahkan feedback setelah sukses
+                            if (response.success) {
+                                bootstrap.Modal.getInstance(editModal).hide();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: response.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                fetchData(getCurrentPage()); // Muat ulang data di halaman saat ini
+                            }
+                        },
+                        error: function(xhr) {
+                            // PERBAIKAN: Tambahkan feedback jika gagal
+                            // Handle error (misal: tampilkan pesan error validasi)
+                            const errors = xhr.responseJSON.errors;
+                            Swal.fire('Gagal!', 'Periksa kembali data yang Anda masukkan.', 'error');
+                        }
+                    });
                 });
             }
 
@@ -290,7 +306,6 @@
                     if (!pelangganIdToDelete) return;
 
                     const url = `/pelanggan/${pelangganIdToDelete}`;
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
                     fetch(url, {
                         method: 'DELETE',
@@ -310,7 +325,7 @@
                                 timer: 2000,
                                 showConfirmButton: false
                             });
-                            document.getElementById(`pelanggan-row-${pelangganIdToDelete}`).remove();
+                            fetchData(getCurrentPage()); // Muat ulang data di halaman saat ini
                         } else {
                             Swal.fire({
                                 icon: 'error',
@@ -326,50 +341,41 @@
                 });
             }
 
-            // --- FILTER SEARCH & STATUS ---
-            const searchInput = document.getElementById('searchInput');
-            const statusFilter = document.getElementById('statusFilter');
-            const tableBody = document.getElementById('isiTable');
-            const rows = tableBody.getElementsByTagName('tr');
+            // --- MODAL CREATE (AJAX) ---
+            const createModalEl = document.getElementById('createModal');
+            const createForm = document.getElementById('createPelangganForm');
 
-            function populateStatusFilter() {
-                const statuses = ['Aktif', 'Tidak Aktif'];
-                // Clear existing options except the first one
-                while (statusFilter.options.length > 1) {
-                    statusFilter.remove(1);
-                }
-                statuses.forEach(status => {
-                    const option = document.createElement('option');
-                    option.value = status;
-                    option.textContent = status;
-                    statusFilter.appendChild(option);
-                });
-            }
+            $(createForm).on('submit', function(e) {
+                e.preventDefault();
+                const form = $(this);
 
-            function filterTable() {
-                const searchText = searchInput.value.toLowerCase();
-                const statusValue = statusFilter.value;
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            bootstrap.Modal.getInstance(createModalEl).hide();
+                            form[0].reset(); // Reset form
+                            Swal.fire('Berhasil!', response.message, 'success');
+                            fetchData(1); // Muat ulang dari halaman pertama
+                        }
+                    },
+                    error: function(xhr) {
+                        const errors = xhr.responseJSON.errors;
+                        // Menghapus error sebelumnya
+                        form.find('.is-invalid').removeClass('is-invalid');
+                        form.find('.invalid-feedback').text('');
 
-                for (let i = 0; i < rows.length; i++) {
-                    const row = rows[i];
-                    const namaCell = row.cells[0];
-                    const statusCell = row.cells[4]; // Status is in the 5th column (index 4)
-
-                    if (namaCell && statusCell) {
-                        const namaText = namaCell.textContent.toLowerCase().trim();
-                        const statusText = statusCell.textContent.trim();
-
-                        const namaMatch = namaText.includes(searchText);
-                        const statusMatch = (statusValue === "" || statusText === statusValue);
-
-                        row.style.display = (namaMatch && statusMatch) ? "" : "none";
+                        // Menampilkan error baru
+                        $.each(errors, function(key, value) {
+                            const input = form.find(`[name="${key}"]`);
+                            input.addClass('is-invalid');
+                            input.next('.invalid-feedback').text(value[0]);
+                        });
                     }
-                }
-            }
-
-            populateStatusFilter();
-            searchInput.addEventListener('keyup', filterTable);
-            statusFilter.addEventListener('change', filterTable);
+                });
+            });
 
             // --- SHOW CREATE MODAL ON VALIDATION ERROR ---
             const hasError = document.querySelector('.is-invalid');

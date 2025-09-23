@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
-use RealRashid\SweetAlert\Facades\Alert;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class UserController extends Controller
 {
@@ -91,6 +92,11 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // Cek jika pengguna yang sedang login mencoba mengubah role-nya sendiri
+        if (Auth::id() === $user->id && $request->input('role_id') != $user->role_id) {
+            Alert::warning('Aksi Ditolak', 'Anda tidak dapat mengubah role Anda sendiri.');
+            return back()->withInput();
+        }
 
         $rules = [
             'nama' => 'required|max:255',

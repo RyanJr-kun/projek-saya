@@ -17,91 +17,97 @@
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
+    <div class="container-fluid p-3">
+        <div class="card rounded-2">
+            <div class="card-body p-4">
+                <form method="post" action="{{ route('users.update', $user->username) }}" enctype="multipart/form-data">
+                    @method('put')
+                    @csrf
+                    <div class="row">
+                        <div class="col-12 col-md-4 mb-4 mb-md-0">
+                            <h6 class="ms-2">Gambar Pengguna :</h6>
+                            <input type="file" class="filepond" name="img_user" id="image">
+                        </div>
 
-    <div class="card m-4">
-        <div class="card-body p-4">
-            <form method="post" action="{{ route('users.update', $user->username) }}" enctype="multipart/form-data">
-                @method('put')
-                @csrf
-                <div class="row">
-                    <div class="col-12 col-md-4 mb-4 mb-md-0">
-                        <h6 class="ms-2">Gambar Pengguna :</h6>
-                        <input type="file" class="filepond" name="img_user" id="image">
-                    </div>
-
-                    <div class="col-12 col-md-8">
-                         <div class="row">
-                            <h6>Data Pribadi :</h6>
-                            <div class="col-md-6 mb-3">
-                                <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" placeholder="Nama Lengkap" value="{{ old('nama', $user->nama) }}" required>
-                                @error('nama')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username" value="{{ old('username', $user->username) }}" required>
-                                @error('username')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="example@gmail.com" value="{{ old('email', $user->email) }}" required>
-                                @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="kontak" class="form-label">Kontak</label>
-                                <input type="tel" class="form-control @error('kontak') is-invalid @enderror" value="{{ old('kontak', $user->kontak) }}" id="kontak" name="kontak" placeholder="08...">
-                                @error('kontak')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="role_id" class="form-label">Posisi <span class="text-danger">*</span></label>
-                                <select class="form-select @error('role_id') is-invalid @enderror" id="role_id" name="role_id" required>
-                                    <option value="" disabled selected>Pilih Role...</option>
-                                    @foreach ($roles as $role)
-                                        <option value="{{ $role->id }}" @selected(old('role_id', $user->role_id) == $role->id)>{{ $role->nama }}</option>
-                                    @endforeach
-                                </select>
-                                @error('role_id')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="mulai_kerja" class="form-label">Mulai Bekerja</label>
-                                <input id="mulai_kerja" name="mulai_kerja" class="form-control @error('mulai_kerja') is-invalid @enderror" value="{{ old('mulai_kerja', $user->mulai_kerja ? $user->mulai_kerja->format('Y-m-d') : '') }}" placeholder="Pilih tanggal" type="date">
-                                @error('mulai_kerja')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label for="password">Password</label>
-                                <input name="password" id="password" class="form-control @error('password') is-invalid @enderror" type="password" placeholder="Kosongkan jika tidak ingin diubah">
-                                @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-12">
-                                <div class="justify-content-end form-check form-switch form-check-reverse">
-                                    <label class="me-auto form-check-label" for="status_toggle">Status Aktif</label>
-                                    <input type="hidden" name="status" value="0">
-                                    <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" @checked(old('status', $user->status))>
+                        <div class="col-12 col-md-8">
+                             <div class="row">
+                                <h6>Data Pribadi :</h6>
+                                <div class="col-md-6 mb-3">
+                                    <label for="nama" class="form-label">Nama <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" placeholder="Nama Lengkap" value="{{ old('nama', $user->nama) }}" required>
+                                    @error('nama')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" placeholder="Username" value="{{ old('username', $user->username) }}" required>
+                                    @error('username')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="example@gmail.com" value="{{ old('email', $user->email) }}" required>
+                                    @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="kontak" class="form-label">Kontak</label>
+                                    <input type="tel" class="form-control @error('kontak') is-invalid @enderror" value="{{ old('kontak', $user->kontak) }}" id="kontak" name="kontak" placeholder="08...">
+                                    @error('kontak')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="role_id" class="form-label">Posisi <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('role_id') is-invalid @enderror" id="role_id" name="role_id" required @if(auth()->id() === $user->id) disabled @endif>
+                                        <option value="" disabled selected>Pilih Role...</option>
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role->id }}" @selected(old('role_id', $user->role_id) == $role->id)>{{ $role->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @if(auth()->id() === $user->id)
+                                        {{-- Jika disabled, nilainya tidak akan dikirim. Kirim via input hidden agar validasi tidak gagal. --}}
+                                        <input type="hidden" name="role_id" value="{{ $user->role_id }}">
+                                        <small class="form-text text-muted">Anda tidak dapat mengubah role Anda sendiri.</small>
+                                    @endif
+                                    @error('role_id')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="mulai_kerja" class="form-label">Mulai Bekerja</label>
+                                    <input id="mulai_kerja" name="mulai_kerja" class="form-control @error('mulai_kerja') is-invalid @enderror" value="{{ old('mulai_kerja', $user->mulai_kerja ? $user->mulai_kerja->format('Y-m-d') : '') }}" placeholder="Pilih tanggal" type="date">
+                                    @error('mulai_kerja')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="password">Password</label>
+                                    <input name="password" id="password" class="form-control @error('password') is-invalid @enderror" type="password" placeholder="Kosongkan jika tidak ingin diubah">
+                                    @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-12">
+                                    <div class="justify-content-end form-check form-switch form-check-reverse">
+                                        <label class="me-auto form-check-label" for="status_toggle">Status Aktif</label>
+                                        <input type="hidden" name="status" value="0">
+                                        <input id="status_toggle" class="form-check-input" type="checkbox" name="status" value="1" @checked(old('status', $user->status))>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="d-flex justify-content-end pt-3 mt-3">
-                    <button type="submit" class="btn btn-outline-success btn-sm">Perbarui User</button>
-                    <a href="{{ route('users.index') }}" id="cancel-button" class="btn btn-outline-danger btn-sm ms-3">Batal</a>
-                </div>
-            </form>
+                    <div class="d-flex justify-content-end pt-3 mt-3">
+                        <button type="submit" class="btn btn-outline-success btn-sm">Perbarui User</button>
+                        <a href="{{ route('users.index') }}" id="cancel-button" class="btn btn-outline-danger btn-sm ms-3">Batal</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

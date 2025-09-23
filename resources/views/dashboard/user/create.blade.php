@@ -17,7 +17,7 @@
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
 
-    <div class="card m-4">
+    <div class="card rounded-2 m-3">
         <div class="card-body">
             <form action="{{ route('users.store') }}" method="post" enctype="multipart/form-data" >
                 @csrf

@@ -15,7 +15,7 @@ class KategoriPengeluaranController extends Controller
      */
     public function index()
     {
-        return view('dashboard.pengeluaran.kategoripengeluaran',[
+        return view('dashboard.keuangan.kategoripengeluaran',[
             'title' => 'Kategori Pengeluaran',
             'kategoris' => KategoriPengeluaran::latest()->paginate(15)
         ]);

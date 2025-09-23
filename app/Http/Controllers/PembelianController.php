@@ -17,24 +17,57 @@ class PembelianController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Ambil semua status pembayaran yang unik untuk dropdown filter
+        $statuses = Pembelian::select('status_pembayaran')->distinct()->pluck('status_pembayaran');
+
+        // Mulai query builder
+        $query = Pembelian::with(['pemasok', 'user'])->latest();
+
+        // Terapkan filter pencarian jika ada input 'search'
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('referensi', 'like', "%{$search}%")
+                  ->orWhereHas('pemasok', function($q_pemasok) use ($search) {
+                      $q_pemasok->where('nama', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Terapkan filter status jika ada input 'status'
+        if ($request->filled('status')) {
+            $query->where('status_pembayaran', $request->input('status'));
+        }
+
+        $pembelian = $query->paginate(10)->withQueryString();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('dashboard.pembelian._pembelian_table', compact('pembelian'))->render();
+        }
+
+        // Jika request biasa, kembalikan view lengkap
         return view('dashboard.pembelian.index', [
             'title' => 'Daftar Invoice Pembelian',
-            'pembelian' => Pembelian::with(['pemasok', 'user'])->latest()->paginate(10)
+            'pembelian' => $pembelian,
+            'statuses' => $statuses,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
+        $statuses = Pembelian::select('status_pembayaran')->distinct()->pluck('status_pembayaran');
         return view('dashboard.pembelian.create', [
             'title' => 'Tambah Invoice Pembelian',
             'pemasok' => Pemasok::all(),
             'pajaks' => Pajak::all(),
             'nomer_referensi' => $this->generatePurchaseInvoiceNumber(),
+            'statuses' => $statuses,
         ]);
     }
 
@@ -70,8 +103,8 @@ class PembelianController extends Controller
             'pemasok_id' => 'required|exists:pemasoks,id',
             'tanggal' => 'required|date',
             'referensi' => 'required|string|max:255|unique:pembelians',
-            'status_barang' => 'required|in:Diterima,Belum Diterima',
-            'status_pembayaran' => 'required|in:Lunas,Lunas Sebagian,Belum Lunas',
+            'status_barang' => 'required|in:Diterima,Belum Diterima,Dibatalkan',
+            'status_pembayaran' => 'required|in:Lunas,Belum Lunas', // Lunas Sebagian dihapus dari input manual
             'jumlah_dibayar' => 'nullable|numeric|min:0',
             'ongkir' => 'nullable|numeric|min:0',
             'diskon_tambahan' => 'nullable|numeric|min:0',
@@ -98,6 +131,8 @@ class PembelianController extends Controller
                 // 2. Hitung total dari sisi server untuk keamanan
                 $subtotal_keseluruhan = 0;
                 $total_pajak_item = 0;
+                $itemsForDetail = []; // Array untuk menyimpan data item yang sudah dihitung
+
                 foreach ($validatedData['items'] as $itemData) {
                     $harga_beli = $itemData['harga_beli'];
                     $qty = $itemData['qty'];
@@ -107,27 +142,26 @@ class PembelianController extends Controller
 
                     $subtotal_item = ($harga_beli * $qty) - $diskon_item;
                     $pajak_amount_item = $subtotal_item * ($pajak_rate / 100);
+                    $subtotal_item_with_tax = $subtotal_item + $pajak_amount_item;
 
-                    $subtotal_keseluruhan += $subtotal_item;
+                    $subtotal_keseluruhan += $subtotal_item_with_tax;
                     $total_pajak_item += $pajak_amount_item;
+                    $itemsForDetail[] = array_merge($itemData, ['subtotal' => $subtotal_item_with_tax]);
                 }
 
                 $ongkir = $validatedData['ongkir'] ?? 0;
                 $diskon_tambahan = $validatedData['diskon_tambahan'] ?? 0;
-                $total_akhir = $subtotal_keseluruhan + $total_pajak_item - $diskon_tambahan + $ongkir;
+                $total_akhir = $subtotal_keseluruhan - $diskon_tambahan + $ongkir;
                 $jumlah_dibayar = $validatedData['jumlah_dibayar'] ?? 0;
 
                 // 3. Tentukan status pembayaran dan sisa hutang secara otomatis
-                $sisa_hutang = $total_akhir - $jumlah_dibayar;
-                $status_pembayaran = '';
-                if ($sisa_hutang <= 0) {
-                    // Jika tidak ada sisa hutang (atau ada kembalian), statusnya Lunas.
+                $sisa = $total_akhir - $jumlah_dibayar;
+                $status_pembayaran = 'Belum Lunas'; // Default status
+
+                // Jika pembayaran pas atau lebih (ada kembalian), statusnya Lunas.
+                if ($jumlah_dibayar >= $total_akhir) {
                     $status_pembayaran = 'Lunas';
-                } elseif ($jumlah_dibayar > 0 && $sisa_hutang > 0) {
-                    // Jika ada pembayaran tapi masih ada sisa, statusnya Lunas Sebagian.
-                    $status_pembayaran = 'Lunas Sebagian';
-                } else {
-                    // Jika tidak ada pembayaran dan ada hutang, statusnya Belum Lunas.
+                } else if ($jumlah_dibayar > 0 && $jumlah_dibayar < $total_akhir) {
                     $status_pembayaran = 'Belum Lunas';
                 }
 
@@ -143,24 +177,22 @@ class PembelianController extends Controller
                     'ongkir' => $ongkir,
                     'total_akhir' => $total_akhir,
                     'jumlah_dibayar' => $jumlah_dibayar,
-                    'sisa_hutang' => $sisa_hutang > 0 ? $sisa_hutang : 0, // Simpan hutang jika ada
+                    'sisa_hutang' => $sisa, // Simpan sisa, bisa positif (hutang) atau negatif (kembalian)
                     'status_pembayaran' => $status_pembayaran, // Gunakan status yang sudah ditentukan
                     'status_barang' => $validatedData['status_barang'],
                     'catatan' => $validatedData['catatan'],
                 ]);
 
                 // 4. Buat record PembelianDetail, update stok, dan update harga beli produk
-                foreach ($validatedData['items'] as $itemData) {
+                foreach ($itemsForDetail as $itemData) {
                     // Buat detail pembelian
-                    $subtotal_item = ($itemData['harga_beli'] * $itemData['qty']) - ($itemData['diskon'] ?? 0);
-
                     $pembelian->details()->create([
                         'produk_id' => $itemData['produk_id'],
                         'qty' => $itemData['qty'],
                         'harga_beli' => $itemData['harga_beli'],
                         'diskon' => $itemData['diskon'] ?? 0,
                         'pajak_id' => $itemData['pajak_id'] ?? null,
-                        'subtotal' => $subtotal_item,
+                        'subtotal' => $itemData['subtotal'], // Gunakan subtotal yang sudah dihitung (termasuk pajak)
                     ]);
                     // Ambil model produk yang sesuai
                     $produk = $produks->get($itemData['produk_id']);
@@ -207,13 +239,15 @@ class PembelianController extends Controller
     public function edit(Pembelian $pembelian)
     {
         // Eager load relasi untuk efisiensi
-        $pembelian->load('details.produk');
+        $pembelian->load('details.produk', 'details.pajak');
+        $statuses = Pembelian::select('status_pembayaran')->distinct()->pluck('status_pembayaran');
 
         return view('dashboard.pembelian.edit', [
             'title' => 'Edit Invoice Pembelian: ' . $pembelian->referensi,
             'pembelian' => $pembelian,
             'pemasok' => Pemasok::all(),
             'pajaks' => Pajak::all(),
+            'statuses' => $statuses,
         ]);
     }
 
@@ -222,10 +256,43 @@ class PembelianController extends Controller
      */
     public function update(Request $request, Pembelian $pembelian)
     {
+        // --- LOGIKA PEMBATALAN CEPAT DARI HALAMAN INDEX ---
+        if ($request->input('status_pembayaran') === 'Dibatalkan' && !$request->has('items')) {
+            if ($pembelian->status_pembayaran !== 'Dibatalkan') {
+                try {
+                    DB::transaction(function () use ($pembelian) {
+
+                        if ($pembelian->status_barang === 'Diterima') {
+                            foreach ($pembelian->details as $detail) {
+                                Produk::where('id', $detail->produk_id)->decrement('qty', $detail->qty);
+                            }
+                        }
+                        // Update status dan reset pembayaran
+                        $pembelian->update([
+                            'status_pembayaran' => 'Dibatalkan',
+                            'status_barang' => 'Dibatalkan',
+                            'jumlah_dibayar' => 0,
+                            'sisa_hutang' => 0
+                        ]);
+                    });
+                    Alert::success('Berhasil', 'Transaksi berhasil dibatalkan dan stok telah dikembalikan.');
+                } catch (\Exception $e) {
+                    Alert::error('Gagal', 'Gagal membatalkan transaksi: ' . $e->getMessage());
+                }
+            }
+            return redirect()->route('pembelian.index');
+        }
+
+        // Membersihkan input mata uang dari format ribuan sebelum validasi
+        $request->merge([
+            'jumlah_dibayar' => preg_replace('/[^0-9]/', '', $request->input('jumlah_dibayar', 0))
+        ]);
+
         $validatedData = $request->validate([
             'pemasok_id' => 'required|exists:pemasoks,id',
             'tanggal' => 'required|date',
-            'status_barang' => 'required|in:Diterima,Belum Diterima',
+            'status_pembayaran' => 'required|in:Lunas,Belum Lunas,Dibatalkan',
+            'status_barang' => 'required|in:Diterima,Belum Diterima,Dibatalkan',
             'jumlah_dibayar' => 'nullable|numeric|min:0',
             'ongkir' => 'nullable|numeric|min:0',
             'diskon_tambahan' => 'nullable|numeric|min:0',
@@ -244,87 +311,101 @@ class PembelianController extends Controller
             $pajaksData = Pajak::whereIn('id', $pajakIds)->get()->keyBy('id');
 
             DB::transaction(function () use ($validatedData, $pembelian, $pajaksData) {
+                $statusLama = $pembelian->status_pembayaran;
+                $statusBaru = $validatedData['status_pembayaran'];
+                $statusBarangLama = $pembelian->status_barang;
+                $statusBarangBaru = $validatedData['status_barang'];
+
                 // --- MANAJEMEN STOK ---
-                // a. Kembalikan stok dari item-item lama, HANYA jika status barang sebelumnya 'Diterima'
-                if ($pembelian->status_barang === 'Diterima') {
+                // Ambil semua produk yang relevan untuk data baru dalam satu query
+                $newProdukIds = collect($validatedData['items'])->pluck('produk_id');
+                $produks = Produk::whereIn('id', $newProdukIds)->get()->keyBy('id');
+
+                // 1. Kembalikan stok lama jika transaksi sebelumnya aktif (bukan dibatalkan) dan barang sudah diterima
+                if ($statusLama !== 'Dibatalkan' && $statusBarangLama === 'Diterima') {
                     foreach ($pembelian->details as $oldDetail) {
                         Produk::where('id', $oldDetail->produk_id)->decrement('qty', $oldDetail->qty);
                     }
                 }
 
-                // b. Ambil semua produk yang relevan untuk data baru dalam satu query
-                $newProdukIds = collect($validatedData['items'])->pluck('produk_id');
-                $produks = Produk::whereIn('id', $newProdukIds)->get()->keyBy('id');
-
-                // c. Tambah stok berdasarkan item-item baru, HANYA jika status barang baru 'Diterima'
-                if ($validatedData['status_barang'] === 'Diterima') {
+                // 2. Tambah stok baru jika transaksi baru aktif dan barang diterima
+                if ($statusBaru !== 'Dibatalkan' && $statusBarangBaru === 'Diterima') {
+                    // Validasi stok tidak diperlukan untuk pembelian, hanya penambahan
                     foreach ($validatedData['items'] as $itemData) {
-                        $produk = $produks->get($itemData['produk_id']);
-                        if (!$produk || $produk->qty < $itemData['qty']) {
-                            // Batalkan transaksi jika stok tidak mencukupi setelah pengembalian
-                            throw new \Exception("Stok untuk produk '{$produk->nama_produk}' tidak mencukupi.");
-                        }
-                        $produk->increment('qty', $itemData['qty']);
+                        Produk::where('id', $itemData['produk_id'])->increment('qty', $itemData['qty']);
                     }
                 }
+
+                // Logika khusus jika status diubah dari 'Dibatalkan' menjadi aktif
+                if ($statusLama === 'Dibatalkan' && $statusBaru !== 'Dibatalkan') {
+                    // Stok lama tidak perlu dikembalikan karena tidak pernah dikurangi.
+                    // Cukup tambahkan stok baru jika status barang 'Diterima'.
+                    // Ini sudah ditangani oleh logika di atas.
+                }
+
+                // Jika status diubah menjadi 'Dibatalkan', stok lama sudah dikembalikan.
+                // Tidak ada stok baru yang ditambahkan. Ini juga sudah ditangani.
 
                 // --- PENGHITUNGAN ULANG TOTAL (SERVER-SIDE) ---
                 $subtotal_keseluruhan = 0;
                 $total_pajak_item = 0;
+                $itemsForDetail = []; // Array untuk menyimpan data item yang sudah dihitung
+
                 foreach ($validatedData['items'] as $itemData) {
                     $pajak_id = $itemData['pajak_id'] ?? null;
                     $pajak_rate = $pajak_id ? ($pajaksData->get($pajak_id)->rate ?? 0) : 0;
 
                     $subtotal_item = ($itemData['harga_beli'] * $itemData['qty']) - ($itemData['diskon'] ?? 0);
                     $pajak_amount_item = $subtotal_item * ($pajak_rate / 100);
+                    $subtotal_item_with_tax = $subtotal_item + $pajak_amount_item;
 
-                    $subtotal_keseluruhan += $subtotal_item;
+                    $subtotal_keseluruhan += $subtotal_item_with_tax;
                     $total_pajak_item += $pajak_amount_item;
+                    $itemsForDetail[] = array_merge($itemData, ['subtotal' => $subtotal_item_with_tax]);
                 }
 
                 $ongkir = $validatedData['ongkir'] ?? 0;
                 $diskon_tambahan = $validatedData['diskon_tambahan'] ?? 0;
-                $total_akhir = $subtotal_keseluruhan + $total_pajak_item - $diskon_tambahan + $ongkir;
+                $total_akhir = $subtotal_keseluruhan - $diskon_tambahan + $ongkir;
                 $jumlah_dibayar = $validatedData['jumlah_dibayar'] ?? 0;
-                $sisa_hutang = $total_akhir - $jumlah_dibayar;
 
-                // Tentukan status pembayaran secara otomatis
-                if ($sisa_hutang <= 0) {
-                    $status_pembayaran = 'Lunas';
-                } elseif ($jumlah_dibayar > 0 && $sisa_hutang > 0) {
-                    $status_pembayaran = 'Lunas Sebagian';
-                } else {
-                    $status_pembayaran = 'Belum Lunas';
+                // Tentukan status pembayaran dan sisa hutang secara otomatis (konsisten dengan method store)
+                $sisa = $total_akhir - $jumlah_dibayar;
+                $status_pembayaran_server = 'Belum Lunas'; // Default status
+                if ($jumlah_dibayar >= $total_akhir) {
+                    $status_pembayaran_server = 'Lunas';
+                } else if ($jumlah_dibayar > 0 && $jumlah_dibayar < $total_akhir) {
+                    $status_pembayaran_server = 'Belum Lunas';
                 }
 
                 // --- UPDATE DATA PEMBELIAN ---
                 $pembelian->update([
                     'pemasok_id' => $validatedData['pemasok_id'],
                     'tanggal_pembelian' => $validatedData['tanggal'],
+                    'user_id' => Auth::id(), // Tambahkan update user_id untuk melacak siapa yang mengedit
                     'subtotal' => $subtotal_keseluruhan,
                     'diskon' => $diskon_tambahan,
                     'pajak' => $total_pajak_item,
                     'ongkir' => $ongkir,
                     'total_akhir' => $total_akhir,
                     'jumlah_dibayar' => $jumlah_dibayar,
-                    'sisa_hutang' => $sisa_hutang > 0 ? $sisa_hutang : 0,
-                    'status_pembayaran' => $status_pembayaran,
-                    'status_barang' => $validatedData['status_barang'],
+                    'sisa_hutang' => $sisa,
+                    'status_pembayaran' => $statusBaru === 'Dibatalkan' ? 'Dibatalkan' : $status_pembayaran_server,
+                    'status_barang' => $validatedData['status_barang'], // Status barang tetap dari input
                     'catatan' => $validatedData['catatan'],
                 ]);
 
                 // Hapus detail lama dan buat yang baru
                 $pembelian->details()->delete();
 
-                foreach ($validatedData['items'] as $itemData) {
-                    $subtotal_item = ($itemData['harga_beli'] * $itemData['qty']) - ($itemData['diskon'] ?? 0);
+                foreach ($itemsForDetail as $itemData) {
                     $pembelian->details()->create([
                         'produk_id' => $itemData['produk_id'],
                         'qty' => $itemData['qty'],
                         'harga_beli' => $itemData['harga_beli'],
                         'diskon' => $itemData['diskon'] ?? 0,
                         'pajak_id' => $itemData['pajak_id'] ?? null,
-                        'subtotal' => $subtotal_item,
+                        'subtotal' => $itemData['subtotal'], // Gunakan subtotal yang sudah dihitung (termasuk pajak)
                     ]);
 
                     // Update data master produk
@@ -352,8 +433,8 @@ class PembelianController extends Controller
     {
         try {
             DB::transaction(function () use ($pembelian) {
-                // Kembalikan stok hanya jika barangnya pernah diterima
-                if ($pembelian->status_barang === 'Diterima') {
+                // Kembalikan stok hanya jika barangnya pernah diterima dan status belum 'Dibatalkan'
+                if ($pembelian->status_barang === 'Diterima' && $pembelian->status_pembayaran !== 'Dibatalkan') {
                     foreach ($pembelian->details as $detail) {
                         Produk::where('id', $detail->produk_id)->decrement('qty', $detail->qty);
                     }

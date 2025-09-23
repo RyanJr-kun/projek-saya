@@ -15,7 +15,7 @@ class UnitController extends Controller
      */
     public function index()
     {
-        return view('dashboard.inventaris.unit', [
+        return view('dashboard.produk.unit', [
             'title'=>'Units',
             'units' => Unit::withCount('produks')->latest()->paginate(15)
         ]);

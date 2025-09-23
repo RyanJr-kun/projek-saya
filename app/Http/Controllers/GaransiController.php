@@ -15,7 +15,7 @@ class GaransiController extends Controller
      */
     public function index()
     {
-        return view('dashboard.inventaris.garansi',[
+        return view('dashboard.produk.garansi',[
         'title' => 'garansi',
         'garansis' => Garansi::latest()->paginate(15)
     ]);

@@ -82,18 +82,20 @@
                                 <tbody>
                                     @foreach ($pembelian->details as $index => $detail)
                                     @php
-                                        // Ambil pajak dari relasi produk. Fallback ke 0 jika tidak ada.
-                                        $pajak_persen = $detail->produk->pajak->rate ?? 0;
+                                        // Ambil pajak dari relasi pajak di detail. Fallback ke 0 jika tidak ada.
+                                        $pajak_rate = $detail->pajak->rate ?? 0;
                                         $subtotal_item = ($detail->harga_beli * $detail->qty) - ($detail->diskon ?? 0);
-                                        $pajak_amount = $subtotal_item * ($pajak_persen / 100);
+                                        $pajak_amount = $subtotal_item * ($pajak_rate / 100);
+                                        $subtotal_with_tax = $detail->subtotal; // subtotal dari DB sudah termasuk pajak
                                     @endphp
-                                    <tr data-produk-id="{{ $detail->produk_id }}" data-pajak-persen="{{ $pajak_persen }}" data-diskon="{{ $detail->diskon ?? 0 }}">
+                                    <tr data-produk-id="{{ $detail->produk_id }}">
                                         <input type="hidden" name="items[{{ $index }}][produk_id]" value="{{ $detail->produk_id }}">
                                         <input type="hidden" name="items[{{ $index }}][qty]" class="item-qty-hidden" value="{{ $detail->qty }}">
                                         <input type="hidden" name="items[{{ $index }}][harga_beli]" class="item-harga-hidden" value="{{ $detail->harga_beli }}">
                                         <input type="hidden" name="items[{{ $index }}][harga_jual]" class="item-harga-jual-hidden" value="{{ $detail->produk->harga_jual ?? 0 }}">
                                         <input type="hidden" name="items[{{ $index }}][diskon]" class="item-diskon-hidden" value="{{ $detail->diskon ?? 0 }}">
-                                        <input type="hidden" name="items[{{ $index }}][pajak_persen]" class="item-pajak-hidden" value="{{ $pajak_persen }}">
+                                        <input type="hidden" name="items[{{ $index }}][pajak_id]" class="item-pajak-id-hidden" value="{{ $detail->pajak_id ?? '' }}">
+                                        <input type="hidden" class="item-pajak-rate-hidden" value="{{ $pajak_rate }}">
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <img src="{{ $detail->produk->img_produk ? asset('storage/' . $detail->produk->img_produk) : asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="{{ $detail->produk->nama_produk }}">
@@ -104,7 +106,7 @@
                                         <td class="align-middle"><span class="item-harga">{{ 'Rp ' . number_format($detail->harga_beli, 0, ',', '.') }}</span></td>
                                         <td class="align-middle"><span class="item-pajak">{{ 'Rp ' . number_format($pajak_amount, 0, ',', '.') }}</span></td>
                                         <td class="align-middle"><span class="item-diskon">{{ 'Rp ' . number_format($detail->diskon ?? 0, 0, ',', '.') }}</span></td>
-                                        <td class="subtotal-item text-start text-sm">Rp 0</td>
+                                        <td class="subtotal-item text-start text-sm">{{ 'Rp ' . number_format($subtotal_with_tax, 0, ',', '.') }}</td>
                                         <td>
                                             <div class="d-flex">
                                                 <button type="button" class="btn btn-link text-info p-0 m-0 me-2 btn-edit" title="Edit Item"><i class="bi bi-pencil-square"></i></button>
@@ -142,10 +144,10 @@
                                 </div>
                                 <div class="col-md-3 mb-md-0 mb-3">
                                     <label for="statusBayar" class="form-label">Status Pembayaran:</label>
-                                    <select class="form-select me-2" name="status_pembayaran_dummy" id="statusBayar" required>
+                                    <select class="form-select me-2 @error('status_pembayaran') is-invalid @enderror" name="status_pembayaran" id="statusBayar" required>
                                         <option value="Lunas" @selected(old('status_pembayaran', $pembelian->status_pembayaran) == 'Lunas')>Lunas</option>
-                                        <option value="Lunas Sebagian" @selected(old('status_pembayaran', $pembelian->status_pembayaran) == 'Lunas Sebagian')>Lunas Sebagian</option>
                                         <option value="Belum Lunas" @selected(old('status_pembayaran', $pembelian->status_pembayaran) == 'Belum Lunas')>Belum Lunas</option>
+                                        <option value="Dibatalkan" @selected(old('status_pembayaran', $pembelian->status_pembayaran) == 'Dibatalkan')>Dibatalkan</option>
                                     </select>
                                 </div>
                             </div>
@@ -220,11 +222,11 @@
                                 <input type="text" class="form-control" id="edit-item-harga-jual" placeholder="0">
                             </div>
                             <div class="col-6">
-                                <label for="edit-item-pajak-persen" class="form-label">Pajak</label>
-                                <select class="form-select" id="edit-item-pajak-persen">
-                                    <option value="0" selected>Tidak ada</option>
+                                <label for="edit-item-pajak-id" class="form-label">Pajak</label>
+                                <select class="form-select" id="edit-item-pajak-id">
+                                    <option value="" data-rate="0" selected>Tidak ada</option>
                                     @foreach($pajaks as $pajak)
-                                        <option value="{{ $pajak->rate }}">{{ $pajak->nama_pajak }} ({{ $pajak->rate }}%)</option>
+                                        <option value="{{ $pajak->id }}" data-rate="{{ $pajak->rate }}">{{ $pajak->nama_pajak }} ({{ $pajak->rate }}%)</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -299,18 +301,25 @@
                     data: function(params) {
                         return { search: params.term, page: params.page || 1 };
                     },
-                    processResults: function(data) {
+                    processResults: function(data, params) {
+                        params.page = params.page || 1;
                         return {
-                            results: data.map(function(item) {
+                            results: data.data.map(function(item) {
                                 return {
                                     id: item.id,
                                     text: item.nama_produk,
                                     img_produk: item.img_produk,
                                     qty: item.qty,
                                     harga_beli: item.harga_beli,
-                                    harga_jual: item.harga_jual
+                                    harga_jual: item.harga_jual,
+                                    // Menambahkan data pajak untuk konsistensi
+                                    pajak_id: item.pajak_id,
+                                    pajak_rate: item.pajak ? item.pajak.rate : 0
                                 };
-                            })
+                            }),
+                            pagination: {
+                                more: data.next_page_url !== null
+                            }
                         };
                     },
                     cache: true
@@ -332,6 +341,9 @@
                 const produkImg = selectedData.img_produk;
                 const hargaBeli = selectedData.harga_beli || 0;
                 const hargaJual = selectedData.harga_jual || 0;
+                 // Ambil data pajak dari produk yang dipilih
+                const pajakId = selectedData.pajak_id || null;
+                const pajakRate = selectedData.pajak_rate || 0;
                 const qtyToAdd = parseInt(qty);
 
                 let existingRow = $(`#table-pembelian tbody tr[data-produk-id="${produkId}"]`);
@@ -343,14 +355,20 @@
                     const defaultImage = "{{ asset('assets/img/produk.webp') }}";
                     const imageUrl = produkImg ? `{{ asset('storage/') }}/${produkImg}` : defaultImage;
 
+                    // Hitung nilai awal untuk pajak dan subtotal (termasuk pajak)
+                    const subtotalItem = hargaBeli * qtyToAdd;
+                    const pajakAmount = subtotalItem * (pajakRate / 100);
+                    const subtotalWithTax = subtotalItem + pajakAmount;
+
                     const newRow = `
-                        <tr data-produk-id="${produkId}" data-pajak-persen="0" data-diskon="0">
+                        <tr data-produk-id="${produkId}">
                             <input type="hidden" name="items[${itemCounter}][produk_id]" value="${produkId}">
                             <input type="hidden" name="items[${itemCounter}][qty]" class="item-qty-hidden" value="${qtyToAdd}">
                             <input type="hidden" name="items[${itemCounter}][harga_beli]" class="item-harga-hidden" value="${hargaBeli}">
                             <input type="hidden" name="items[${itemCounter}][harga_jual]" class="item-harga-jual-hidden" value="${hargaJual}">
                             <input type="hidden" name="items[${itemCounter}][diskon]" class="item-diskon-hidden" value="0">
-                            <input type="hidden" name="items[${itemCounter}][pajak_persen]" class="item-pajak-hidden" value="0">
+                            <input type="hidden" name="items[${itemCounter}][pajak_id]" class="item-pajak-id-hidden" value="${pajakId || ''}">
+                            <input type="hidden" class="item-pajak-rate-hidden" value="${pajakRate}">
                             <td>
                                 <div class="d-flex align-items-center">
                                     <img src="${imageUrl}" class="avatar avatar-sm me-3" alt="${produkNama}">
@@ -359,9 +377,9 @@
                             </td>
                             <td class="align-middle text-center"><span class="item-qty">${qtyToAdd}</span></td>
                             <td class="align-middle"><span class="item-harga">${formatCurrency(hargaBeli)}</span></td>
-                            <td class="align-middle"><span class="item-pajak">Rp 0</span></td>
+                            <td class="align-middle"><span class="item-pajak">${formatCurrency(pajakAmount)}</span></td>
                             <td class="align-middle"><span class="item-diskon">Rp 0</span></td>
-                            <td class="subtotal-item text-start text-sm">Rp 0</td>
+                            <td class="subtotal-item text-start text-sm">${formatCurrency(subtotalWithTax)}</td>
                             <td>
                                 <div class="d-flex">
                                     <button type="button" class="btn btn-link text-info p-0 m-0 me-2 btn-edit" title="Edit Item">
@@ -376,13 +394,12 @@
                     `;
                     $("#table-pembelian tbody").append(newRow);
                     itemCounter++;
-                    calculateRow($(`#table-pembelian tbody tr[data-produk-id="${produkId}"]`));
                 }
 
                 $("#select2").val(null).trigger("change");
                 $("#qty").val("");
                 $("#sisa_stok").val("");
-                calculateGrandTotal();
+                calculateChange(); // Panggil calculateChange agar total akhir juga terupdate
             });
 
             // --- CALCULATIONS ---
@@ -390,32 +407,34 @@
                 const qty = parseFloat(row.find(".item-qty-hidden").val()) || 0;
                 const hargaBeli = parseFloat(row.find(".item-harga-hidden").val()) || 0;
                 const diskon = parseFloat(row.find(".item-diskon-hidden").val()) || 0;
-                const pajakPersen = parseFloat(row.find(".item-pajak-hidden").val()) || 0;
+                const pajakRate = parseFloat(row.find(".item-pajak-rate-hidden").val()) || 0;
 
-                const pajakAmount = ((qty * hargaBeli) - diskon) * (pajakPersen / 100);
-                const subtotal = (qty * hargaBeli) - diskon;
+                const subtotalSebelumPajak = (qty * hargaBeli) - diskon;
+                const pajakAmount = subtotalSebelumPajak * (pajakRate / 100);
+                const subtotalDenganPajak = subtotalSebelumPajak + pajakAmount;
 
                 row.find(".item-pajak").text(formatCurrency(pajakAmount));
-                row.find(".subtotal-item").text(formatCurrency(subtotal));
+                row.find(".subtotal-item").text(formatCurrency(subtotalDenganPajak));
             }
 
             function calculateGrandTotal() {
                 let subtotalKeseluruhan = 0;
-                let totalPajak = 0;
                 $('#table-pembelian tbody tr').each(function() {
                     const qty = parseFloat($(this).find(".item-qty-hidden").val()) || 0;
                     const hargaBeli = parseFloat($(this).find(".item-harga-hidden").val()) || 0;
                     const diskon = parseFloat($(this).find(".item-diskon-hidden").val()) || 0;
-                    const pajakPersen = parseFloat($(this).find(".item-pajak-hidden").val()) || 0;
-                    subtotalKeseluruhan += (qty * hargaBeli) - diskon;
-                    totalPajak += ((qty * hargaBeli) - diskon) * (pajakPersen / 100);
+                    const pajakRate = parseFloat($(this).find(".item-pajak-rate-hidden").val()) || 0;
+
+                    const subtotalItem = (qty * hargaBeli) - diskon;
+                    const pajakItem = subtotalItem * (pajakRate / 100);
+                    subtotalKeseluruhan += subtotalItem + pajakItem; // Subtotal keseluruhan SEKARANG termasuk pajak
                 });
 
                 $("#subtotal-keseluruhan").text(formatCurrency(subtotalKeseluruhan));
 
-                const ongkir = parseCurrency($("#ongkir").val());
+                const ongkir = parseCurrency($("#ongkir").val()); // Ini sudah benar
                 const diskonTambahan = parseCurrency($("#diskon-tambahan").val());
-                const totalAkhir = subtotalKeseluruhan + totalPajak - diskonTambahan + ongkir;
+                const totalAkhir = subtotalKeseluruhan - diskonTambahan + ongkir;
 
                 $("#total-akhir").text(formatCurrency(totalAkhir < 0 ? 0 : totalAkhir));
                 return totalAkhir < 0 ? 0 : totalAkhir;
@@ -472,7 +491,7 @@
                 $("#edit-item-harga").val(new Intl.NumberFormat('id-ID').format(row.find(".item-harga-hidden").val()));
                 $("#edit-item-harga-jual").val(new Intl.NumberFormat('id-ID').format(row.find(".item-harga-jual-hidden").val()));
                 $("#edit-item-diskon").val(new Intl.NumberFormat('id-ID').format(row.find(".item-diskon-hidden").val()));
-                $("#edit-item-pajak-persen").val(row.find(".item-pajak-hidden").val());
+                $("#edit-item-pajak-id").val(row.find(".item-pajak-id-hidden").val());
 
                 editItemModal.show();
             });
@@ -486,27 +505,31 @@
                 row.find(".item-harga-hidden").val(parseCurrency($("#edit-item-harga").val()));
                 row.find(".item-harga-jual-hidden").val(parseCurrency($("#edit-item-harga-jual").val()));
                 row.find(".item-diskon-hidden").val(parseCurrency($("#edit-item-diskon").val()));
-                row.find(".item-pajak-hidden").val($("#edit-item-pajak-persen").val());
+
+                const selectedPajak = $("#edit-item-pajak-id option:selected");
+                row.find(".item-pajak-id-hidden").val(selectedPajak.val());
+                row.find(".item-pajak-rate-hidden").val(selectedPajak.data('rate'));
 
                 updateRowDisplay(row);
                 editItemModal.hide();
             });
 
-            $("#statusBayar").on("change", function() {
-                if ($(this).val() === 'Lunas') {
+            $("#statusBayar").on("change", function () {
+                const status = $(this).val();
+                if (status === 'Lunas') {
                     const totalAkhir = calculateGrandTotal();
                     $("#bayar").val(totalAkhir).trigger('input');
-                } else {
+                    // Pastikan form aktif
+                } else if (status === 'Belum Lunas') {
                     $("#bayar").val(0).trigger('input');
+                    // Pastikan form aktif
+                } else if (status === 'Dibatalkan') {
+                    // Kunci form jika dibatalkan
                 }
             });
 
             // --- CURRENCY FORMATTING ---
-            $('#edit-item-harga, #edit-item-harga-jual, #edit-item-diskon').on('input', function() {
-                formatInputAsCurrency($(this));
-            });
-
-            $("#ongkir, #diskon-tambahan, #bayar").on("blur", function() { // Menambahkan #bayar
+            $('#edit-item-harga, #edit-item-harga-jual, #edit-item-diskon, #ongkir, #diskon-tambahan, #bayar').on('input', function() {
                 formatInputAsCurrency($(this));
             });
 
@@ -517,11 +540,29 @@
                 row.find('.item-diskon').text(formatCurrency(row.find('.item-diskon-hidden').val()));
 
                 calculateRow(row);
+                calculateChange();
             }
 
 
             // --- FORM SUBMISSION VALIDATION ---
             $("#form-pembelian-edit").on("submit", function(e) {
+                const totalAkhir = calculateGrandTotal();
+                const bayar = parseCurrency($("#bayar").val());
+                const statusBayar = $("#statusBayar").val();
+
+                if (bayar < totalAkhir && statusBayar === 'Lunas') {
+                    e.preventDefault();
+                    Swal.fire('Peringatan', 'Pembayaran kurang dari total akhir. Mohon ubah status pembayaran Anda atau lunasi pembayaran.', 'warning');
+                    return;
+                }
+
+                // Validasi baru: Jika pembayaran lunas, status tidak boleh 'Belum Lunas'
+                if (statusBayar === 'Belum Lunas' && bayar >= totalAkhir) {
+                    e.preventDefault();
+                    Swal.fire('Peringatan', 'Pembayaran sudah lunas. Mohon ubah status pembayaran menjadi "Lunas".', 'warning');
+                    return;
+                }
+
                 if ($("#table-pembelian tbody tr").length === 0) {
                     e.preventDefault();
                     Swal.fire('Peringatan', 'Harap tambahkan minimal satu produk.', 'warning');
@@ -529,15 +570,11 @@
             });
 
             // --- INITIAL CALCULATIONS ON PAGE LOAD ---
-            $('#table-pembelian tbody tr').each(function() {
-                calculateRow($(this));
-            });
-
             // 1. Set nilai awal dari DB ke input yang terlihat
             $('#bayar').val($('#jumlah_dibayar_hidden').val());
 
             // 2. Format semua input mata uang saat halaman dimuat
-            $("#ongkir, #diskon-tambahan, #bayar").each(function() { // Menambahkan #bayar
+            $("#ongkir, #diskon-tambahan, #bayar").each(function() {
                 formatInputAsCurrency($(this));
             });
 

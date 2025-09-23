@@ -9,14 +9,19 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\GaransiController;
 use App\Http\Controllers\PemasokController;
+use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\PelangganController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PemasukanController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
+use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\SerialNumberController;
 use App\Http\Controllers\KategoriProdukController;
+use App\Http\Controllers\StokPenyesuaianController;
 use App\Http\Controllers\KategoriPemasukanController;
+use App\Http\Controllers\KategoriTransaksiController;
 use App\Http\Controllers\KategoriPengeluaranController;
 
 //Autentikasi
@@ -32,11 +37,6 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/kasir', function () {
-    return view('kasir', [
-        'title' => 'Beranda'
-    ]);
-});
 
 Route::middleware(['auth'])->group(function () {
     //dashboard
@@ -45,6 +45,14 @@ Route::middleware(['auth'])->group(function () {
             'title'=>'Dashboard',
         ]);
     })->name('dashboard');
+
+    Route::get('keuangan', [KeuanganController::class, 'index'])->name('keuangan');
+    Route::get('stok-opname', [StokOpnameController::class, 'index'])->name('stok-opname.index');
+    Route::post('stok-opname', [StokOpnameController::class, 'store'])->name('stok-opname.store');
+    Route::get('stok-opname/history', [StokOpnameController::class, 'history'])->name('stok-opname.history');
+    Route::get('stok-opname/history/{stok_opname}', [StokOpnameController::class, 'show'])->name('stok-opname.show');
+
+    Route::resource('stok-penyesuaian', StokPenyesuaianController::class)->except(['edit', 'update']);
 
     Route::prefix('get-data')->as('get-data.')->group(function () {
         Route::get('produk', [ProdukController::class, 'getData'])->name('produk');
@@ -72,8 +80,9 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('revert', [ProdukController::class, 'revert'])->name('revert');
         // Rute untuk slug
         Route::get('checkSlug', [ProdukController::class, 'checkSlug'])->name('checkSlug');
-
     });
+
+    Route::resource('users', UserController::class)->except('show')->parameter('users', 'user:username');
     Route::resource('produk', ProdukController::class)->parameters(['produk' => 'produk:slug']);
 
     //serial-number
@@ -119,22 +128,22 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pengeluaran/{pengeluaran}/json', [PengeluaranController::class, 'getjson'])->name('pengeluaran.getjson');
     Route::resource('pengeluaran',PengeluaranController::class)->except('show','create','edit');
 
-    // kategori pengeluaran
-    Route::get('/kategoripengeluaran/{kategoripengeluaran}/json', [KategoriPengeluaranController::class, 'getKategoriJson'])->name('kategoripengeluaran.getjson');
-    Route::resource('kategoripengeluaran',KategoriPengeluaranController::class)->except('show','create','edit');
-    Route::get('/dashboard/kategoripengeluaran/chekSlug', [KategoriPengeluaranController::class, 'chekSlug']);
-
     //pemasukan
     Route::get('/pemasukan/{pemasukan}/json', [PemasukanController::class, 'getjson'])->name('pemasukan.getjson');
     Route::resource('pemasukan',PemasukanController::class)->except('show','create','edit');
 
-    // kategori pemasukan
-    Route::get('/kategoripemasukan/{kategoripemasukan}/json', [KategoriPemasukanController::class, 'getKategoriJson'])->name('kategoripemasukan.getjson');
-    Route::resource('kategoripemasukan',KategoriPemasukanController::class)->except('show','create','edit');
-    Route::get('/dashboard/kategoripemasukan/chekSlug', [KategoriPemasukanController::class, 'chekSlug']);
+    // kategori transaksi
+    Route::get('/kategoritransaksi/{kategoritransaksi}/json', [KategoriTransaksiController::class, 'getKategoriJson'])->name('kategoritransaksi.getjson');
+    Route::resource('kategoritransaksi',KategoriTransaksiController::class)->except('show','create','edit');
+    Route::get('/dashboard/kategoritransaksi/chekSlug', [KategoriTransaksiController::class, 'chekSlug']);
 
     //Stok
     Route::get('/stok/rendah', [StokController::class, 'index'])->name('stok.rendah');
+
+    // Laporan
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('inventaris', [LaporanController::class, 'inventaris'])->name('inventaris');
+    });
 });
 
 Route::middleware(['admin', 'auth'])->group(function () {

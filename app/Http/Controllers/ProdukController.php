@@ -8,6 +8,8 @@ use App\Models\Pajak;
 use App\Models\Produk;
 use App\Models\Garansi;
 use Illuminate\Http\Request;
+use App\Models\ItemPenjualan;
+use App\Models\Penjualan;
 use App\Models\KategoriProduk;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +25,7 @@ class ProdukController extends Controller
      */
     public function index()
     {
-        return view('dashboard.inventaris.produk.index', [
+        return view('dashboard.produk.produk.index', [
         // Eager load relasi untuk menghindari N+1 query problem
         'produk' => Produk::with(['kategori_produk', 'brand', 'unit'])->latest()->paginate(10)
     ]);
@@ -34,7 +36,7 @@ class ProdukController extends Controller
      */
     public function create()
     {
-        return view('dashboard.inventaris.produk.create',[
+        return view('dashboard.produk.produk.create',[
             'kategori' => KategoriProduk::all(),
             'brand' => Brand::all(),
             'unit' => Unit::all(),
@@ -109,7 +111,7 @@ class ProdukController extends Controller
      */
     public function edit(Produk $produk)
     {
-        return view('dashboard.inventaris.produk.edit',[
+        return view('dashboard.produk.produk.edit',[
             'produk' => $produk,
             'kategoris' => KategoriProduk::all(),
             'brands' => Brand::all(),
@@ -315,7 +317,7 @@ class ProdukController extends Controller
     {
         $search = $request->query('search');
         // Selalu urutkan berdasarkan nama produk untuk konsistensi
-        $query = Produk::query()->orderBy('nama_produk', 'asc');
+        $query = Produk::with('pajak')->orderBy('qty', 'asc');
 
         // Filter berdasarkan kata kunci pencarian
         if ($search) {
@@ -417,6 +419,43 @@ class ProdukController extends Controller
             'title' => 'Semua Notifikasi',
             'lowStockProducts' => $lowStockProducts,
             'productsNeedingSerials' => $productsNeedingSerials,
+        ]);
+    }
+
+    /**
+     * Menampilkan halaman laporan produk dengan stok rendah.
+     */
+    public function laporanStokRendah(Request $request)
+    {
+        // Subquery untuk mendapatkan tanggal penjualan terakhir
+        $lastSaleDateSubquery = ItemPenjualan::select('penjualans.tanggal_penjualan')
+            ->join('penjualans', 'item_penjualans.penjualan_id', '=', 'penjualans.id')
+            ->whereColumn('item_penjualans.produk_id', 'produks.id')
+            ->orderBy('penjualans.tanggal_penjualan', 'desc')
+            ->limit(1);
+
+        $query = Produk::with('kategori_produk')
+            ->whereColumn('qty', '<=', 'stok_minimum')
+            ->addSelect(['*', 'last_sale_date' => $lastSaleDateSubquery]) // Tambahkan kolom virtual 'last_sale_date'
+            ->orderBy('qty', 'asc');
+
+        // Filter berdasarkan pencarian nama produk
+        if ($request->filled('search')) {
+            $query->where('nama_produk', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter berdasarkan kategori
+        if ($request->filled('kategori')) {
+            $query->where('kategori_produk_id', $request->kategori);
+        }
+
+        $produks = $query->paginate(15)->withQueryString();
+        $kategoris = KategoriProduk::where('status', 1)->orderBy('nama')->get();
+
+        return view('dashboard.inventaris.stok-rendah', [
+            'title' => 'Laporan Stok Rendah',
+            'produks' => $produks,
+            'kategoris' => $kategoris,
         ]);
     }
 }

@@ -117,10 +117,12 @@
                             <div id="category-container" class="d-flex flex-nowrap gap-2 pb-2" style="overflow-x: auto;">
                                 <div class="category-btn category-active border rounded-1 d-flex align-items-center ms-1 my-3 p-2" style="height: 40px; cursor: pointer;" data-category-id="all"><i class="bi bi-tags me-1"></i> <p class="fw-bolder text-xs ms-1 mb-0">Semua</p></div>
                                 @foreach ($kategoris as $kategori)
-                                <div class="category-btn border rounded-1 d-flex align-items-center my-3 p-2" style="height: 40px; cursor: pointer;" data-category-id="{{ $kategori->id }}">
-                                    <img src="{{ $kategori->img_kategori ? asset('storage/' . $kategori->img_kategori) : asset('assets/img/produk.webp') }}" class="avatar avatar-xs rounded-1" alt="{{ $kategori->nama }}">
-                                    <p class="fw-bolder text-xs ms-2 mb-0">{{ $kategori->nama }}</p>
-                                </div>
+                                    @if($kategori->produks->isNotEmpty())
+                                        <div class="category-btn border rounded-1 d-flex align-items-center my-3 p-2 " style="height: 40px;  cursor: pointer;" data-category-id="{{ $kategori->id }}">
+                                            <img src="{{ $kategori->img_kategori ? asset('storage/' . $kategori->img_kategori) : asset('assets/img/produk.webp') }}" class="avatar avatar-xs rounded-1" alt="{{ $kategori->nama }}">
+                                            <p class="fw-bolder text-xs ms-2 mb-0 ">{{ $kategori->nama }}</p>
+                                        </div>
+                                    @endif
                                 @endforeach
                             </div>
                         </div>
@@ -690,7 +692,12 @@
                         cart.forEach(item => {
                             const subtotalItem = (item.harga_jual * item.jumlah) - item.diskon; // Subtotal sebelum pajak
                             const pajakItem = subtotalItem * (item.pajak_rate / 100); // Hitung PPN untuk item ini
-                            // BARU: Buat input hidden untuk nomor seri
+                        // Harga jual total untuk item ini (sudah termasuk pajak) dikurangi diskon item
+                        const hargaJualTotalItem = (item.harga_jual * item.jumlah) - item.diskon;
+                        // Hitung DPP (Dasar Pengenaan Pajak) dan Pajak dari harga jual inklusif
+                        const dppItem = hargaJualTotalItem / (1 + (item.pajak_rate / 100));
+                        const pajakAmountItem = hargaJualTotalItem - dppItem;
+
                             let serialNumberInputs = '';
                             if (item.serial_numbers && item.serial_numbers.length > 0) {
                                 item.serial_numbers.forEach(sn => {
@@ -734,8 +741,8 @@
                                         <span class="fw-bold px-1 text-sm">${item.jumlah}</span>
                                         <button class="btn btn-outline-primary btn-sm rounded-circle p-0 mt-3 qty-increase" data-id="${item.id}" type="button" style="width: 20px; height: 20px;">+</button>
                                     </td>
-                                    <td class="align-middle text-end"><span class="text-xs fw-bold">${formatCurrency(pajakItem)}</span></td>
-                                    <td class="align-middle text-end"><span class="text-xs fw-bold">${formatCurrency(subtotalItem)}</span></td>
+                                    <td class="align-middle text-end"><span class="text-xs fw-bold">${formatCurrency(pajakAmountItem)}</span></td>
+                                    <td class="align-middle text-end"><span class="text-xs fw-bold">${formatCurrency(dppItem)}</span></td>
                                     <td class="align-middle text-end" style="padding-top: 25px;">
                                         <div class="d-flex justify-content-end">
                                             ${editButtonHtml}
@@ -764,20 +771,22 @@
                 const calculateTotals = () => {
                     let subtotal = 0;
                     let totalPajak = 0;
+
                     cart.forEach(item => {
-                        // PERBAIKAN: Logika kalkulasi diubah menjadi Tax-Exclusive
-                        // Subtotal item adalah harga jual dikali jumlah, dikurangi diskon item.
-                        const subtotalItem = (item.harga_jual * item.jumlah) - item.diskon;
-                        // Pajak dihitung dari subtotal item.
-                        const pajakItem = subtotalItem * (item.pajak_rate / 100);
-                        subtotal += subtotalItem;
-                        totalPajak += pajakItem;
+                        // Harga jual total untuk item ini (sudah termasuk pajak) dikurangi diskon item
+                        const hargaJualTotalItem = (item.harga_jual * item.jumlah) - item.diskon;
+                        // Hitung DPP (Dasar Pengenaan Pajak) dan Pajak dari harga jual inklusif
+                        const dppItem = hargaJualTotalItem / (1 + (item.pajak_rate / 100));
+                        const pajakAmountItem = hargaJualTotalItem - dppItem;
+
+                        subtotal += dppItem; // Subtotal adalah total DPP
+                        totalPajak += pajakAmountItem; // Akumulasi total pajak
                     });
 
                     const service = parseFloat(serviceInput.value) || 0;
                     const ongkir = parseFloat(ongkirInput.value) || 0;
                     const diskon = parseFloat(diskonInput.value) || 0;
-                    const total = (subtotal + totalPajak + service + ongkir) - diskon;
+                    const total = (subtotal + totalPajak + service + ongkir) - diskon; // Total akhir adalah DPP + Pajak + Biaya Lain - Diskon Global
 
                     subtotalEl.textContent = formatCurrency(subtotal);
                     document.getElementById('pajak-total-display').textContent = formatCurrency(totalPajak);

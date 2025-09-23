@@ -49,4 +49,6 @@ class Produk extends Model
     public function itemPenjualans() : HasMany { return $this->hasMany(ItemPenjualan::class); }
     public function pembelianDetails() : HasMany { return $this->hasMany(PembelianDetail::class); }
     public function serialNumbers(): HasMany { return $this->hasMany(SerialNumber::class); }
+
+    public function latestPurchaseDetail() { return $this->hasOne(\App\Models\PembelianDetail::class)->latestOfMany(); }
 }

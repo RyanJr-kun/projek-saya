@@ -6,7 +6,7 @@ use App\Models\Pemasukan;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use RealRashid\SweetAlert\Facades\Alert;
-use App\Models\KategoriPemasukan;
+use App\Models\KategoriTransaksi;
 use Illuminate\Support\Facades\Auth;
 
 class PemasukanController extends Controller
@@ -16,11 +16,38 @@ class PemasukanController extends Controller
      */
     public function index()
     {
-        return view('dashboard.pemasukan.index', [
+        return view('dashboard.keuangan.pemasukan', [
             'title' => 'Pemasukan',
-            'pemasukans' => Pemasukan::with(['kategoriPemasukan', 'user'])->latest()->paginate(15),
-            'kategoris' => KategoriPemasukan::where('status', 1)->get(['id', 'nama'])
+            'pemasukans' => Pemasukan::latest()->paginate(15),
+            'kategoris' => KategoriTransaksi::where([
+                'status' => 1,
+                'jenis' => 'pemasukan'
+                ])->get(['id', 'nama']),
+            'referensi_otomatis' => $this->generateIncomeReferenceNumber()
         ]);
+    }
+
+    /**
+     * Menghasilkan nomor referensi pemasukan yang unik.
+     */
+    private function generateIncomeReferenceNumber()
+    {
+        // Format: IN-YYYYMMDD-XXXX (e.g., IN-20230831-0001)
+        $date = now()->format('Ymd');
+        $prefix = 'IN-' . $date . '-';
+
+        // Cari referensi terakhir untuk hari ini untuk mendapatkan nomor urut berikutnya
+        $lastIncome = Pemasukan::where('referensi', 'like', $prefix . '%')
+                                  ->latest('referensi')
+                                  ->first();
+
+        $sequence = 1;
+        if ($lastIncome) {
+            $lastSequence = (int) substr($lastIncome->referensi, -4);
+            $sequence = $lastSequence + 1;
+        }
+
+        return $prefix . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -37,10 +64,10 @@ class PemasukanController extends Controller
     public function store(Request $request)
     {
         $validateData = $request->validate([
-            'kategori_pemasukan_id' => 'required|exists:kategori_pemasukans,id',
+            'kategori_transaksi_id' => 'required|exists:kategori_transaksis,id',
             'tanggal' => 'required|date_format:Y-m-d|before_or_equal:today',
             'jumlah' => 'required|numeric|min:0',
-            'referensi' => 'nullable|string|max:100|unique:pemasukans',
+            'referensi' => 'required|string|max:100|unique:pemasukans',
             'keterangan' => 'required|string|max:255',
             'deskripsi' => 'nullable|string|max:1000',
         ]);
@@ -79,10 +106,10 @@ class PemasukanController extends Controller
     public function update(Request $request, Pemasukan $pemasukan)
     {
         $rules = [
-            'kategori_pemasukan_id' => 'required|exists:kategori_pemasukans,id',
+            'kategori_transaksi_id' => 'required|exists:kategori_transaksis,id',
             'tanggal' => 'required|date_format:Y-m-d|before_or_equal:today',
             'jumlah' => 'required|numeric|min:0',
-            'referensi' => ['nullable', 'string', 'max:100', Rule::unique('pemasukans')->ignore($pemasukan->id)],
+            'referensi' => ['required', 'string', 'max:100', Rule::unique('pemasukans')->ignore($pemasukan->id)],
             'keterangan' => 'required|string|max:255',
             'deskripsi' => 'nullable|string|max:1000',
         ];

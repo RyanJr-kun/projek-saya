@@ -18,7 +18,7 @@
     <form action="{{ route('pembelian.store') }}" method="post" id="form-pembelian">
         @csrf
         <div class="container-fluid p-3">
-            <div class="card ">
+            <div class="card rounded-2">
                 <div class="card-header pt-3 pb-0 mb-0 ">
                     <h6 class="">Informasi Pembelian</h6>
                 </div>
@@ -118,7 +118,6 @@
                                     <select class="form-select me-2 @error('status_pembayaran') is-invalid @enderror" name="status_pembayaran" id="statusBayar" required>
                                         <option value="" disabled selected>Pilih</option>
                                         <option value="Lunas" @selected(old('status_pembayaran') == 'Lunas')>Lunas</option>
-                                        <option value="Lunas Sebagian" @selected(old('status_pembayaran') == 'Lunas Sebagian')>Lunas Sebagian</option>
                                         <option value="Belum Lunas" @selected(old('status_pembayaran') == 'Belum Lunas')>Belum Lunas</option>
                                     </select>
                                 </div>
@@ -289,6 +288,7 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
@@ -353,19 +353,25 @@
                                 page: params.page || 1
                             };
                         },
-                        processResults: function(data) {
-                            // Transformasi data dari controller agar sesuai format Select2 ({id: '', text: ''})
+                        processResults: function(data, params) {
+                            params.page = params.page || 1;
+                            // Transformasi data dari controller (yang dipaginasi) agar sesuai format Select2
                             return {
-                                results: data.map(function(item) {
+                                results: data.data.map(function(item) { // <-- PERBAIKAN: Akses array 'data' di dalam respons
                                     return {
                                         id: item.id,
                                         text: item.nama_produk,
                                         img_produk: item.img_produk,
                                         qty: item.qty,
                                         harga_beli: item.harga_beli,
-                                        harga_jual: item.harga_jual
+                                        harga_jual: item.harga_jual,
+                                        pajak_id: item.pajak_id, // Tambahkan ini
+                                        pajak_rate: item.pajak ? item.pajak.rate : 0 // Tambahkan ini
                                     };
-                                })
+                                }),
+                                pagination: {
+                                    more: data.next_page_url !== null // <-- Tambahkan ini untuk infinite scroll
+                                }
                             };
                         },
                         cache: true
@@ -387,6 +393,8 @@
                     const produkImg = selectedData.img_produk;
                     const hargaBeli = selectedData.harga_beli || 0;
                     const hargaJual = selectedData.harga_jual || 0;
+                    const pajakId = selectedData.pajak_id || null;
+                    const pajakRate = selectedData.pajak_rate || 0;
                     const qtyToAdd = parseInt(qty);
 
                     // Cek jika produk sudah ada di tabel
@@ -400,6 +408,11 @@
                         const defaultImage = "{{ asset('assets/img/produk.webp') }}";
                         const imageUrl = produkImg ? `{{ asset('storage/') }}/${produkImg}` : defaultImage;
 
+                        // Hitung nilai awal untuk pajak dan subtotal
+                        const subtotalAwal = (hargaBeli * qtyToAdd); // Diskon awal adalah 0
+                        const pajakAwal = subtotalAwal * (pajakRate / 100);
+                        const subtotalDenganPajak = subtotalAwal + pajakAwal;
+
                         const newRow = `
                             <tr data-produk-id="${produkId}" data-diskon="0">
                                 <input type="hidden" name="items[${itemCounter}][produk_id]" value="${produkId}">
@@ -407,8 +420,8 @@
                                 <input type="hidden" name="items[${itemCounter}][harga_beli]" class="item-harga-hidden" value="${hargaBeli}">
                                 <input type="hidden" name="items[${itemCounter}][harga_jual]" class="item-harga-jual-hidden" value="${hargaJual}">
                                 <input type="hidden" name="items[${itemCounter}][diskon]" class="item-diskon-hidden" value="0">
-                                <input type="hidden" name="items[${itemCounter}][pajak_id]" class="item-pajak-id-hidden" value="">
-                                <input type="hidden" class="item-pajak-rate-hidden" value="0">
+                                <input type="hidden" name="items[${itemCounter}][pajak_id]" class="item-pajak-id-hidden" value="${pajakId || ''}">
+                                <input type="hidden" class="item-pajak-rate-hidden" value="${pajakRate}">
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <img src="${imageUrl}" class="avatar avatar-sm me-3" alt="${produkNama}">
@@ -417,9 +430,9 @@
                                 </td>
                                 <td class="align-middle text-center"><span class="item-qty">${qtyToAdd}</span></td>
                                 <td class="align-middle"><span class="item-harga">${formatCurrency(hargaBeli)}</span></td>
-                                <td class="align-middle"><span class="item-pajak">Rp 0</span></td>
+                                <td class="align-middle"><span class="item-pajak">${formatCurrency(pajakAwal)}</span></td>
                                 <td class="align-middle"><span class="item-diskon">Rp 0</span></td>
-                                <td class="subtotal-item text-start text-sm">Rp 0</td>
+                                <td class="subtotal-item text-start text-sm">${formatCurrency(subtotalDenganPajak)}</td>
                                 <td>
                                     <div class="d-flex">
                                         <button type="button" class="btn btn-link text-info p-0 m-0 me-2 btn-edit" title="Edit Item">
@@ -434,7 +447,7 @@
                         `;
                         $("#table-pembelian tbody").append(newRow);
                         itemCounter++;
-                        calculateRow($(`#table-pembelian tbody tr[data-produk-id="${produkId}"]`));
+                        // calculateRow tidak perlu dipanggil lagi di sini karena nilai sudah dihitung
                     }
 
                     // Reset inputs
@@ -452,30 +465,39 @@
                     const pajakRate = parseFloat(row.find(".item-pajak-rate-hidden").val()) || 0;
 
                     const pajakAmount = ((qty * hargaBeli) - diskon) * (pajakRate / 100);
-                    const subtotal = (qty * hargaBeli) - diskon;
+                    const subtotalSebelumPajak = (qty * hargaBeli) - diskon;
+                    const subtotalDenganPajak = subtotalSebelumPajak + pajakAmount;
 
                     row.find(".item-pajak").text(formatCurrency(pajakAmount));
-                    row.find(".subtotal-item").text(formatCurrency(subtotal));
+                    row.find(".subtotal-item").text(formatCurrency(subtotalDenganPajak)); // Tampilkan subtotal setelah pajak
                 }
 
                 function calculateGrandTotal() {
-                    let subtotalKeseluruhan = 0;
-                    let totalPajak = 0;
+                    let subtotalKeseluruhan = 0; // Variabel ini sekarang akan mengakumulasi total SETELAH pajak
                     $('#table-pembelian tbody tr').each(function() {
                         const qty = parseFloat($(this).find(".item-qty-hidden").val()) || 0;
                         const hargaBeli = parseFloat($(this).find(".item-harga-hidden").val()) || 0;
                         const diskon = parseFloat($(this).find(".item-diskon-hidden").val()) || 0;
                         const pajakRate = parseFloat($(this).find(".item-pajak-rate-hidden").val()) || 0;
-                        subtotalKeseluruhan += (qty * hargaBeli) - diskon;
-                        totalPajak += ((qty * hargaBeli) - diskon) * (pajakRate / 100);
+
+                        // Hitung subtotal sebelum pajak untuk item ini
+                        const subtotalItem = (qty * hargaBeli) - diskon;
+
+                        // Hitung pajaknya
+                        const pajakItem = subtotalItem * (pajakRate / 100);
+
+                        // Langsung tambahkan subtotal DENGAN pajaknya ke total keseluruhan
+                        subtotalKeseluruhan += subtotalItem + pajakItem; // <--- PERUBAHAN UTAMA
                     });
 
+                    // Sekarang, nilai yang ditampilkan sudah benar (termasuk pajak)
                     $("#subtotal-keseluruhan").text(formatCurrency(subtotalKeseluruhan));
 
                     const ongkir = parseFloat($("#ongkir").val()) || 0;
                     const diskonTambahan = parseFloat($("#diskon-tambahan").val()) || 0;
 
-                    const totalAkhir = subtotalKeseluruhan + totalPajak - diskonTambahan + ongkir;
+                    // Perhitungan Total Akhir menjadi lebih sederhana dan logis
+                    const totalAkhir = subtotalKeseluruhan - diskonTambahan + ongkir;
 
                     $("#total-akhir").text(formatCurrency(totalAkhir < 0 ? 0 : totalAkhir));
                     return totalAkhir < 0 ? 0 : totalAkhir;
@@ -608,15 +630,27 @@
 
                 // --- FORM SUBMISSION VALIDATION ---
                 $("#form-pembelian").on("submit", function(e) {
+                    const totalAkhir = calculateGrandTotal();
+                    const bayar = parseCurrency($("#bayar").val());
+                    const statusBayar = $("#statusBayar").val();
+
+                    if (bayar < totalAkhir && statusBayar === 'Lunas') {
+                        e.preventDefault();
+                        Swal.fire('Peringatan', 'Pembayaran kurang dari total akhir. Mohon ubah status pembayaran Anda atau lunasi pembayaran.', 'warning');
+                        return;
+                    }
+
+                    // Validasi baru: Jika pembayaran sudah lunas, status harus 'Lunas'
+                    if (statusBayar === 'Belum Lunas' && bayar >= totalAkhir) {
+                        e.preventDefault();
+                        Swal.fire('Peringatan', 'Pembayaran sudah lunas. Mohon ubah status pembayaran menjadi "Lunas".', 'warning');
+                        return;
+                    }
+
                     const itemCount = $("#table-pembelian tbody tr").length;
                     if (itemCount === 0) {
                         e.preventDefault(); // Mencegah form untuk submit
-                        // Menggunakan SweetAlert jika tersedia, atau alert biasa
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire('Peringatan', 'Harap tambahkan minimal satu produk ke dalam daftar pembelian.', 'warning');
-                        } else {
-                            alert('Harap tambahkan minimal satu produk ke dalam daftar pembelian.');
-                        }
+                        Swal.fire('Peringatan', 'Harap tambahkan minimal satu produk ke dalam daftar pembelian.', 'warning');
                     }
                 });
             });

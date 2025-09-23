@@ -213,12 +213,29 @@ $black: #0b0b0b;
 *
 */
 .bi {
-    &.bi-xs { font-size: 0.75rem !important; }
-    &.bi-sm { font-size: 0.875rem !important; }
-    &.bi-lg { font-size: 1.25rem !important; }
-    &.bi-xl { font-size: 1.5rem !important; }
-    &.bi-2x { font-size: 2rem !important; }
-    &.bi-3x { font-size: 3rem !important; }
-    &.bi-4x { font-size: 4rem !important; }
-    &.bi-5x { font-size: 5rem !important; }
+    &.bi-xs {
+        font-size: 0.75rem !important;
+    }
+    &.bi-sm {
+        font-size: 0.875rem !important;
+    }
+    &.bi-lg {
+        font-size: 1.25rem !important;
+    }
+    &.bi-xl {
+        font-size: 1.5rem !important;
+    }
+    &.bi-2x {
+        font-size: 2rem !important;
+    }
+    &.bi-3x {
+        font-size: 3rem !important;
+    }
+    &.bi-4x {
+        font-size: 4rem !important;
+    }
+    &.bi-5x {
+        font-size: 5rem !important;
+    }
 }
+

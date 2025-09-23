@@ -12,13 +12,39 @@ class PelangganController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('dashboard.penjualan.pelanggan',[
-            'title' => 'Pelanggan',
-            'pelanggans' => Pelanggan::latest()->paginate('15')
+        // Mulai query builder
+        $query = Pelanggan::latest();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                ->orWhere('kontak', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $statusValue = $request->input('status') === 'Aktif' ? 1 : 0;
+            $query->where('status', $statusValue);
+        }
+
+        $pelanggans = $query->paginate(15)->withQueryString();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('dashboard.penjualan._pelanggan_table', compact('pelanggans'))->render();
+        }
+
+        // Jika request biasa, kembalikan view lengkap
+        return view('dashboard.penjualan.pelanggan', [
+            'title' => 'Manajemen Pelanggan',
+            'pelanggans' => $pelanggans,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -99,6 +125,14 @@ class PelangganController extends Controller
         $validatedData['status'] = $request->boolean('status');
 
         $pelanggan->update($validatedData);
+
+        if ($request->wantsJson() || $request->ajax()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Data pelanggan berhasil diperbarui!'
+        ]);
+    }
+
         Alert::success('Berhasil', 'Data pelanggan berhasil diperbarui!');
         return redirect()->route('pelanggan.index');
     }

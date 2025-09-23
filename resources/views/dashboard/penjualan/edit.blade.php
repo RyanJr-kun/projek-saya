@@ -274,8 +274,8 @@
             // --- MODAL & FORM ELEMENTS ---
             const editItemDetailModal = new bootstrap.Modal(document.getElementById('editItemDetailModal'));
             const editExtraCostModal = new bootstrap.Modal(document.getElementById('editExtraCostModal'));
-
             // --- SELECT2 INITIALIZATION ---
+            // Fungsi untuk format tampilan hasil pencarian produk di Select2
             const productSearch = $('#produk_search').select2({
                 theme: "bootstrap-5",
                 placeholder: 'Ketik untuk mencari produk...',
@@ -284,17 +284,41 @@
                     dataType: 'json',
                     delay: 250,
                     data: params => ({ search: params.term, page: params.page || 1 }),
-                    processResults: data => ({
-                        results: data.map(item => ({
+                    processResults: function (response) {
+                        // Menyesuaikan dengan struktur data paginasi Laravel
+                        return {
+                            results: response.data.map(item => ({
                             id: item.id,
                             text: item.nama_produk,
                             harga_jual: item.harga_jual,
                             stok: item.qty,
-                            pajak_id: item.pajak_id, // Assuming product has a default tax
-                        }))
-                    }),
-                    cache: true
-                }
+                            pajak_id: item.pajak_id,
+                            img_produk: item.img_produk, // Ambil data gambar
+                            })),
+                            pagination: {
+                                more: response.next_page_url !== null
+                            }
+                        };
+                    },
+                    cache: true,
+                },
+                templateResult: function(produk) { // Menggunakan fungsi langsung di sini
+                    if (produk.loading) {
+                        return produk.text;
+                    }
+                    const defaultImage = "{{ asset('assets/img/produk.webp') }}";
+                    const imageUrl = produk.img_produk ? `/storage/${produk.img_produk}` : defaultImage;
+                    const markup = `
+                        <div class="d-flex align-items-center">
+                            <img src="${imageUrl}" class="avatar avatar-sm me-3" onerror="this.onerror=null;this.src='${defaultImage}';" />
+                            <div>
+                                <h6 class="mb-0 text-sm">${produk.text}</h6>
+                                <p class="text-xs text-muted mb-0">Stok: ${produk.stok || 'N/A'}</p>
+                            </div>
+                        </div>`;
+                    return $(markup);
+                },
+                escapeMarkup: markup => markup // Izinkan HTML pada template
             });
 
             // --- CART & TABLE LOGIC ---
@@ -336,7 +360,7 @@
                             <td class="text-center">
                                 <div class="d-flex">
                                     <button type="button" class="btn btn-link text-dark p-0 m-0 me-2 btn-edit-item" title="Edit Item"><i class="bi bi-pencil-square"></i></button>
-                                    <button type="button" class="btn btn-link text-dark  p-0 m-0 btn-remove-item" title="Hapus Item"><i class="bi bi-trash"></i></button>
+                                    <button type="button" class="btn btn-link text-danger  p-0 m-0 btn-remove-item" title="Hapus Item"><i class="bi bi-trash"></i></button>
                                 </div>
                             </td>
                         </tr>

@@ -44,7 +44,7 @@ class SerialNumberController extends Controller
         $serialNumbers = $query->paginate(15)->withQueryString();
         $produks = Produk::where('wajib_seri', true)->orderBy('nama_produk')->get();
 
-        return view('dashboard.inventaris.serialNumber', [
+        return view('dashboard.inventaris.serial-number', [
             'title' => 'Manajemen Nomor Seri',
             'serialNumbers' => $serialNumbers,
             'produks' => $produks,

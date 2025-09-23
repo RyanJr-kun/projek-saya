@@ -13,7 +13,7 @@ use \Cviebrock\EloquentSluggable\Services\SlugService;
 class KategoriProdukController extends Controller
 {
    public function index() {
-    return view('dashboard.inventaris.kategoriproduk', [
+    return view('dashboard.produk.kategoriproduk', [
         'title' => 'Data Kategori Produk',
         'kategoris'=>KategoriProduk::withCount('produks')->latest()->paginate(20),
     ]);

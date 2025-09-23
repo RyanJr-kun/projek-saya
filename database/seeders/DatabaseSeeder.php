@@ -2,16 +2,9 @@
 
 namespace Database\Seeders;
 
-
-use App\Models\Unit;
-use App\Models\User;
-use App\Models\Brand;
+use App\Models\Produk;
 use App\Models\Garansi;
-use App\Models\KategoriProduk;
 use Illuminate\Database\Seeder;
-use App\Models\KategoriPemasukan;
-use App\Models\KategoriPengeluaran;
-
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,16 +18,14 @@ class DatabaseSeeder extends Seeder
         RoleSeeder::class,
         PajakSeeder::class,
         PelangganSeeder::class,
+        KategoriProdukSeeder::class,
+        KategoriSeeder::class,
+        UnitSeeder::class,
+        BrandSeeder::class,
+        UserSeeder::class,
         ]);
-        KategoriProduk::factory(5)->create();
-        Brand::factory()->count(8)->create();
-        Unit::factory()->count(7)->create();
-        Garansi::factory()->count(6)->create();
-        KategoriPengeluaran::factory()->count(6)->create();
-        KategoriPemasukan::factory()->count(5)->create();
-        User::factory(10)->create();
-
-        \App\Models\Produk::factory(15)->create();
-
+        
+        Garansi::factory()->count(5)->create();
+        Produk::factory(15)->create();
     }
 }

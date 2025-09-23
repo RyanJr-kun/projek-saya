@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\pengeluaran;
 use Illuminate\Http\Request;
-use App\Models\KategoriPengeluaran;
-use RealRashid\SweetAlert\Facades\Alert;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Models\KategoriTransaksi;
+use Illuminate\Support\Facades\Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class PengeluaranController extends Controller
 {
@@ -16,12 +16,40 @@ class PengeluaranController extends Controller
      */
     public function index()
     {
-        return view('dashboard.pengeluaran.index',[
+        return view('dashboard.keuangan.pengeluaran',[
             'title' => 'Pengeluaran',
             'pengeluarans' => Pengeluaran::latest()->paginate(15),
-            'kategoris' => KategoriPengeluaran::all()
+            'kategoris' => KategoriTransaksi::where([
+                'status' => 1,
+                'jenis' => 'pengeluaran'
+                ])->get(['id', 'nama']),
+            'referensi_otomatis' => $this->generateExpenseReferenceNumber()
         ]);
     }
+
+    /**
+ * Menghasilkan nomor referensi pengeluaran yang unik.
+ */
+    private function generateExpenseReferenceNumber()
+    {
+        // Format: EX-YYYYMMDD-XXXX (e.g., EX-20231027-0001)
+        $date = now()->format('Ymd');
+        $prefix = 'EX-' . $date . '-';
+
+        // Cari referensi terakhir untuk hari ini untuk mendapatkan nomor urut berikutnya
+        $lastExpense = \App\Models\Pengeluaran::where('referensi', 'like', $prefix . '%')
+                                ->latest('referensi')
+                                ->first();
+
+        $sequence = 1;
+        if ($lastExpense) {
+            $lastSequence = (int) substr($lastExpense->referensi, -4);
+            $sequence = $lastSequence + 1;
+        }
+
+        return $prefix . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -37,10 +65,10 @@ class PengeluaranController extends Controller
     public function store(Request $request)
     {
         $validateData = $request->validate([
-            'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluarans,id',
+            'kategori_transaksi_id' => 'required|exists:kategori_transaksis,id',
             'tanggal' => 'required|date_format:Y-m-d|before_or_equal:today',
             'jumlah' => 'required|numeric|min:0',
-            'referensi' => 'nullable|string|max:100|unique:pengeluarans',
+            'referensi' => 'required|string|max:100|unique:pengeluarans',
             'keterangan' => 'required|string|max:255',
             'deskripsi' => 'nullable|string|max:1000',
         ]);
@@ -79,10 +107,10 @@ class PengeluaranController extends Controller
     public function update(Request $request, Pengeluaran $pengeluaran)
     {
         $rules = [
-            'kategori_pengeluaran_id' => 'required|exists:kategori_pengeluarans,id',
+            'kategori_transaksi_id' => 'required|exists:kategori_transaksis,id',
             'tanggal' => 'required|date_format:Y-m-d|before_or_equal:today',
             'jumlah' => 'required|numeric|min:0',
-            'referensi' => ['nullable', 'string', 'max:100', Rule::unique('pengeluarans')->ignore($pengeluaran->id)],
+            'referensi' => ['required', 'string', 'max:100', Rule::unique('pengeluarans')->ignore($pengeluaran->id)],
             'keterangan' => 'required|string|max:255',
             'deskripsi' => 'nullable|string|max:1000',
         ];

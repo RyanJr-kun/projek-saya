@@ -14,7 +14,7 @@
     @endsection
 
     <div class="container-fluid p-3 ">
-        <div class="card">
+        <div class="card rounded-2">
             <div class="card-header d-flex pb-0">
                 <div class="mb-3 mt-n2">
                     <h5 class="mb-0">Data Pengguna</h5>
@@ -68,7 +68,11 @@
                                 </td>
 
                                 <td>
-                                    <p title="Role user" class="text-xs text-dark fw-bold mb-0">{{ $user->role->nama }}</p>
+                                    @if ($user->role->id == 1)
+                                        <span class="badge badge-info" title="Role user">{{ $user->role->nama }}</span>
+                                    @else
+                                        <p title="Role user" class="badge badge-warning">{{ $user->role->nama }}</p>
+                                    @endif
                                 </td>
 
                                 <td class="align-middle text-center">
@@ -157,8 +161,7 @@
                     // Kolom ke-3 (indeks 2) adalah Posisi
                     const posisiCell = row.getElementsByTagName('td')[2];
                     if (posisiCell) {
-                        // Mengambil teks dari dalam <p>
-                        const posisiText = posisiCell.querySelector('p').textContent.trim();
+                        const posisiText = posisiCell.textContent.trim();
                         posisiSet.add(posisiText);
                     }
                 }
@@ -184,12 +187,11 @@
 
                     if (namaCell && posisiCell) {
                         // Mengambil teks dari dalam tag <h6>
-                        const namaElement = namaCell.querySelector('h6');
-                        const posisiElement = posisiCell.querySelector('p');
+                        const namaElement = namaCell.querySelector('h6'); // Nama ada di dalam h6
 
-                        if(namaElement && posisiElement){
+                        if(namaElement){
                             const namaText = namaElement.textContent.toLowerCase();
-                            const posisiText = posisiElement.textContent;
+                            const posisiText = posisiCell.textContent.trim(); // Posisi adalah text content dari sel
 
                             // Cek kondisi filter
                             const namaMatch = namaText.includes(searchText);

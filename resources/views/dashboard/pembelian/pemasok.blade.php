@@ -13,7 +13,7 @@
 
 
     <div class="container-fluid p-3">
-        <div class="card mb-4">
+        <div class="card rounded-2">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
