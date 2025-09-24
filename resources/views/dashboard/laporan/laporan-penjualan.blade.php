@@ -11,7 +11,6 @@
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
     @endsection
-Tolong buatkan fitur untuk ekspor laporan pembelian ini ke format PDF atau Excel.
     <div class="container-fluid p-3">
         {{-- Summary Cards --}}
         <div class="row mb-4">
@@ -88,6 +87,21 @@ Tolong buatkan fitur untuk ekspor laporan pembelian ini ke format PDF atau Excel
                         <h6 class="mb-n1">Laporan Penjualan</h6>
                         <p class="text-sm mb-0">Analisis semua transaksi penjualan.</p>
                     </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="exportDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-download me-2"></i>Ekspor
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                            <li><a class="dropdown-item" href="#" id="exportXlsx">
+                                    <img src="{{ asset('assets/img/xls.png') }}" alt="Download Excel" width="20"
+                                        height="20" class="me-2">
+                                    Excel (.xlsx)
+                                </a></li>
+                            <li><a class="dropdown-item" href="#" id="exportPdf">
+                                    <img src="{{ asset('assets/img/pdf.png') }}" alt="Download PDF" width="20" height="20" class="me-2">PDF</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
@@ -116,11 +130,13 @@ Tolong buatkan fitur untuk ekspor laporan pembelian ini ke format PDF atau Excel
                             </div>
                             <div class="col-md-2">
                                 <label for="start_date" class="form-label">Tanggal Mulai</label>
-                                <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request('start_date') }}">
+                                <input type="date" name="start_date" id="start_date" class="form-control"
+                                    value="{{ request('start_date') }}">
                             </div>
                             <div class="col-md-2">
                                 <label for="end_date" class="form-label">Tanggal Selesai</label>
-                                <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request('end_date') }}">
+                                <input type="date" name="end_date" id="end_date" class="form-control"
+                                    value="{{ request('end_date') }}">
                             </div>
                             <div class="col-md-1 d-flex">
                                 <button type="submit" class="btn btn-dark w-100">Filter</button>
@@ -146,10 +162,14 @@ Tolong buatkan fitur untuk ekspor laporan pembelian ini ke format PDF atau Excel
                             @forelse ($penjualans as $penjualan)
                                 <tr>
                                     <td class="ps-4">
-                                        <p class="text-sm font-weight-bold mb-0">{{ \Carbon\Carbon::parse($penjualan->tanggal_penjualan)->translatedFormat('d M Y') }}</p>
+                                        <p class="text-sm font-weight-bold mb-0">
+                                            {{ \Carbon\Carbon::parse($penjualan->tanggal_penjualan)->translatedFormat('d M Y') }}
+                                        </p>
                                     </td>
                                     <td>
-                                        <a href="{{ route('penjualan.show', $penjualan->id) }}" class="text-info fw-bold text-sm" data-bs-toggle="tooltip" title="Lihat Detail Penjualan">
+                                        <a href="{{ route('penjualan.show', $penjualan->referensi) }}"
+                                            class="text-info fw-bold text-sm" data-bs-toggle="tooltip"
+                                            title="Lihat Detail Penjualan">
                                             {{ $penjualan->referensi }}
                                         </a>
                                     </td>
@@ -157,13 +177,16 @@ Tolong buatkan fitur untuk ekspor laporan pembelian ini ke format PDF atau Excel
                                         <p class="text-sm font-weight-bold mb-0">{{ $penjualan->pelanggan->nama ?? 'N/A' }}</p>
                                     </td>
                                     <td>
-                                        <span class="badge badge-sm bg-gradient-{{ ['Lunas' => 'success', 'Belum Lunas' => 'warning', 'Jatuh Tempo' => 'danger', 'Dibatalkan' => 'secondary'][$penjualan->status_pembayaran] ?? 'light' }}">{{ $penjualan->status_pembayaran }}</span>
+                                        <span
+                                            class="badge badge-sm bg-gradient-{{ ['Lunas' => 'success', 'Belum Lunas' => 'warning', 'Jatuh Tempo' => 'danger', 'Dibatalkan' => 'secondary'][$penjualan->status_pembayaran] ?? 'light' }}">{{ $penjualan->status_pembayaran }}</span>
                                     </td>
                                     <td class="text-end">
                                         <p class="text-sm font-weight-bold mb-0">@money($penjualan->total_akhir)</p>
                                     </td>
                                     <td class="text-end pe-4">
-                                        <p class="text-sm font-weight-bold mb-0 {{ $penjualan->sisa_pembayaran > 0 ? 'text-danger' : '' }}">@money($penjualan->sisa_pembayaran)</p>
+                                        <p
+                                            class="text-sm font-weight-bold mb-0 {{ $penjualan->sisa_pembayaran > 0 ? 'text-danger' : '' }}">
+                                            @money($penjualan->sisa_pembayaran)</p>
                                     </td>
                                 </tr>
                             @empty
@@ -192,6 +215,27 @@ Tolong buatkan fitur untuk ekspor laporan pembelian ini ke format PDF atau Excel
                     theme: "bootstrap-5",
                     placeholder: 'Pilih Pelanggan',
                 });
+
+                const exportXlsxBtn = document.getElementById('exportXlsx');
+                const exportPdfBtn = document.getElementById('exportPdf');
+
+                function handleExport(e) {
+                    e.preventDefault();
+                    const exportType = this.id === 'exportXlsx' ? 'xlsx' : 'pdf';
+
+                    // Ambil nilai filter saat ini dari form
+                    const form = document.querySelector('.filter-container form');
+                    const params = new URLSearchParams(new FormData(form)).toString();
+
+                    // Bangun URL untuk ekspor
+                    const exportUrl = `{{ route('laporan.penjualan.export') }}?type=${exportType}&${params}`;
+
+                    // Buka URL di tab baru untuk memulai unduhan
+                    window.open(exportUrl, '_blank');
+                }
+
+                exportXlsxBtn.addEventListener('click', handleExport);
+                exportPdfBtn.addEventListener('click', handleExport);
             });
         </script>
     @endpush

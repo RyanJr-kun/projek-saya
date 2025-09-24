@@ -88,6 +88,22 @@
                         <h6 class="mb-n1">Laporan Pembelian</h6>
                         <p class="text-sm mb-0">Analisis semua transaksi pembelian.</p>
                     </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="exportDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-download me-2"></i>Ekspor
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                            <li><a class="dropdown-item" href="#" id="exportXlsx">
+                                    <img src="{{ asset('assets/img/xls.png') }}" alt="Download Excel" width="20"
+                                        height="20" class="me-2">
+                                    Excel (.xlsx)
+                                </a></li>
+                            <li><a class="dropdown-item" href="#" id="exportPdf">
+                                    <img src="{{ asset('assets/img/pdf.png') }}" alt="Download PDF" width="20"
+                                        height="20" class="me-2">PDF</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
@@ -205,6 +221,27 @@
                     theme: "bootstrap-5",
                     placeholder: 'Pilih Pemasok',
                 });
+
+                const exportXlsxBtn = document.getElementById('exportXlsx');
+                const exportPdfBtn = document.getElementById('exportPdf');
+
+                function handleExport(e) {
+                    e.preventDefault();
+                    const exportType = this.id === 'exportXlsx' ? 'xlsx' : 'pdf';
+
+                    // Ambil nilai filter saat ini dari form
+                    const form = document.querySelector('.filter-container form');
+                    const params = new URLSearchParams(new FormData(form)).toString();
+
+                    // Bangun URL untuk ekspor
+                    const exportUrl = `{{ route('laporan.pembelian.export') }}?type=${exportType}&${params}`;
+
+                    // Buka URL di tab baru untuk memulai unduhan
+                    window.open(exportUrl, '_blank');
+                }
+
+                exportXlsxBtn.addEventListener('click', handleExport);
+                exportPdfBtn.addEventListener('click', handleExport);
             });
         </script>
     @endpush

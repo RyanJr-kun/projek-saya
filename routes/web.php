@@ -140,7 +140,9 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('inventaris', [LaporanController::class, 'inventaris'])->name('inventaris');
         Route::get('pembelian', [LaporanController::class, 'pembelian'])->name('pembelian');
+        Route::get('pembelian/export', [LaporanController::class, 'exportPembelian'])->name('pembelian.export');
         Route::get('penjualan', [LaporanController::class, 'penjualan'])->name('penjualan');
+        Route::get('penjualan/export', [LaporanController::class, 'exportPenjualan'])->name('penjualan.export');
         Route::get('laba-rugi', [LaporanController::class, 'labaRugi'])->name('laba-rugi');
     });
 

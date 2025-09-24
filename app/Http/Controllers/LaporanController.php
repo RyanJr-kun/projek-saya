@@ -8,6 +8,10 @@ use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Penjualan;
+use App\Models\PenjualanExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Excel as ExcelFormats;
+use App\Models\PembelianExport;
 use App\Models\Pembelian;
 use App\Models\Pengeluaran;
 
@@ -148,7 +152,7 @@ class LaporanController extends Controller
 
         // Clone query untuk menghitung total sebelum paginasi
         $totalQuery = clone $query;
-        $totals = $totalQuery->selectRaw('
+        $totals = $totalQuery->reorder()->selectRaw('
             SUM(total_akhir) as grand_total,
             SUM(jumlah_dibayar) as total_paid,
             SUM(total_akhir - jumlah_dibayar) as total_due
@@ -167,6 +171,45 @@ class LaporanController extends Controller
         ]);
     }
 
+    /**
+     * Menangani ekspor laporan pembelian ke Excel atau PDF.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function exportPembelian(Request $request)
+    {
+        $type = $request->query('type', 'xlsx');
+
+        // Gunakan query yang sama dengan method pembelian() untuk konsistensi filter
+        $query = Pembelian::with(['pemasok', 'user'])
+            ->latest('tanggal_pembelian');
+
+        // Terapkan filter
+        if ($request->filled('pemasok_id')) {
+            $query->where('pemasok_id', $request->pemasok_id);
+        }
+        if ($request->filled('status_pembayaran')) {
+            $query->where('status_pembayaran', $request->status_pembayaran);
+        }
+        if ($request->filled('status_barang')) {
+            $query->where('status_barang', $request->status_barang);
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_pembelian', [$request->start_date, $request->end_date]);
+        }
+
+        // Ambil semua data yang cocok tanpa paginasi
+        $pembelians = $query->get();
+
+        $fileName = 'laporan-pembelian-' . now()->format('Y-m-d_H-i-s') . '.' . $type;
+
+        if ($type === 'pdf') {
+            return Excel::download(new PembelianExport($pembelians), $fileName, ExcelFormats::DOMPDF);
+        }
+
+        return Excel::download(new PembelianExport($pembelians), $fileName, ExcelFormats::XLSX);
+    }
     /**
      * Menampilkan laporan penjualan.
      *
@@ -191,7 +234,7 @@ class LaporanController extends Controller
 
         // Clone query untuk menghitung total sebelum paginasi
         $totalQuery = clone $query;
-        $totals = $totalQuery->selectRaw('
+        $totals = $totalQuery->reorder()->selectRaw('
             SUM(total_akhir) as grand_total,
             SUM(jumlah_dibayar) as total_paid,
             SUM(total_akhir - jumlah_dibayar) as total_due
@@ -207,6 +250,43 @@ class LaporanController extends Controller
             'statusPembayaranOptions' => ['Lunas', 'Belum Lunas', 'Jatuh Tempo', 'Dibatalkan'],
             'totals' => $totals,
         ]);
+    }
+
+    /**
+     * Menangani ekspor laporan penjualan ke Excel atau PDF.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function exportPenjualan(Request $request)
+    {
+        $type = $request->query('type', 'xlsx');
+
+        // Gunakan query yang sama dengan method penjualan() untuk konsistensi filter
+        $query = Penjualan::with(['pelanggan', 'user'])
+            ->latest('tanggal_penjualan');
+
+        // Terapkan filter
+        if ($request->filled('pelanggan_id')) {
+            $query->where('pelanggan_id', $request->pelanggan_id);
+        }
+        if ($request->filled('status_pembayaran')) {
+            $query->where('status_pembayaran', $request->status_pembayaran);
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_penjualan', [$request->start_date, $request->end_date]);
+        }
+
+        // Ambil semua data yang cocok tanpa paginasi
+        $penjualans = $query->get();
+
+        $fileName = 'laporan-penjualan-' . now()->format('Y-m-d_H-i-s') . '.' . $type;
+
+        if ($type === 'pdf') {
+            return Excel::download(new PenjualanExport($penjualans), $fileName, ExcelFormats::DOMPDF);
+        }
+
+        return Excel::download(new PenjualanExport($penjualans), $fileName, ExcelFormats::XLSX);
     }
 
     /**
