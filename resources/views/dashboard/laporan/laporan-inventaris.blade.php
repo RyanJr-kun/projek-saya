@@ -20,6 +20,20 @@
                         <h6 class="mb-n1">Laporan Pergerakan Inventaris</h6>
                         <p class="text-sm mb-0">Melacak semua transaksi masuk dan keluar barang.</p>
                     </div>
+                    <div class="dropdown mt-2">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="exportDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-download me-2"></i>Ekspor
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                            <li><a class="dropdown-item" href="#" id="exportXlsx">
+                                    <img src="{{ asset('assets/img/xls.png') }}" alt="Download Excel" width="20"
+                                        height="20" class="me-2"> Excel (.xlsx)</a></li>
+                            <li><a class="dropdown-item" href="#" id="exportPdf">
+                                    <img src="{{ asset('assets/img/pdf.png') }}" alt="Download PDF" width="20"
+                                        height="20" class="me-2">PDF</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
@@ -57,7 +71,7 @@
                                 <input type="date" name="end_date" id="end_date" class="form-control"
                                     value="{{ request('end_date') }}">
                             </div>
-                            <div class="col-md-3 d-flex">
+                            <div class="col-md-3 d-flex mb-n3">
                                 <button type="submit" class="btn btn-dark w-50 me-2">Filter</button>
                                 <a href="{{ route('laporan.inventaris') }}" class="btn btn-outline-secondary w-50">Reset</a>
                             </div>
@@ -87,19 +101,23 @@
                                             {{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d M Y, H:i') }}</p>
                                     </td>
                                     <td>
-                                        <p class="text-sm font-weight-bold mb-0">{{ $item->nama_produk }}</p>
-                                        <p class="text-xs text-secondary mb-0">{{ $item->sku }}</p>
+                                        <p class="text-sm font-weight-bold mb-0">{{ $item->nama_produk ?? 'Produk Dihapus' }}</p>
+                                        <p class="text-xs text-secondary mb-0">{{ $item->sku ?? '-' }}</p>
                                     </td>
                                     <td>
                                         <span
-                                            class="badge badge-sm bg-gradient-{{ ['Pembelian' => 'primary', 'Penjualan' => 'info', 'Stok Opname' => 'success', 'Penyesuaian' => 'warning'][$item->tipe_gerakan] ?? 'secondary' }}">{{ $item->tipe_gerakan }}</span>
+                                            class="badge badge-sm badge-{{ ['Pembelian' => 'success', 'Penjualan' => 'info', 'Stok Opname' => 'primary', 'Penyesuaian' => 'warning'][$item->tipe_gerakan] ?? 'secondary' }}">{{ $item->tipe_gerakan }}</span>
                                     </td>
                                     <td>
-                                        <a href="{{ route($item->route_name, $item->referensi_id) }}"
-                                            class="text-info fw-bold text-sm" data-bs-toggle="tooltip"
-                                            title="Lihat Detail {{ $item->tipe_gerakan }}">
-                                            {{ $item->referensi }}
-                                        </a>
+                                        @if ($item->route_name && $item->referensi_id)
+                                            <a href="{{ route($item->route_name, $item->referensi_id) }}"
+                                                class="text-info fw-bold text-sm" data-bs-toggle="tooltip"
+                                                title="Lihat Detail {{ $item->tipe_gerakan }}">
+                                                {{ $item->referensi }}
+                                            </a>
+                                        @else
+                                            <p class="text-sm font-weight-bold mb-0">{{ $item->referensi }}</p>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         <p class="text-sm text-success fw-bold mb-0">
@@ -140,6 +158,28 @@
                     theme: "bootstrap-5",
                     placeholder: 'Pilih Produk',
                 });
+
+                const exportXlsxBtn = document.getElementById('exportXlsx');
+                const exportPdfBtn = document.getElementById('exportPdf');
+
+                function handleExport(e) {
+                    e.preventDefault();
+                    // Tentukan tipe ekspor berdasarkan ID elemen yang diklik
+                    const exportType = this.id === 'exportXlsx' ? 'xlsx' : 'pdf';
+
+                    // Ambil nilai filter saat ini dari form
+                    const form = document.querySelector('.filter-container form');
+                    const params = new URLSearchParams(new FormData(form)).toString();
+
+                    // Bangun URL untuk ekspor
+                    const exportUrl = `{{ route('laporan.inventaris.export') }}?type=${exportType}&${params}`;
+
+                    // Buka URL di tab baru untuk memulai unduhan
+                    window.open(exportUrl, '_blank');
+                }
+
+                exportXlsxBtn.addEventListener('click', handleExport);
+                exportPdfBtn.addEventListener('click', handleExport);
             });
         </script>
     @endpush

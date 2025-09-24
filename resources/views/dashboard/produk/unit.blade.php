@@ -3,8 +3,8 @@
     @section('breadcrumb')
         @php
         $breadcrumbItems = [
-            ['name' => 'Page', 'url' => '/dashboard'],
-            ['name' => 'Manajemen Unit', 'url' => route('unit.index')],
+            ['name' => 'Dashboard', 'url' => '/dashboard'],
+            ['name' => 'Manajemen Satuan', 'url' => route('unit.index')],
         ];
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
@@ -15,13 +15,13 @@
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-n1">Data Unit</h6>
-                        <p class="text-sm mb-0">Kelola Data Unit Produkmu</p>
+                        <h6 class="mb-n1">Data Satuan</h6>
+                        <p class="text-sm mb-0">Kelola Data Satuan Produkmu</p>
                     </div>
                     <div class="ms-auto mt-2">
                         {{-- triger-modal --}}
                         <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import">
-                            <i class="fa fa-plus cursor-pointer pe-2"></i>Unit
+                            <i class="fa fa-plus cursor-pointer pe-2"></i>Satuan
                         </button>
                     </div>
                 </div>
@@ -29,79 +29,24 @@
             <div class="card-body px-0 pt-0 pb-2">
                 <div class="filter-container">
                     <div class="row g-3 align-items-center justify-content-between">
-                        <!-- Filter Pencarian Unit -->
+                        <!-- Filter Pencarian Satuan -->
                         <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari Unit ...">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Cari Satuan..." value="{{ request('search') }}">
                         </div>
                         <!-- Filter Dropdown Status -->
                         <div class="col-5 col-lg-2 me-3">
                             <select id="statusFilter" class="form-select">
                                 <option value="">Semua Status</option>
+                                <option value="1" @selected(request('status') == '1')>Aktif</option>
+                                <option value="0" @selected(request('status') == '0')>Tidak Aktif</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 mt-3">
-                    <table class="table table-hover align-items-center mb-0" id="tableData">
-                    <thead>
-                        <tr class="table-secondary">
-                        <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
-                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Singkatan</th>
-                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah Produk</th>
-                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Dibuat Tanggal</th>
-                        <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
-                        <th class="text-dark"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="isiTable">
-                        @foreach ($units as $unit)
-                        <tr>
-                            <td>
-                                <div class="d-flex ms-2 px-2 py-1 align-items-center">
-                                    <p class="mb-0 text-xs text-dark fw-bold">{{ $unit->nama }}</p>
-                                </div>
-                            </td>
-                            <td>
-                                <p class="text-xs text-dark fw-bold mb-0">{{ $unit->singkat }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs text-dark fw-bold mb-0">{{ $unit->produks_count }}</p>
-                            </td>
-                            <td>
-                                <p class="text-xs text-dark fw-bold mb-0">{{ $unit->created_at->translatedFormat('d M Y') }}</p>
-                            </td>
-
-                            <td class="align-middle text-center text-sm">
-                                @if ($unit->status)
-                                    <span class="badge badge-success">Aktif</span>
-                                @else
-                                    <span class="badge badge-secondary">Tidak Aktif</span>
-                                @endif
-                            </td>
-
-                            <td class="align-middle">
-                                <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editModal"
-                                    data-url="{{ route('unit.getjson', $unit->slug) }}"
-                                    data-update-url="{{ route('unit.update', $unit->slug) }}"
-                                    title="Edit unit">
-                                    <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                </a>
-                                <a href="#" class="text-dark delete-user-btn"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteConfirmationModal"
-                                    data-unit-slug="{{ $unit->slug }}"
-                                    data-unit-name="{{ $unit->nama }}"
-                                    title="Hapus Unit">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    </table>
-                    <div class="my-3 ms-3">{{ $units->onEachSide(1)->links() }}</div>
+                {{-- Container untuk tabel yang akan di-update oleh AJAX --}}
+                <div id="unit-table-container">
+                    {{-- Memuat tabel parsial untuk tampilan awal --}}
+                    @include('dashboard.produk._unit_table', ['units' => $units])
                 </div>
             </div>
         </div>
@@ -111,7 +56,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header border-0 mb-n3">
-                        <h6 class="modal-title" id="ModalLabel">Buat Unit Baru</h6>
+                        <h6 class="modal-title" id="ModalLabel">Buat Satuan Baru</h6>
                         <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -121,7 +66,7 @@
                                 <div class="form-group">
 
                                     <div class="mb-3">
-                                        <label for="nama" class="form-label ">Unit</label>
+                                        <label for="nama" class="form-label ">Nama Satuan</label>
                                         <input id="nama" name="nama" type="string" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama') }}" required>
                                         @error('nama')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -152,7 +97,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer border-0 pb-0">
-                                <button type="submit" class="btn btn-outline-info btn-sm">Buat Unit</button>
+                                <button type="submit" class="btn btn-outline-info btn-sm">Buat Satuan</button>
                                 <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Batalkan</button>
                             </div>
                         </form>
@@ -176,7 +121,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header border-0 mb-n3">
-                        <h6 class="modal-title" id="editModalLabel">Edit Unit Produk</h6>
+                        <h6 class="modal-title" id="editModalLabel">Edit Satuan Produk</h6>
                         <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -218,7 +163,7 @@
                 <div class="modal-content">
                     <div class="modal-body text-center mt-3 mx-n5">
                         <i class="bi bi-trash fa-2x text-danger mb-3"></i>
-                        <p class="mb-0">Apakah Anda yakin ingin menghapus Unit ini?</p>
+                        <p class="mb-0">Apakah Anda yakin ingin menghapus Satuan ini?</p>
                         <h6 class="mt-2" id="unitNameToDelete"></h6>
                         <div class="mt-4">
                             <form id="deleteUnitForm" method="POST" action="#">
@@ -234,57 +179,56 @@
         </div>
     </div>
     @push('scripts')
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                const searchInput = document.getElementById('searchInput');
-                const statusFilter = document.getElementById('statusFilter'); // Ganti nama variabel agar lebih jelas
-                const tableBody = document.getElementById('isiTable');
-                const rows = tableBody.getElementsByTagName('tr');
+                const csrfToken = '{{ csrf_token() }}';
 
-                // Mengisi filter status secara manual, bukan dari data
-                function populateStatusFilter() {
-                    const statuses = ['Aktif', 'Tidak Aktif'];
-                    // Hapus opsi lama jika ada, kecuali yang pertama ("status")
-                    while (statusFilter.options.length > 1) {
-                        statusFilter.remove(1);
+                // --- AJAX FILTER & SEARCH ---
+                $(document).ready(function() {
+                    // Fungsi untuk menunda eksekusi (debounce)
+                    function debounce(func, delay) {
+                        let timeout;
+                        return function(...args) {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => func.apply(this, args), delay);
+                        };
                     }
-                    statuses.forEach(status => {
-                        const option = document.createElement('option');
-                        option.value = status;
-                        option.textContent = status;
-                        statusFilter.appendChild(option);
-                    });
-                }
 
-                function filterTable() {
-                    const searchText = searchInput.value.toLowerCase();
-                    const statusValue = statusFilter.value;
+                    // Fungsi untuk mengambil data dengan AJAX
+                    function fetchData(page = 1) {
+                        let search = $('#searchInput').val();
+                        let status = $('#statusFilter').val();
+                        let url = '{{ route("unit.index") }}';
 
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        // Kolom pertama (indeks 0) adalah Nama Unit
-                        const namaCell = row.cells[0];
-                        // Kolom keempat (indeks 3) adalah Status
-                        const statusCell = row.cells[3];
+                        $('#unit-table-container').css('opacity', 0.5); // Efek loading
 
-                        if (namaCell && statusCell) {
-                            const namaText = namaCell.textContent.toLowerCase().trim();
-                            const statusText = statusCell.textContent.trim();
+                        $.ajax({
+                            url: url,
+                            data: { search: search, status: status, page: page },
+                            success: function(data) {
+                                $('#unit-table-container').html(data).css('opacity', 1);
+                                window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&status=' + status},'',url + '?page=' + page + '&search=' + search + '&status=' + status);
+                            },
+                            error: function() {
+                                $('#unit-table-container').css('opacity', 1);
+                                Swal.fire('Gagal', 'Gagal memuat data. Silakan coba lagi.', 'error');
+                            }
+                        });
+                    }
 
-                            // Cek kondisi filter
-                            const namaMatch = namaText.includes(searchText);
-                            const statusMatch = (statusValue === "" || statusText === statusValue);
-
-                            // Tampilkan atau sembunyikan baris
-                            row.style.display = (namaMatch && statusMatch) ? "" : "none";
+                    $('#searchInput').on('keyup', debounce(function() { fetchData(1); }, 500));
+                    $('#statusFilter').on('change', function() { fetchData(1); });
+                    $(document).on('click', '#unit-table-container .pagination a', function(e) {
+                        e.preventDefault();
+                        let page = $(this).attr('href').split('page=')[1];
+                        if (page) {
+                            fetchData(page);
                         }
-                    }
-                }
+                    });
+                });
 
-                populateStatusFilter();
-
-                searchInput.addEventListener('keyup', filterTable);
-                statusFilter.addEventListener('change', filterTable);
 
                 // slug
                 const nama = document.querySelector('#nama ')
@@ -301,14 +245,14 @@
                 if (deleteModal) {
                     deleteModal.addEventListener('show.bs.modal', function (event) {
                         const button = event.relatedTarget;
-                        // Ambil 'unit' dari atribut data-*
+                        // Ambil 'slug' dari atribut data-*
                         const unitSlug = button.getAttribute('data-unit-slug');
                         const unitName = button.getAttribute('data-unit-name');
                         const modalBodyName = deleteModal.querySelector('#unitNameToDelete');
                         const deleteForm = deleteModal.querySelector('#deleteUnitForm');
                         modalBodyName.textContent = unitName;
-                        // Atur action form menggunakan unit
-                        deleteForm.action = `/unit/${unitSlug}`;
+                        // Atur action form menggunakan slug
+                        deleteForm.action = `{{ url('unit') }}/${unitSlug}`;
                     });
                 }
                 const editModal = document.getElementById('editModal');
@@ -324,7 +268,7 @@
                         const editForm = document.getElementById('editUnitForm');
                         const inputNama = document.getElementById('edit_nama');
                         const inputSlug = document.getElementById('edit_slug');
-                        const inputSingkat = document.getElementById('edit_singkat');
+                        const inputSingkat = document.getElementById('edit_singkat'); // Pastikan ID ini ada di HTML
                         const inputStatus = document.getElementById('edit_status');
 
                         // Atur action form untuk update
@@ -346,7 +290,7 @@
                                 inputStatus.checked = data.status == 1;
                             })
                             .catch(error => {
-                                console.error('Error fetching category data:', error);
+                                console.error('Error fetching unit data:', error);
                                 // Opsional: tampilkan pesan error kepada pengguna
                             });
                     });

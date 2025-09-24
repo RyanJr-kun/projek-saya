@@ -61,8 +61,8 @@
                             <label for="adjustment-reason" class="form-label">Alasan</label>
                             <input type="text" id="adjustment-reason" class="form-control" placeholder="Contoh: Barang rusak">
                         </div>
-                        <div class="col-md-1 d-grid">
-                            <button type="button" id="btn-add-item" class="btn btn-outline-info"><i class="bi bi-plus-lg"></i></button>
+                        <div class="col-md-1 d-grid mb-n3">
+                            <button type="button" id="btn-add-item" class="btn btn-outline-info"><i class="bi bi-plus-lg"></i> Tambah</button>
                         </div>
                     </div>
 
@@ -145,7 +145,7 @@
                     return produk.text;
                 }
                 var $container = $(
-                    `<div class='select2-result-repository clearfix'>
+                    `<div class='select2-result-repository d-flex clearfix'>
                         <div class='select2-result-repository__avatar'><img src='${produk.img_url}' class='avatar avatar-sm me-3' /></div>
                         <div class='select2-result-repository__meta'>
                             <div class='select2-result-repository__title'>${produk.nama_produk}</div>
@@ -192,8 +192,8 @@
 
                 // Tambahkan item ke tabel
                 const typeBadge = type === 'IN' ?
-                    '<span class="badge badge-sm bg-gradient-success">Masuk</span>' :
-                    '<span class="badge badge-sm bg-gradient-danger">Keluar</span>';
+                    '<span class="badge badge-sm badge-success">Masuk</span>' :
+                    '<span class="badge badge-sm badge-danger">Keluar</span>';
 
                 const newRow = `
                     <tr class="adjustment-item-row" data-product-id="${selectedProduct.id}">

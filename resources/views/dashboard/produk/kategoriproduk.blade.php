@@ -27,98 +27,27 @@
                     </div>
                     <div class="ms-auto mt-2">
                         {{-- triger-modal-create --}}
-                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i> Kategori</button>
+                        <button class="btn btn-outline-info mb-0" data-bs-toggle="modal" data-bs-target="#import"><i class="bi bi-plus-lg fixed-plugin-button-nav cursor-pointer pe-2"></i>Kategori</button>
                     </div>
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
                 <div class="filter-container">
                     <div class="row g-3 align-items-center justify-content-between">
-                        <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari kategori ...">
+                        <div class="col-md-4 ms-3">
+                            <input type="text" name="search" id="searchInput" class="form-control" placeholder="Cari kategori..." value="{{ request('search') }}">
                         </div>
-                        <div class="col-5 col-lg-2 me-3">
-                            <select id="posisiFilter" class="form-select">
-                                <option value="">semua status</option>
+                        <div class="col-md-3 me-3">
+                            <select name="status" id="statusFilter" class="form-select">
+                                <option value="">Semua Status</option>
+                                <option value="Aktif" @selected(request('status') == 'Aktif')>Aktif</option>
+                                <option value="Tidak Aktif" @selected(request('status') == 'Tidak Aktif')>Tidak Aktif</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 my-3">
-                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Kategori</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">kategori Slug</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah Produk</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Dibuat Tanggal</th>
-                                <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="isiTable">
-                            @foreach ($kategoris as $kategori)
-                            <tr id="kategori-row-{{ $kategori->slug }}">
-                                <td>
-                                    <div title="image & Nama Kategori" class="d-flex align-items-center px-2 py-1">
-                                        @if ($kategori->img_kategori)
-                                            <img src="{{ asset('storage/' . $kategori->img_kategori) }}" class="avatar avatar-sm me-3" alt="{{ $kategori->nama }}">
-                                        @else
-                                            <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
-                                        @endif
-                                        <h6 class="mb-0 text-sm">{{ $kategori->nama }}</h6>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <p title="kategori slug" class=" text-xs text-dark fw-bold mb-0">{{ $kategori->slug }}</p>
-                                </td>
-                                <td>
-                                    <p class="text-xs text-dark fw-bold mb-0">{{ $kategori->produks_count }}</p>
-                                </td>
-
-                                <td class="align-middle ">
-                                    <span class="text-dark text-xs fw-bold">{{ $kategori->created_at?->translatedFormat('d M Y')}}</span>
-                                </td>
-
-                                <td class="align-middle text-center text-sm">
-                                    @if ($kategori->status)
-                                        <span class="badge badge-success">Aktif</span>
-                                    @else
-                                        <span class="badge badge-secondary">Tidak Aktif</span>
-                                    @endif
-                                </td>
-
-                                <td class="align-middle">
-                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editModal"
-                                        data-url="{{ route('kategoriproduk.getjson', $kategori->slug) }}"
-                                        data-update-url="{{ route('kategoriproduk.update', $kategori->slug) }}"
-                                        title="Edit kategori">
-                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                    </a>
-                                    <a href="#" class="text-dark delete-btn"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteConfirmationModal"
-                                        data-kategori-slug="{{ $kategori->slug }}"
-                                        data-kategori-name="{{ $kategori->nama }}"
-                                        title="Hapus kategori">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                            @if($kategoris->isEmpty())
-                                <tr id="kategori-row-empty">
-                                    <td colspan="6" class="text-center py-4">
-                                        <p class="text-dark text-sm fw-bold mb-0">Belum ada data kategori.</p>
-                                    </td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                    <div class="my-3 ms-3">{{ $kategoris->onEachSide(2)->links() }}</div>
+                <div id="kategori-table-container">
+                    @include('dashboard.produk._kategori_produk_table')
                 </div>
             </div>
         </div>
@@ -230,6 +159,7 @@
         </div>
     </div>
     @push('scripts')
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
         <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
@@ -589,54 +519,47 @@
                 }
 
 
-                // --- FILTER ---
-                // Filter tabel
-                const searchInput = document.getElementById('searchInput');
-                const statusFilter = document.getElementById('posisiFilter'); // Nama ID dari HTML
-                const tableBody = document.getElementById('isiTable');
-                const rows = tableBody.getElementsByTagName('tr');
-
-                function populateStatusFilter() {
-                    const statuses = ['Aktif', 'Tidak Aktif'];
-                    while (statusFilter.options.length > 1) {
-                        statusFilter.remove(1);
+                // --- AJAX FILTER & SEARCH ---
+                $(document).ready(function() {
+                    // Fungsi untuk menunda eksekusi (debounce)
+                    function debounce(func, delay) {
+                        let timeout;
+                        return function(...args) {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => func.apply(this, args), delay);
+                        };
                     }
-                    statuses.forEach(status => {
-                        const option = document.createElement('option');
-                        option.value = status;
-                        option.textContent = status;
-                        statusFilter.appendChild(option);
+
+                    // Fungsi untuk mengambil data dengan AJAX
+                    function fetchData(page = 1) {
+                        let search = $('#searchInput').val();
+                        let status = $('#statusFilter').val();
+                        let url = '{{ route("kategoriproduk.index") }}';
+
+                        $('#kategori-table-container').css('opacity', 0.5); // Efek loading
+
+                        $.ajax({
+                            url: url,
+                            data: { search: search, status: status, page: page },
+                            success: function(data) {
+                                $('#kategori-table-container').html(data).css('opacity', 1);
+                                window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&status=' + status},'',url + '?page=' + page + '&search=' + search + '&status=' + status);
+                            },
+                            error: function() {
+                                $('#kategori-table-container').css('opacity', 1);
+                                alert('Gagal memuat data. Silakan coba lagi.');
+                            }
+                        });
+                    }
+
+                    $('#searchInput').on('keyup', debounce(function() { fetchData(1); }, 500));
+                    $('#statusFilter').on('change', function() { fetchData(1); });
+                    $(document).on('click', '#kategori-table-container .pagination a', function(e) {
+                        e.preventDefault();
+                        let page = $(this).attr('href').split('page=')[1];
+                        if (page) fetchData(page);
                     });
-                }
-
-                function filterTable() {
-                    const searchText = searchInput.value.toLowerCase();
-                    const statusValue = statusFilter.value;
-
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        const namaCell = row.cells[0];
-                        const statusCell = row.cells[4]; // Status ada di kolom ke-5 (index 4)
-
-                        if (namaCell && statusCell) {
-                            const namaText = namaCell.textContent.toLowerCase().trim();
-                            const statusText = statusCell.textContent.trim();
-
-                            // Cek kondisi filter
-                            const namaMatch = namaText.includes(searchText);
-                            const statusMatch = (statusValue === "" || statusText === statusValue);
-
-                            // Tampilkan atau sembunyikan baris
-                            row.style.display = (namaMatch && statusMatch) ? "" : "none";
-                        }
-                    }
-                }
-
-                if(searchInput && statusFilter && tableBody) {
-                    populateStatusFilter();
-                    searchInput.addEventListener('keyup', filterTable);
-                    statusFilter.addEventListener('change', filterTable);
-                }
+                });
 
             });
         </script>

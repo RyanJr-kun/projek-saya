@@ -72,101 +72,19 @@
                         <input type="text" id="searchInput" class="form-control" placeholder="Cari Produk...">
                     </div>
                     <div class="col-5 col-lg-2 me-3">
-                        <select id="posisiFilter" class="form-select">
+                        <select id="kategoriFilter" name="kategori" class="form-select">
                             <option value="">Semua Kategori</option>
+                            @foreach ($kategoris as $kategori)
+                                <option value="{{ $kategori->id }}" @selected(request('kategori') == $kategori->id)>
+                                    {{ $kategori->nama }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
-                <div class="table-responsive p-0 mt-3">
-                    <table class="table table-hover align-items-center pb-3" id="tableData">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Produk</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kategori</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Brand</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Harga Jual</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Unit</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Qty</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Pembuat</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="isiTable">
-                            @forelse ($produk as $produks)
-                            <tr>
-                                <td>
-                                    <div title="gambar & nama produk" class="d-flex px-2 py-1">
-                                        <div>
-                                            @if ($produks->img_produk)
-                                                <img src="{{ asset('storage/' . $produks->img_produk) }}" class="avatar avatar-lg me-3" alt="{{ $produks->nama_produk }}">
-                                            @else
-                                                <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-lg me-3" alt="Gambar produk default">
-                                            @endif
-                                        </div>
-                                        <div class="d-flex flex-column justify-content-start">
-                                            <h6 class="mb-0 text-sm">{{ $produks->nama_produk }}</h6>
-                                            <p title="SKU" class="text-xs fw-bold mb-0 text-sm">SKU : {{ $produks->sku }}
-                                            </p>
-                                            <p title="Barcode" class="text-xs fw-bold mb-0 text-sm">Barcode : {{ $produks->barcode }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>
-                                    <p title="kategori produk" class="text-xs text-dark fw-bold mb-0 ">{{ $produks->kategori_produk->nama }}</p>
-                                </td>
-                                <td>
-                                    <p title="nama brand/merek poduk" class="text-xs text-dark fw-bold mb-0 ">{{ $produks->brand->nama }}</p>
-                                </td>
-                                <td>
-                                    <p title="harga jual" class="text-xs text-dark fw-bold mb-0">{{ $produks->harga_formatted }}</p>
-                                </td>
-                                <td>
-                                    <p title="jenis unit" class="text-xs text-dark fw-bold mb-0">{{ $produks->unit->nama }}</p>
-                                </td>
-                                <td>
-                                    <span title="Jumlah Barang" class="text-dark text-xs fw-bold ">{{ $produks->qty }}</span>
-                                </td>
-
-                                <td>
-                                    <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">
-                                        @if ($produks->user->img_user)
-                                            <img src="{{ asset('storage/' . $produks->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
-                                        @else
-                                            <img src="{{ asset('assets/img/user.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
-                                        @endif
-                                        <h6 class="mb-0 text-sm">{{ $produks->user->nama }}</h6>
-                                    </div>
-                                </td>
-
-                                <td class="align-middle pe-3">
-                                    <a href="{{ route('produk.show', $produks->slug) }}" class="text-dark" data-toggle="tooltip" data-original-title="Detail produk">
-                                        <i class="fa fa-eye text-dark text-sm opacity-10"></i>
-                                    </a>
-                                    <a href="{{ route('produk.edit', $produks->slug) }}" class="text-dark mx-3" data-toggle="tooltip" data-original-title="Edit produk">
-                                        <i class="fa fa-pen-to-square text-dark text-sm opacity-10"></i>
-                                    </a>
-                                    <a href="#" class="text-dark delete-product-btn"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteConfirmationModal"
-                                        data-product-slug="{{ $produks->slug }}"
-                                        data-product-name="{{ $produks->nama_produk }}"
-                                        title="Hapus produk">
-                                        <i class="bi bi-trash text-dark text-sm opacity-10"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="9" class="text-center py-3">
-                                        <p class="text-dark text-sm fw-bold mb-0">Belum ada data produk.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <div class="my-3 ms-3">{{ $produk->onEachSide(1)->links() }}</div>
+                {{-- Container untuk tabel yang akan di-refresh oleh AJAX --}}
+                <div id="produk-table-container">
+                    @include('dashboard.produk.produk._produk_table', ['produk' => $produk])
                 </div>
             </div>
         </div>
@@ -193,77 +111,9 @@
     </div>
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                //search
-                const checkAll = document.getElementById('check-all');
-                const checkItems = document.querySelectorAll('.check-item');
-
-                if (checkAll) { // Pastikan elemen ada sebelum menambahkan event
-                    checkAll.addEventListener('change', function() {
-                        checkItems.forEach(item => {
-                            item.checked = this.checked;
-                            const row = item.closest('tr');
-                            row.classList.toggle('row-checked', this.checked);
-                        });
-                    });
-
-                    checkItems.forEach(item => {
-                        item.addEventListener('change', function() {
-                            const row = this.closest('tr');
-                            row.classList.toggle('row-checked', this.checked);
-                            checkAll.checked = Array.from(checkItems).every(i => i.checked);
-                        });
-                    });
-                }
-                //filter
-                const searchInput = document.getElementById('searchInput');
-                const brandFilter = document.getElementById('posisiFilter'); // Sebenarnya ini filter Brand
-                const tableBody = document.getElementById('isiTable');
-                const rows = tableBody.getElementsByTagName('tr');
-
-                function populateBrandFilter() {
-                    const brandSet = new Set();
-                    for (let row of rows) {
-                        const brandCell = row.getElementsByTagName('td')[3]; // Target Kolom 4: Brand
-                        if (brandCell) {
-                            const brandText = brandCell.querySelector('p').textContent.trim();
-                            brandSet.add(brandText);
-                        }
-                    }
-                    brandSet.forEach(brand => {
-                        const option = document.createElement('option');
-                        option.value = brand;
-                        option.textContent = brand;
-                        brandFilter.appendChild(option);
-                    });
-                }
-
-                function filterTable() {
-                    const searchText = searchInput.value.toLowerCase();
-                    const brandValue = brandFilter.value;
-
-                    for (let row of rows) {
-                        const namaCell = row.getElementsByTagName('td')[1];   // Target Kolom 2: Nama Produk
-                        const brandCell = row.getElementsByTagName('td')[3]; // Target Kolom 4: Brand
-
-                        if (namaCell && brandCell) {
-                            const namaText = namaCell.querySelector('h6').textContent.toLowerCase();
-                            const brandText = brandCell.querySelector('p').textContent;
-
-                            const namaMatch = namaText.includes(searchText);
-                            const brandMatch = (brandValue === "" || brandText === brandValue);
-
-                            row.style.display = (namaMatch && brandMatch) ? "" : "none";
-                        }
-                    }
-                }
-
-                if (rows.length > 0) {
-                    populateBrandFilter();
-                    searchInput.addEventListener('keyup', filterTable);
-                    brandFilter.addEventListener('change', filterTable);
-                }
                 //scrollbar
                 var win = navigator.platform.indexOf('Win') > -1;
                 if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -327,6 +177,50 @@
                         });
                     });
                 }
+
+                // --- AJAX FILTER & SEARCH ---
+                $(document).ready(function() {
+                    // Fungsi untuk menunda eksekusi (debounce)
+                    function debounce(func, delay) {
+                        let timeout;
+                        return function(...args) {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => func.apply(this, args), delay);
+                        };
+                    }
+
+                    // Fungsi untuk mengambil data dengan AJAX
+                    function fetchData(page = 1) {
+                        let search = $('#searchInput').val();
+                        let kategori = $('#kategoriFilter').val();
+                        let url = '{{ route("produk.index") }}';
+
+                        $('#produk-table-container').css('opacity', 0.5); // Efek loading
+
+                        $.ajax({
+                            url: url,
+                            data: { search: search, kategori: kategori, page: page },
+                            success: function(data) {
+                                $('#produk-table-container').html(data).css('opacity', 1);
+                                // Update URL di browser
+                                let newUrl = `${url}?page=${page}&search=${search}&kategori=${kategori}`;
+                                window.history.pushState({path: newUrl}, '', newUrl);
+                            },
+                            error: function() {
+                                $('#produk-table-container').css('opacity', 1);
+                                alert('Gagal memuat data. Silakan coba lagi.');
+                            }
+                        });
+                    }
+
+                    $('#searchInput').on('keyup', debounce(function() { fetchData(1); }, 500));
+                    $('#kategoriFilter').on('change', function() { fetchData(1); });
+                    $(document).on('click', '#produk-table-container .pagination a', function(e) {
+                        e.preventDefault();
+                        let page = $(this).attr('href').split('page=')[1];
+                        if (page) fetchData(page);
+                    });
+                });
             });
         </script>
     @endpush

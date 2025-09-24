@@ -57,21 +57,24 @@
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
-                <div class="filter-container p-3">
-                    <div class="row g-3 align-items-center justify-content-between">
-                        <div class="col-md-4">
-                            <input type="text" name="search" id="searchInput" class="form-control" placeholder="Cari nama atau SKU produk...">
-                        </div>
-                        <div class="col-md-3">
-                            <select name="kategori" id="categoryFilter" class="form-select">
-                                <option value="">Semua Kategori</option>
-                                @foreach ($kategoris as $kategori)
-                                    <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
-                                @endforeach
-                            </select>
+                {{-- Form untuk filter --}}
+                <form method="GET" action="{{ route('stok-opname.index') }}" id="filterForm">
+                    <div class="filter-container p-3">
+                        <div class="row g-3 align-items-center justify-content-start">
+                            <div class="col-md-4">
+                                <input type="text" name="search" id="searchInput" class="form-control" placeholder="Cari nama atau SKU produk..." value="{{ request('search') }}">
+                            </div>
+                            <div class="col-md-3">
+                                <select name="kategori" id="categoryFilter" class="form-select">
+                                    <option value="">Semua Kategori</option>
+                                    @foreach ($kategoris as $kategori)
+                                        <option value="{{ $kategori->id }}" @selected(request('kategori') == $kategori->id)>{{ $kategori->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
 
                 <form action="{{ route('stok-opname.store') }}" method="POST" id="stockOpnameForm">
                     <div class="p-3">
@@ -95,7 +98,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($produks as $produk)
-                                <tr class="opname-row" data-product-name="{{ strtolower($produk->nama_produk) }}" data-product-sku="{{ strtolower($produk->sku) }}" data-category-id="{{ $produk->kategori_produk_id }}">
+                                <tr class="opname-row">
                                     <td>
                                         <div class="d-flex px-2 py-1">
                                             <div>
@@ -111,7 +114,7 @@
                                         <span class="fw-bold system-stock">{{ $produk->qty }}</span>
                                     </td>
                                     <td class="align-middle text-center">
-                                        <input type="number" name="items[{{ $produk->id }}][stok_fisik]" class="form-control form-control-sm physical-stock-input" value="{{ $produk->qty }}" min="0">
+                                        <input type="number" name="items[{{ $produk->id }}][stok_fisik]" class="form-control form-control-sm physical-stock-input mx-auto" value="{{ $produk->qty }}" min="0">
                                     </td>
                                     <td class="align-middle text-center text-sm">
                                         <span class="difference-cell difference-zero">0</span>
@@ -130,7 +133,7 @@
                             </tbody>
                         </table>
                         <div class="d-flex justify-content-center my-4">
-                            {{-- $produks->links() --}}
+                            {{ $produks->links() }}
                         </div>
                     </div>
 
@@ -152,7 +155,8 @@
             // Inisialisasi Select2
             $('#categoryFilter').select2({
                 theme: 'bootstrap-5',
-                placeholder: 'Pilih Kategori',
+                placeholder: 'Semua Kategori',
+                allowClear: true
             });
 
             // Fungsi untuk menghitung selisih
@@ -194,31 +198,23 @@
                 calculateDifference(input.closest('.opname-row'));
             });
 
-            // Fungsi untuk filter tabel
-            function filterTable() {
-                const searchText = document.getElementById('searchInput').value.toLowerCase();
-                const categoryId = document.getElementById('categoryFilter').value;
-                const rows = document.querySelectorAll('.opname-row');
+            // --- LOGIKA UNTUK SUBMIT FORM FILTER SECARA OTOMATIS ---
+            const filterForm = document.getElementById('filterForm');
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
 
-                rows.forEach(row => {
-                    const productName = row.dataset.productName;
-                    const productSku = row.dataset.productSku;
-                    const rowCategoryId = row.dataset.categoryId;
+            // Submit form setelah user berhenti mengetik selama 500ms
+            searchInput.addEventListener('keyup', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterForm.submit();
+                }, 500); // 500ms delay
+            });
 
-                    const searchMatch = productName.includes(searchText) || productSku.includes(searchText);
-                    const categoryMatch = (categoryId === '' || categoryId === rowCategoryId);
-
-                    if (searchMatch && categoryMatch) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            }
-
-            // Event listener untuk filter
-            document.getElementById('searchInput').addEventListener('keyup', filterTable);
-            document.getElementById('categoryFilter').addEventListener('change', filterTable);
+            // Submit form saat kategori diubah
+            $('#categoryFilter').on('change', function() {
+                filterForm.submit();
+            });
         });
     </script>
     @endpush

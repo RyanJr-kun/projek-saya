@@ -3,6 +3,8 @@
         <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
         <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
         <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     @endpush
     @section('breadcrumb')
         @php
@@ -35,88 +37,23 @@
                 <div class="filter-container">
                     <div class="row g-3 align-items-center justify-content-between">
                         <!-- Filter Pencarian Brand -->
-                        <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari Brand ...">
+                        <div class="col-md-4 ms-3">
+                            <input type="text" name="search" id="searchInput" class="form-control" placeholder="Cari Brand..." value="{{ request('search') }}">
                         </div>
                         <!-- Filter Dropdown Status -->
-                        <div class="col-5 col-lg-2 me-3">
-                            <select id="statusFilter" class="form-select">
+                        <div class="col-md-3 me-3">
+                            <select name="status" id="statusFilter" class="form-select">
                                 <option value="">Semua Status</option>
+                                {{-- Status akan diisi oleh JS atau dari controller --}}
+                                <option value="Aktif" @selected(request('status') == 'Aktif')>Aktif</option>
+                                <option value="Tidak Aktif" @selected(request('status') == 'Tidak Aktif')>Tidak Aktif</option>
                             </select>
                         </div>
                     </div>
                 </div>
-            <div class="table-responsive p-0 mt-3">
-                <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                <thead>
-                    <tr class="table-secondary">
-                        <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
-                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah Produk</th>
-                        <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Dibuat Tanggal</th>
-                        <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
-                        <th class="text-dark"></th>
-                    </tr>
-                </thead>
-                <tbody id="isiTable">
-                    @foreach ($brands as $brand)
-                    <tr id="brand-row-{{ $brand->slug }}">
-                    <td>
-                        <div title="foto & nama brand" class="d-flex ms-2 px-2 py-1 align-items-center">
-                            @if ($brand->img_brand)
-                                <img src="{{ asset('storage/' . $brand->img_brand) }}" class="avatar avatar-sm me-3" alt="{{ $brand->nama }}">
-                            @else
-                                <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
-                            @endif
-                            <h6 class="mb-0 text-sm">{{ $brand->nama }}</h6>
-                        </div>
-                    </td>
-                    <td>
-                        <p class="text-xs text-dark fw-bold mb-0">{{ $brand->produks_count }}</p>
-                    </td>
-                    <td>
-                        <p class="text-xs text-dark fw-bold mb-0">{{ $brand->created_at->translatedFormat('d M Y') }}</p>
-                    </td>
-
-                    <td class="align-middle text-center text-sm">
-                        @if ($brand->status)
-                            <span class="badge badge-success">Aktif</span>
-                        @else
-                            <span class="badge badge-secondary">Tidak Aktif</span>
-                        @endif
-                    </td>
-
-                    <td class="align-middle">
-
-                        <a href="#" class="text-dark fw-bold px-3 text-xs"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editModal"
-                            data-url="{{ route('brand.getjson', $brand->slug) }}"
-                            data-update-url="{{ route('brand.update', $brand->slug) }}"
-                            title="Edit brand">
-                            <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                        </a>
-                        <a href="#" class="text-dark delete-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#deleteConfirmationModal"
-                            data-brand-slug="{{ $brand->slug }}"
-                            data-brand-name="{{ $brand->nama }}"
-                            title="Hapus Unit">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    </td>
-                    </tr>
-                    @endforeach
-                    @if($brands->isEmpty())
-                        <tr id="brand-row-empty">
-                            <td colspan="5" class="text-center py-4">
-                                <p class="text-dark text-sm fw-bold mb-0">Belum ada data brand.</p>
-                            </td>
-                        </tr>
-                    @endif
-                </tbody>
-                </table>
-                <div class="my-3 ms-3">{{ $brands->onEachSide(1)->links() }}</div>
-            </div>
+                <div id="brand-table-container">
+                    @include('dashboard.produk._brand_table')
+                </div>
             </div>
         </div>
         {{-- modal-create --}}
@@ -230,6 +167,8 @@
     </div>
 
     @push('scripts')
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
         <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
@@ -612,49 +551,47 @@
                     });
                 }
 
-                // Filter tabel
-                const searchInput = document.getElementById('searchInput');
-                const statusFilter = document.getElementById('statusFilter');
-                const tableBody = document.getElementById('isiTable');
-                const rows = tableBody.getElementsByTagName('tr');
-
-                function populateStatusFilter() {
-                    const statuses = ['Aktif', 'Tidak Aktif'];
-                    while (statusFilter.options.length > 1) {
-                        statusFilter.remove(1);
+                // --- AJAX FILTER & SEARCH ---
+                $(document).ready(function() {
+                    // Fungsi untuk menunda eksekusi (debounce)
+                    function debounce(func, delay) {
+                        let timeout;
+                        return function(...args) {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => func.apply(this, args), delay);
+                        };
                     }
-                    statuses.forEach(status => {
-                        const option = document.createElement('option');
-                        option.value = status;
-                        option.textContent = status;
-                        statusFilter.appendChild(option);
+
+                    // Fungsi untuk mengambil data dengan AJAX
+                    function fetchData(page = 1) {
+                        let search = $('#searchInput').val();
+                        let status = $('#statusFilter').val();
+                        let url = '{{ route("brand.index") }}';
+
+                        $('#brand-table-container').css('opacity', 0.5); // Efek loading
+
+                        $.ajax({
+                            url: url,
+                            data: { search: search, status: status, page: page },
+                            success: function(data) {
+                                $('#brand-table-container').html(data).css('opacity', 1);
+                                window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&status=' + status},'',url + '?page=' + page + '&search=' + search + '&status=' + status);
+                            },
+                            error: function() {
+                                $('#brand-table-container').css('opacity', 1);
+                                alert('Gagal memuat data. Silakan coba lagi.');
+                            }
+                        });
+                    }
+
+                    $('#searchInput').on('keyup', debounce(function() { fetchData(1); }, 500));
+                    $('#statusFilter').on('change', function() { fetchData(1); });
+                    $(document).on('click', '#brand-table-container .pagination a', function(e) {
+                        e.preventDefault();
+                        let page = $(this).attr('href').split('page=')[1];
+                        if (page) fetchData(page);
                     });
-                }
-
-                function filterTable() {
-                    const searchText = searchInput.value.toLowerCase();
-                    const statusValue = statusFilter.value;
-
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        const namaCell = row.cells[0];
-                        const statusCell = row.cells[3]; // Status ada di kolom ke-4 (index 3)
-
-                        if (namaCell && statusCell) {
-                            const namaText = namaCell.textContent.toLowerCase().trim();
-                            const statusText = statusCell.textContent.trim();
-                            const namaMatch = namaText.includes(searchText);
-                            const statusMatch = (statusValue === "" || statusText === statusValue);
-                            row.style.display = (namaMatch && statusMatch) ? "" : "none";
-                        }
-                    }
-                }
-
-                if(searchInput && statusFilter && tableBody) {
-                    populateStatusFilter();
-                    searchInput.addEventListener('keyup', filterTable);
-                    statusFilter.addEventListener('change', filterTable);
-                }
+                });
 
             });
         </script>

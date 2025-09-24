@@ -14,13 +14,14 @@
         <div class="card rounded-2">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div>
+                    <div class="me-2 ">
                         <h6 class="mb-n1">Riwayat Penyesuaian Stok</h6>
                         <p class="text-sm mb-0">Daftar semua penyesuaian stok yang pernah dibuat.</p>
                     </div>
                     <div class="ms-md-auto mt-2">
-                        <a href="{{ route('stok-penyesuaian.create') }}" class="btn btn-outline-info mb-0">
-                            <i class="bi bi-plus-lg me-2"></i>Buat Penyesuaian Baru
+                        <a href="{{ route('stok-penyesuaian.create') }}" class="btn btn-outline-info mb-0 d-flex">
+                            <i class="bi bi-plus-lg"></i>
+                            <span class="d-none d-md-block ms-2"> Penyesuaian</span>
                         </a>
                     </div>
                 </div>
@@ -28,12 +29,22 @@
             <div class="card-body px-0 pt-0 pb-2">
                 <div class="filter-container p-3">
                     <form action="{{ route('stok-penyesuaian.index') }}" method="GET">
-                        <div class="row g-3 align-items-center">
+                        <div class="row g-3 align-items-end">
                             <div class="col-md-4">
-                                <input type="text" name="search" class="form-control" placeholder="Cari kode atau user..." value="{{ request('search') }}">
+                                <label for="search" class="form-label">Pencarian</label>
+                                <input type="text" id="search" name="search" class="form-control" placeholder="Cari kode atau user..." value="{{ request('search') }}">
                             </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-dark w-100">Cari</button>
+                            <div class="col-md-3">
+                                <label for="start_date" class="form-label">Tanggal Mulai</label>
+                                <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="end_date" class="form-label">Tanggal Akhir</label>
+                                <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+                            </div>
+                            <div class="col-md-2 d-flex mb-n3">
+                                <button type="submit" class="btn btn-dark me-2 w-100">Filter</button>
+                                <a href="{{ route('stok-penyesuaian.index') }}" class="btn btn-secondary w-100">Reset</a>
                             </div>
                         </div>
                     </form>

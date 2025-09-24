@@ -30,85 +30,29 @@
                 </div>
             </div>
             <div class="card-body px-0 pt-0 pb-2">
-                <div class="filter-container">
-                    <div class="row g-3 align-items-center justify-content-between">
-                        <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari kategori ...">
+                <form action="{{ route('kategoritransaksi.index') }}" method="GET" class="container-fluid">
+                    <div class="row g-2  px-2">
+                        <div class="col-md-4">
+                            <input type="text" id="searchInput" name="search" class="form-control" placeholder="Cari nama kategori..." value="{{ request('search') }}">
                         </div>
-                        <div class="col-5 col-lg-2 me-3">
-                            <select id="posisiFilter" class="form-select">
-                                <option value="">semua status</option>
+                        <div class="col-md-3">
+                            <select id="jenisFilter" name="jenis" class="form-select">
+                                <option value="">Semua Jenis</option>
+                                <option value="pemasukan" @selected(request('jenis') == 'pemasukan')>Pemasukan</option>
+                                <option value="pengeluaran" @selected(request('jenis') == 'pengeluaran')>Pengeluaran</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="statusFilter" name="status" class="form-select">
+                                <option value="">Semua Status</option>
+                                <option value="1" @selected(request('status') == '1')>Aktif</option>
+                                <option value="0" @selected(request('status') == '0')>Tidak Aktif</option>
                             </select>
                         </div>
                     </div>
-                </div>
-                <div class="table-responsive p-0 mt-3">
-                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Kategori</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jenis</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Deskripsi</th>
-                                <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">Status</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="isiTable">
-                            @forelse ($kategoris as $kategori)
-                            <tr>
-                                <td>
-                                    <p title="kategori" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $kategori->nama }}</p>
-                                </td>
-
-                                <td>
-                                    @if ($kategori->jenis == 'pemasukan')
-                                        <span class="badge badge-success text-capitalize">{{ $kategori->jenis }}</span>
-                                    @elseif ($kategori->jenis == 'pengeluaran')
-                                        <span class="badge badge-info text-capitalize">{{ $kategori->jenis }}</span>
-                                    @endif
-                                </td>
-
-                                <td>
-                                    <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ Str::limit(strip_tags($kategori->deskripsi), 60) }}</p>
-                                </td>
-
-                                <td class="align-middle text-center text-sm">
-                                    @if ($kategori->status)
-                                        <span class="badge badge-success">Aktif</span>
-                                    @else
-                                        <span class="badge badge-secondary">Tidak Aktif</span>
-                                    @endif
-                                </td>
-
-                                <td class="text-center">
-                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editModal"
-                                        data-url="{{ route('kategoritransaksi.getjson', $kategori->slug) }}"
-                                        data-update-url="{{ route('kategoritransaksi.update', $kategori->slug) }}"
-                                        title="Edit kategori">
-                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                    </a>
-                                    <a href="#" class="text-dark delete-user-btn me-md-4"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteConfirmationModal"
-                                        data-kategori-slug="{{ $kategori->slug }}"
-                                        data-kategori-name="{{ $kategori->nama }}"
-                                        title="Hapus kategori">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-3 ">
-                                        <p class=" text-dark text-sm fw-bold mb-0">Belum ada data Kategori Transaksi.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <div class="my-3 ms-3">{{ $kategoris->onEachSide(1)->links() }}</div>
+                </form>
+                <div id="kategori-table-container">
+                    @include('dashboard.keuangan._kategori_table', ['kategoris' => $kategoris])
                 </div>
             </div>
         </div>
@@ -251,6 +195,8 @@
     </div>
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
             // --- INISIALISASI QUILL DENGAN CHARACTER COUNTER ---
@@ -361,56 +307,6 @@
                         });
                     }
 
-                //filter search & status
-                const searchInput = document.getElementById('searchInput');
-                const statusFilter = document.getElementById('posisiFilter'); // Ganti nama variabel agar lebih jelas
-                const tableBody = document.getElementById('isiTable');
-                const rows = tableBody.getElementsByTagName('tr');
-
-                // Mengisi filter status secara manual, bukan dari data
-                function populateStatusFilter() {
-                    const statuses = ['Aktif', 'Tidak Aktif'];
-                    // Hapus opsi lama jika ada, kecuali yang pertama ("status")
-                    while (statusFilter.options.length > 1) {
-                        statusFilter.remove(1);
-                    }
-                    statuses.forEach(status => {
-                        const option = document.createElement('option');
-                        option.value = status;
-                        option.textContent = status;
-                        statusFilter.appendChild(option);
-                    });
-                }
-
-                function filterTable() {
-                    const searchText = searchInput.value.toLowerCase();
-                    const statusValue = statusFilter.value;
-
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        // Kolom pertama (indeks 0) adalah Nama Kategori
-                        const namaCell = row.cells[0];
-                        // Kolom ketiga (indeks 2) adalah Status
-                        const statusCell = row.cells[2];
-
-                        if (namaCell && statusCell) {
-                            const namaText = namaCell.textContent.toLowerCase().trim();
-                            const statusText = statusCell.textContent.trim();
-
-                            // Cek kondisi filter
-                            const namaMatch = namaText.includes(searchText);
-                            const statusMatch = (statusValue === "" || statusText === statusValue);
-
-                            // Tampilkan atau sembunyikan baris
-                            row.style.display = (namaMatch && statusMatch) ? "" : "none";
-                        }
-                    }
-                }
-
-                populateStatusFilter();
-                searchInput.addEventListener('keyup', filterTable);
-                statusFilter.addEventListener('change', filterTable);
-
                 // eror input
                 const hasError = document.querySelector('.is-invalid');
                     if (hasError) {
@@ -418,6 +314,48 @@
                         importModal.show();
                     }
 
+                // --- AJAX FILTER & SEARCH ---
+                $(document).ready(function() {
+                    // Fungsi untuk menunda eksekusi (debounce)
+                    function debounce(func, delay) {
+                        let timeout;
+                        return function(...args) {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => func.apply(this, args), delay);
+                        };
+                    }
+
+                    // Fungsi untuk mengambil data dengan AJAX
+                    function fetchData(page = 1) {
+                        let search = $('#searchInput').val();
+                        let jenis = $('#jenisFilter').val();
+                        let status = $('#statusFilter').val();
+                        let url = '{{ route("kategoritransaksi.index") }}';
+
+                        $('#kategori-table-container').css('opacity', 0.5); // Efek loading
+
+                        $.ajax({
+                            url: url,
+                            data: { search: search, jenis: jenis, status: status, page: page },
+                            success: function(data) {
+                                $('#kategori-table-container').html(data).css('opacity', 1);
+                                window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&jenis=' + jenis + '&status=' + status},'',url + '?page=' + page + '&search=' + search + '&jenis=' + jenis + '&status=' + status);
+                            },
+                            error: function() {
+                                $('#kategori-table-container').css('opacity', 1);
+                                Swal.fire('Gagal', 'Gagal memuat data. Silakan coba lagi.', 'error');
+                            }
+                        });
+                    }
+
+                    $('#searchInput').on('keyup', debounce(function() { fetchData(1); }, 500));
+                    $('#jenisFilter, #statusFilter').on('change', function() { fetchData(1); });
+                    $(document).on('click', '#kategori-table-container .pagination a', function(e) {
+                        e.preventDefault();
+                        let page = $(this).attr('href').split('page=')[1];
+                        if (page) { fetchData(page); }
+                    });
+                });
 
 
 

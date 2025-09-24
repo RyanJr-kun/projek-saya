@@ -12,11 +12,29 @@ use \Cviebrock\EloquentSluggable\Services\SlugService;
 
 class KategoriProdukController extends Controller
 {
-   public function index() {
-    return view('dashboard.produk.kategoriproduk', [
-        'title' => 'Data Kategori Produk',
-        'kategoris'=>KategoriProduk::withCount('produks')->latest()->paginate(20),
-    ]);
+   public function index(Request $request)
+   {
+        $statuses = KategoriProduk::select('status')->distinct()->pluck('status');
+        $query = KategoriProduk::withCount('produks')->latest();
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('nama', 'LIKE', "%{$search}%");
+        }
+        if ($request->filled('status')) {
+            $statusValue = $request->input('status') === 'Aktif' ? 1 : 0;
+            $query->where('status', $statusValue);
+        }
+
+        $kategoris = $query->paginate(15)->withQueryString();
+        if ($request->ajax()) {
+            return view('dashboard.produk._kategori_produk_table', compact('kategoris'))->render();
+        }
+
+        return view('dashboard.produk.kategoriproduk', [
+            'title' => 'Data Kategori Produk',
+            'kategoris' => $kategoris,
+            'statuses' => $statuses,
+        ]);
     }
 
     /**

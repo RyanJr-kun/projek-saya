@@ -26,6 +26,11 @@ class StokPenyesuaianController extends Controller
             });
         }
 
+        // Tambahkan filter rentang tanggal
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('tanggal_penyesuaian', [$request->start_date, $request->end_date . ' 23:59:59']);
+        }
+
         $penyesuaians = $query->paginate(15)->withQueryString();
 
         return view('dashboard.inventaris.stok-penyesuaian-history', [
@@ -128,9 +133,14 @@ class StokPenyesuaianController extends Controller
     /**
      * Menampilkan detail dari riwayat penyesuaian stok.
      */
-    public function show(StokPenyesuaian $stok_penyesuaian)
+    public function show($kode_penyesuaian)
     {
+        // Cari penyesuaian berdasarkan kode unik, bukan ID.
+        $stok_penyesuaian = StokPenyesuaian::where('kode_penyesuaian', $kode_penyesuaian)->firstOrFail();
+
+        // Eager load relasi yang dibutuhkan
         $stok_penyesuaian->load(['user', 'details.produk.unit']);
+
         return view('dashboard.inventaris.stok-penyesuaian-show', [
             'title' => 'Detail Penyesuaian ' . $stok_penyesuaian->kode_penyesuaian,
             'penyesuaian' => $stok_penyesuaian,

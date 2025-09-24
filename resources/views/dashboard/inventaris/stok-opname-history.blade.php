@@ -58,9 +58,9 @@
                                 <td><p class="text-sm mb-0">{{ $opname->tanggal_opname->translatedFormat('d M Y, H:i') }}</p></td>
                                 <td><p class="text-sm mb-0">{{ $opname->user->username ?? 'N/A' }}</p></td>
                                 <td><p class="text-sm mb-0 text-truncate" style="max-width: 250px;">{{ $opname->catatan ?: '-' }}</p></td>
-                                <td class="text-center"><span class="badge badge-sm bg-gradient-success">{{ $opname->status }}</span></td>
+                                <td class="text-center"><span class="badge badge-sm badge-success">{{ $opname->status }}</span></td>
                                 <td class="text-center">
-                                    <a href="{{ route('stok-opname.show', $opname) }}" class="btn btn-link text-dark px-3 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
+                                    <a href="{{ route('stok-opname.show', $opname->kode_opname) }}" class="btn btn-link text-dark px-3 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
                                         <i class="bi bi-eye-fill" aria-hidden="true"></i>
                                     </a>
                                 </td>

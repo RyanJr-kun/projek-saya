@@ -87,7 +87,7 @@
                         <h6 class="mb-n1">Laporan Penjualan</h6>
                         <p class="text-sm mb-0">Analisis semua transaksi penjualan.</p>
                     </div>
-                    <div class="dropdown">
+                    <div class="dropdown mt-2">
                         <button class="btn btn-outline-primary dropdown-toggle" type="button" id="exportDropdown"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-download me-2"></i>Ekspor
@@ -138,7 +138,7 @@
                                 <input type="date" name="end_date" id="end_date" class="form-control"
                                     value="{{ request('end_date') }}">
                             </div>
-                            <div class="col-md-1 d-flex">
+                            <div class="col-md-1 d-flex mb-n3">
                                 <button type="submit" class="btn btn-dark w-100">Filter</button>
                             </div>
                         </div>
@@ -178,7 +178,7 @@
                                     </td>
                                     <td>
                                         <span
-                                            class="badge badge-sm bg-gradient-{{ ['Lunas' => 'success', 'Belum Lunas' => 'warning', 'Jatuh Tempo' => 'danger', 'Dibatalkan' => 'secondary'][$penjualan->status_pembayaran] ?? 'light' }}">{{ $penjualan->status_pembayaran }}</span>
+                                            class="badge badge-sm badge-{{ ['Lunas' => 'success', 'Belum Lunas' => 'warning', 'Jatuh Tempo' => 'danger', 'Dibatalkan' => 'secondary'][$penjualan->status_pembayaran] ?? 'light' }}">{{ $penjualan->status_pembayaran }}</span>
                                     </td>
                                     <td class="text-end">
                                         <p class="text-sm font-weight-bold mb-0">@money($penjualan->total_akhir)</p>

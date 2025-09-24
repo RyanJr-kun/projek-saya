@@ -34,72 +34,19 @@
                 <div class="filter-container">
                     <div class="row g-3 align-items-center justify-content-between">
                         <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari garansi ...">
+                            <input type="text" id="searchInput" name="search" class="form-control" placeholder="Cari garansi..." value="{{ request('search') }}">
                         </div>
                         <div class="col-5 col-lg-2 me-3">
-                            <select id="posisiFilter" class="form-select">
-                                <option value="">semua status</option>
+                            <select id="statusFilter" name="status" class="form-select">
+                                <option value="">Semua Status</option>
+                                <option value="1" @selected(request('status') == '1')>Aktif</option>
+                                <option value="0" @selected(request('status') == '0')>Tidak Aktif</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 mt-3">
-                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">garansi</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Deskripsi</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Durasi</th>
-                                <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">status</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="isiTable">
-                            @foreach ($garansis as $garansi)
-                            <tr>
-                                <td>
-                                    <p title="garansi" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $garansi->nama }}</p>
-                                </td>
-
-                                <td>
-                                    <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ Str::limit(strip_tags($garansi->deskripsi), 60) }}</p>
-                                </td>
-
-                                <td class="align-middle ">
-                                    <span class="text-dark text-xs fw-bold">{{ $garansi->formatted_duration}}</span>
-                                </td>
-
-                                <td class="align-middle text-center text-sm">
-                                    @if ($garansi->status)
-                                        <span class="badge badge-success">Aktif</span>
-                                    @else
-                                        <span class="badge badge-secondary">Tidak Aktif</span>
-                                    @endif
-                                </td>
-
-                                <td class="align-middle">
-                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editModal"
-                                        data-url="{{ route('garansi.getjson', $garansi->slug) }}"
-                                        data-update-url="{{ route('garansi.update', $garansi->slug) }}"
-                                        title="Edit garansi">
-                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                    </a>
-                                    <a href="#" class="text-dark delete-user-btn"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteConfirmationModal"
-                                        data-garansi-slug="{{ $garansi->slug }}"
-                                        data-garansi-name="{{ $garansi->nama }}"
-                                        title="Hapus garansi">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    <div class="my-3 ms-3">{{ $garansis->onEachSide(1)->links() }}</div>
+                <div id="garansi-table-container">
+                    @include('dashboard.produk._garansi_table', ['garansis' => $garansis])
                 </div>
             </div>
         </div>
@@ -246,6 +193,7 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // QUILL
@@ -333,7 +281,8 @@
                                 const tableBody = document.getElementById('isiTable');
                                 const newRowHtml = createTableRow(data.data);
                                 tableBody.insertAdjacentHTML('afterbegin', newRowHtml);
-
+                                document.getElementById('garansi-row-empty')?.remove();
+                    document.getElementById('garansi-row-empty')?.remove();
                                 // Re-initialize event listeners for the new row's buttons
                                 initializeModalEventListeners();
 
@@ -480,56 +429,50 @@
                         </tr>
                     `;
                 }
-                // fitur search & status
-                const searchInput = document.getElementById('searchInput');
-                const statusFilter = document.getElementById('posisiFilter'); // Ganti nama variabel agar lebih jelas
-                const tableBody = document.getElementById('isiTable');
-                const rows = tableBody.getElementsByTagName('tr');
 
-                // Mengisi filter status secara manual, bukan dari data
-                function populateStatusFilter() {
-                    const statuses = ['Aktif', 'Tidak Aktif'];
-                    // Hapus opsi lama jika ada, kecuali yang pertama ("status")
-                    while (statusFilter.options.length > 1) {
-                        statusFilter.remove(1);
+                // --- AJAX FILTER & SEARCH ---
+                $(document).ready(function() {
+                    // Fungsi untuk menunda eksekusi (debounce)
+                    function debounce(func, delay) {
+                        let timeout;
+                        return function(...args) {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => func.apply(this, args), delay);
+                        };
                     }
-                    statuses.forEach(status => {
-                        const option = document.createElement('option');
-                        option.value = status;
-                        option.textContent = status;
-                        statusFilter.appendChild(option);
-                    });
-                }
 
-                function filterTable() {
-                    const searchText = searchInput.value.toLowerCase();
-                    const statusValue = statusFilter.value;
+                    // Fungsi untuk mengambil data dengan AJAX
+                    function fetchData(page = 1) {
+                        let search = $('#searchInput').val();
+                        let status = $('#statusFilter').val();
+                        let url = '{{ route("garansi.index") }}';
 
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        // Kolom pertama (indeks 0) adalah Nama Kategori
-                        const namaCell = row.cells[0];
-                        // Kolom keempat (indeks 3) adalah Status
-                        const statusCell = row.cells[3];
+                        $('#garansi-table-container').css('opacity', 0.5); // Efek loading
 
-                        if (namaCell && statusCell) {
-                            const namaText = namaCell.textContent.toLowerCase().trim();
-                            const statusText = statusCell.textContent.trim();
+                        $.ajax({
+                            url: url,
+                            data: { search: search, status: status, page: page },
+                            success: function(data) {
+                                $('#garansi-table-container').html(data).css('opacity', 1);
+                                window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&status=' + status},'',url + '?page=' + page + '&search=' + search + '&status=' + status);
+                            },
+                            error: function() {
+                                $('#garansi-table-container').css('opacity', 1);
+                                alert('Gagal memuat data. Silakan coba lagi.');
+                            }
+                        });
+                    }
 
-                            // Cek kondisi filter
-                            const namaMatch = namaText.includes(searchText);
-                            const statusMatch = (statusValue === "" || statusText === statusValue);
-
-                            // Tampilkan atau sembunyikan baris
-                            row.style.display = (namaMatch && statusMatch) ? "" : "none";
+                    $('#searchInput').on('keyup', debounce(function() { fetchData(1); }, 500));
+                    $('#statusFilter').on('change', function() { fetchData(1); });
+                    $(document).on('click', '#garansi-table-container .pagination a', function(e) {
+                        e.preventDefault();
+                        let page = $(this).attr('href').split('page=')[1];
+                        if (page) {
+                            fetchData(page);
                         }
-                    }
-                }
-
-                populateStatusFilter();
-
-                searchInput.addEventListener('keyup', filterTable);
-                statusFilter.addEventListener('change', filterTable);
+                    });
+                });
             });
         </script>
     @endpush

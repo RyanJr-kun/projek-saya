@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Pengeluaran extends Model
 {
     protected $guarded = ['id'];
-    protected $with = ['kategori_stransaksi', 'user'];
+    protected $with = ['kategori_transaksi', 'user'];
 
     protected function hargaFormatted(): Attribute
     {

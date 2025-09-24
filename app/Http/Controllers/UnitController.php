@@ -13,11 +13,27 @@ class UnitController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $statuses = Unit::select('status')->distinct()->pluck('status');
+        $query = Unit::withCount('produks')->latest();
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('nama', 'LIKE', "%{$search}%");
+        }
+        if ($request->filled('status')) {
+            $statusValue = $request->input('status') === 'Aktif' ? 1 : 0;
+            $query->where('status', $statusValue);
+        }
+
+        $units = $query->paginate(15)->withQueryString();
+        if ($request->ajax()) {
+            return view('dashboard.produk._unit_table', compact('units'))->render();
+        }
         return view('dashboard.produk.unit', [
             'title'=>'Units',
-            'units' => Unit::withCount('produks')->latest()->paginate(15)
+            'units' => $units,
+            'statuses' => $statuses,
         ]);
     }
 

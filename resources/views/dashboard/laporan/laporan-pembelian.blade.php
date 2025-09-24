@@ -175,7 +175,7 @@
                                         <p class="text-sm font-weight-bold mb-0">{{ \Carbon\Carbon::parse($pembelian->tanggal_pembelian)->translatedFormat('d M Y') }}</p>
                                     </td>
                                     <td>
-                                        <a href="{{ route('pembelian.show', $pembelian->id) }}" class="text-info fw-bold text-sm" data-bs-toggle="tooltip" title="Lihat Detail Pembelian">
+                                        <a href="{{ route('pembelian.show', $pembelian->referensi) }}" class="text-info fw-bold text-sm" data-bs-toggle="tooltip" title="Lihat Detail Pembelian">
                                             {{ $pembelian->referensi }}
                                         </a>
                                     </td>
@@ -183,10 +183,10 @@
                                         <p class="text-sm font-weight-bold mb-0">{{ $pembelian->pemasok->nama ?? 'N/A' }}</p>
                                     </td>
                                     <td>
-                                        <span class="badge badge-sm bg-gradient-{{ ['Lunas' => 'success', 'Belum Lunas' => 'warning', 'Jatuh Tempo' => 'danger'][$pembelian->status_pembayaran] ?? 'secondary' }}">{{ $pembelian->status_pembayaran }}</span>
+                                        <span class="badge badge-sm badge-{{ ['Lunas' => 'success', 'Belum Lunas' => 'warning', 'Jatuh Tempo' => 'danger'][$pembelian->status_pembayaran] ?? 'secondary' }}">{{ $pembelian->status_pembayaran }}</span>
                                     </td>
                                     <td>
-                                        <span class="badge badge-sm bg-gradient-{{ ['Diterima' => 'success', 'Dikirim' => 'info', 'Dipesan' => 'primary', 'Dibatalkan' => 'secondary'][$pembelian->status_barang] ?? 'light' }}">{{ $pembelian->status_barang }}</span>
+                                        <span class="badge badge-sm badge-{{ ['Diterima' => 'success', 'Dikirim' => 'info', 'Dipesan' => 'primary', 'Dibatalkan' => 'secondary'][$pembelian->status_barang] ?? 'light' }}">{{ $pembelian->status_barang }}</span>
                                     </td>
                                     <td class="text-end">
                                         <p class="text-sm font-weight-bold mb-0">@money($pembelian->total_akhir)</p>

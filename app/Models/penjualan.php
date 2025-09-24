@@ -20,13 +20,6 @@ class Penjualan extends Model
         'updated_at' => 'datetime',
     ];
 
-    protected function total(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => 'Rp. ' . number_format($this->attributes['total_akhir'], 2, ',', '.')
-        );
-    }
-
     public function getRouteKeyName()
     {
         return 'referensi';

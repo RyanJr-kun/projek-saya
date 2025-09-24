@@ -504,8 +504,8 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="sn-produk-id">
-                        <div class="alert alert-info text-white p-2 text-sm" role="alert">
-                            Produk: <strong id="sn-nama-produk">Nama Produk</strong><br>
+                        <div class="badge badge-info p-2 text-sm w-100 text-start mb-2" role="alert">
+                            Produk: <strong id="sn-nama-produk" class=" text-warning">Nama Produk</strong><br>
                             Anda harus memilih <strong id="sn-required-count">1</strong> nomor seri.
                         </div>
                         <div id="sn-list-container" class="list-group" style="max-height: 300px; overflow-y: auto;">

@@ -15,14 +15,21 @@ class StokOpnameController extends Controller
     /**
      * Menampilkan halaman stok opname.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua produk dengan relasi yang dibutuhkan
-        // Gunakan get() bukan paginate() agar semua produk bisa difilter di frontend
-        $produks = Produk::with('kategori_produk')->latest()->get();
-
-        // Ambil semua kategori untuk filter dropdown
-        $kategoris = KategoriProduk::where('status', 1)->orderBy('nama')->get();
+        $query = Produk::with('kategori_produk')->latest();
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama_produk', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%");
+            });
+        }
+        if ($request->filled('kategori')) {
+            $query->where('kategori_produk_id', $request->input('kategori'));
+        }
+        $produks = $query->paginate(50)->withQueryString();
+        $kategoris = KategoriProduk::where('status', 1)->whereHas('produks')->orderBy('nama')->get();
 
         return view('dashboard.inventaris.stok-opname', [
             'title' => 'Stok Opname',
@@ -164,11 +171,14 @@ class StokOpnameController extends Controller
      * @param StokOpname $stok_opname
      * @return \Illuminate\View\View
      */
-    public function show(StokOpname $stok_opname)
+    public function show($kode_opname)
     {
+        // Cari stok opname berdasarkan kode unik, bukan ID.
+        $stok_opname = StokOpname::where('kode_opname', $kode_opname)->firstOrFail();
+
         // Eager load relasi yang dibutuhkan untuk efisiensi query
         $stok_opname->load([
-            'user',
+            'user', // Muat relasi user
             'details.produk' => fn($query) => $query->withTrashed(), // Muat produk bahkan jika sudah di-soft-delete
             'details.produk.unit'
         ]);

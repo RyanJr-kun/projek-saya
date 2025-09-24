@@ -12,11 +12,35 @@ class PemasokController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('dashboard.pembelian.pemasok',[
+        $query = Pemasok::latest();
+
+        // Terapkan filter pencarian jika ada input 'search'
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('perusahaan', 'like', "%{$search}%")
+                  ->orWhere('kontak', 'like', "%{$search}%");
+            });
+        }
+
+        // Terapkan filter status jika ada input 'status'
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $pemasoks = $query->paginate(10)->withQueryString();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('dashboard.pembelian._pemasok_table', compact('pemasoks'))->render();
+        }
+
+        return view('dashboard.pembelian.pemasok', [
             'title' => 'Pemasok',
-            'pemasoks' => Pemasok::latest()->paginate(10),
+            'pemasoks' => $pemasoks,
         ]);
     }
 

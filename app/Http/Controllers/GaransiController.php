@@ -13,12 +13,32 @@ class GaransiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = Garansi::latest();
+
+        // Filter berdasarkan pencarian nama
+        if ($request->filled('search')) {
+            $query->where('nama', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter berdasarkan status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $garansis = $query->paginate(15)->withQueryString();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('dashboard.produk._garansi_table', compact('garansis'))->render();
+        }
+
+        // Jika request biasa, kembalikan view lengkap
         return view('dashboard.produk.garansi',[
-        'title' => 'garansi',
-        'garansis' => Garansi::latest()->paginate(15)
-    ]);
+            'title' => 'Manajemen Garansi',
+            'garansis' => $garansis
+        ]);
     }
 
     /**

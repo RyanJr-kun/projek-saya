@@ -32,89 +32,19 @@
                 <div class="filter-container">
                     <div class="row g-3 align-items-center justify-content-between">
                         <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="cari Pemasok ...">
+                            <input type="text" name="search" id="searchInput" class="form-control" placeholder="Cari Pemasok..." value="{{ request('search') }}">
                         </div>
                         <div class="col-5 col-lg-2 me-3">
-                            <select id="statusFilter" class="form-select">
+                            <select name="status" id="statusFilter" class="form-select">
                                 <option value="">Semua Status</option>
+                                <option value="1" @selected(request('status') == '1')>Aktif</option>
+                                <option value="0" @selected(request('status') == '0')>Tidak Aktif</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 mt-3">
-                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Nama</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Perusahaan</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kontak</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Alamat</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Catatan</th>
-                                <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">Status</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="isiTable">
-                            @forelse ($pemasoks as $pemasok)
-                            <tr>
-                                <td>
-                                    <p title="Nama Pemasok" class="ms-3 text-uppercase text-xs text-dark fw-bold mb-0">{{ $pemasok->nama }}</p>
-                                </td>
-                                <td>
-                                    <p title="Nama Perusahaan" class="text-uppercase text-xs text-dark fw-bold mb-0">{{ $pemasok->perusahaan }}</p>
-                                </td>
-                                <td>
-                                    <div class="d-block">
-                                        <p title="Kontak" class="text-xs text-dark fw-bold mb-0">{{ $pemasok->kontak }}</p>
-                                        <p title="Email" class="text-xs text-dark fw-bold mb-0" >{{ $pemasok->email }}</p>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p title="Alamat" class="text-xs text-dark fw-bold mb-0">{{ Str::limit($pemasok->alamat, 40) }}</p>
-                                </td>
-                                <td>
-                                    <p title="Note" class="text-xs text-dark fw-bold mb-0">{{ Str::limit($pemasok->note, 40) }}</p>
-                                </td>
-
-                                <td class="align-middle text-center text-sm">
-                                    @if ($pemasok->status)
-                                        <span class="badge badge-success">Aktif</span>
-                                    @else
-                                        <span class="badge badge-secondary">Tidak Aktif</span>
-                                    @endif
-                                </td>
-
-                                <td class="text-center align-middle">
-                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editModal"
-                                        data-url="{{ route('pemasok.getjson', $pemasok->id) }}"
-                                        data-update-url="{{ route('pemasok.update', $pemasok->id) }}"
-                                        title="Edit Pemasok">
-                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                    </a>
-                                    <a href="#" class="text-dark delete-btn me-md-4"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteConfirmationModal"
-                                        data-pemasok-id="{{ $pemasok->id }}"
-                                        data-pemasok-name="{{ $pemasok->nama }}"
-                                        title="Hapus Pemasok">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center py-3 ">
-                                        <p class=" text-dark text-sm fw-bold mb-0">Belum ada data pemasok.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <div class="my-3 ms-3">
-                        {{ $pemasoks->onEachSide(1)->links() }}
-                    </div>
+                <div id="pemasok-table-container">
+                    @include('dashboard.pembelian._pemasok_table')
                 </div>
             </div>
         </div>
@@ -195,6 +125,8 @@
     </div>
 
     @push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // --- MODAL EDIT ---
@@ -252,54 +184,59 @@
                 });
             }
 
-            // --- FILTER SEARCH & STATUS ---
-            const searchInput = document.getElementById('searchInput');
-            const statusFilter = document.getElementById('statusFilter');
-            const tableBody = document.getElementById('isiTable');
-            const rows = tableBody.getElementsByTagName('tr');
-
-            function populateStatusFilter() {
-                const statuses = ['Aktif', 'Tidak Aktif'];
-                // Clear existing options except the first one
-                while (statusFilter.options.length > 1) {
-                    statusFilter.remove(1);
+            // --- AJAX FILTER & SEARCH ---
+            $(document).ready(function() {
+                // Fungsi untuk menunda eksekusi (debounce)
+                function debounce(func, delay) {
+                    let timeout;
+                    return function(...args) {
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => func.apply(this, args), delay);
+                    };
                 }
-                statuses.forEach(status => {
-                    const option = document.createElement('option');
-                    option.value = status;
-                    option.textContent = status;
-                    statusFilter.appendChild(option);
-                });
-            }
 
-            function filterTable() {
-                const searchText = searchInput.value.toLowerCase();
-                const statusValue = statusFilter.value;
+                // Fungsi untuk mengambil data dengan AJAX
+                function fetchData(page = 1) {
+                    let search = $('#searchInput').val();
+                    let status = $('#statusFilter').val();
+                    let url = '{{ route("pemasok.index") }}';
 
-                for (let i = 0; i < rows.length; i++) {
-                    const row = rows[i];
-                    // Cek jika baris adalah baris data (bukan header atau lainnya)
-                    if (row.cells.length > 5) {
-                        const namaCell = row.cells[0];
-                        const statusCell = row.cells[5];
+                    $('#pemasok-table-container').css('opacity', 0.5); // Efek loading
 
-                        if (namaCell && statusCell) {
-                            const namaText = namaCell.textContent.toLowerCase().trim();
-                            const statusText = statusCell.textContent.trim();
-
-                            const namaMatch = namaText.includes(searchText);
-                            const statusMatch = (statusValue === "" || statusText === statusValue);
-
-                            row.style.display = (namaMatch && statusMatch) ? "" : "none";
+                    $.ajax({
+                        url: url,
+                        data: { search: search, status: status, page: page },
+                        success: function(data) {
+                            $('#pemasok-table-container').html(data).css('opacity', 1);
+                            // Update URL di browser
+                            window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&status=' + status},'',url + '?page=' + page + '&search=' + search + '&status=' + status);
+                        },
+                        error: function() {
+                            $('#pemasok-table-container').css('opacity', 1);
+                            Swal.fire('Gagal', 'Gagal memuat data. Silakan coba lagi.', 'error');
                         }
-                    }
+                    });
                 }
-            }
-            if(searchInput) {
-                populateStatusFilter();
-                searchInput.addEventListener('keyup', filterTable);
-                statusFilter.addEventListener('change', filterTable);
-            }
+
+                // Event listener untuk input pencarian dengan debounce
+                $('#searchInput').on('keyup', debounce(function() {
+                    fetchData(1); // Selalu kembali ke halaman 1 saat melakukan pencarian baru
+                }, 500));
+
+                // Event listener untuk filter status
+                $('#statusFilter').on('change', function() {
+                    fetchData(1); // Selalu kembali ke halaman 1 saat mengubah filter
+                });
+
+                // Event listener untuk klik pada link pagination
+                $(document).on('click', '#pemasok-table-container .pagination a', function(e) {
+                    e.preventDefault();
+                    let page = $(this).attr('href').split('page=')[1];
+                    if (page) {
+                        fetchData(page);
+                    }
+                });
+            });
 
             // --- SHOW CREATE MODAL ON VALIDATION ERROR ---
             const hasError = document.querySelector('.is-invalid');

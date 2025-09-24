@@ -28,7 +28,7 @@
                         <p class="text-sm fw-bolder mb-0">{{ $item->created_at->translatedFormat('d M Y, H:i') }}</p>
                     </td>
                     <td class="align-middle">
-                        <span class="text-secondary text-sm fw-bolder">{{ $item->total }}</span>
+                        <span class="text-secondary text-sm fw-bolder"> @money($item->total_akhir) </span>
                     </td>
                     <td class="align-middle text-center text-sm">
                         @php

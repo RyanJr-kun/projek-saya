@@ -13,11 +13,36 @@ class KategoriTransaksiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Mulai query builder
+        $query = KategoriTransaksi::latest();
+
+        // Terapkan filter pencarian berdasarkan nama
+        if ($request->filled('search')) {
+            $query->where('nama', 'like', '%' . $request->search . '%');
+        }
+
+        // Terapkan filter status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Terapkan filter jenis
+        if ($request->filled('jenis')) {
+            $query->where('jenis', $request->jenis);
+        }
+
+        $kategoris = $query->paginate(15)->withQueryString();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('dashboard.keuangan._kategori_table', compact('kategoris'))->render();
+        }
+
         return view('dashboard.keuangan.kategori', [
             'title' => 'Kategori Transaksi',
-            'kategoris' => KategoriTransaksi::latest()->paginate(15),
+            'kategoris' => $kategoris,
         ]);
     }
 

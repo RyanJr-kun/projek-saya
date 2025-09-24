@@ -121,12 +121,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('pelanggan', PelangganController::class)->except('show','create','edit');
 
     //pengeluaran.
-    Route::get('/pengeluaran/{pengeluaran}/json', [PengeluaranController::class, 'getjson'])->name('pengeluaran.getjson');
-    Route::resource('pengeluaran',PengeluaranController::class)->except('show','create','edit');
+    Route::get('/pengeluaran/{pengeluaran:referensi}/json', [PengeluaranController::class, 'getjson'])->name('pengeluaran.getjson');
+    Route::resource('pengeluaran',PengeluaranController::class)->except('show','create','edit')->parameter('pengeluaran', 'pengeluaran:referensi');
 
     //pemasukan
-    Route::get('/pemasukan/{pemasukan}/json', [PemasukanController::class, 'getjson'])->name('pemasukan.getjson');
-    Route::resource('pemasukan',PemasukanController::class)->except('show','create','edit');
+    Route::get('/pemasukan/{pemasukan:referensi}/json', [PemasukanController::class, 'getjson'])->name('pemasukan.getjson');
+    Route::resource('pemasukan',PemasukanController::class)->except('show','create','edit')->parameter('pemasukan', 'pemasukan:referensi');
 
     // kategori transaksi
     Route::get('/kategoritransaksi/{kategoritransaksi}/json', [KategoriTransaksiController::class, 'getKategoriJson'])->name('kategoritransaksi.getjson');
@@ -134,11 +134,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/kategoritransaksi/chekSlug', [KategoriTransaksiController::class, 'chekSlug']);
 
     //Stok
-    Route::get('/stok/rendah', [StokController::class, 'index'])->name('stok.rendah');
-
+    // PERBAIKAN: Arahkan ke controller yang benar (ProdukController)
+    Route::get('/stok/rendah', [ProdukController::class, 'laporanStokRendah'])->name('stok.rendah');
     // Laporan
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('inventaris', [LaporanController::class, 'inventaris'])->name('inventaris');
+        Route::get('inventaris/export', [LaporanController::class, 'exportInventaris'])->name('inventaris.export');
         Route::get('pembelian', [LaporanController::class, 'pembelian'])->name('pembelian');
         Route::get('pembelian/export', [LaporanController::class, 'exportPembelian'])->name('pembelian.export');
         Route::get('penjualan', [LaporanController::class, 'penjualan'])->name('penjualan');
@@ -157,7 +158,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['admin', 'auth'])->group(function () {
     // Pembelian & Pemasok
-    Route::resource('/pembelian', PembelianController::class);
+    Route::resource('/pembelian', PembelianController::class)->parameter('pembelian', 'pembelian:referensi');
 
     Route::get('/pemasok/{pemasok}/json', [PemasokController::class, 'getjson'])->name('pemasok.getjson');
     Route::resource('pemasok', PemasokController::class)->except('show','create','edit');

@@ -14,15 +14,40 @@ class PengeluaranController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Mulai query dengan eager loading untuk efisiensi
+        $query = Pengeluaran::with(['user', 'kategori_transaksi'])->latest();
+
+        // Terapkan filter pencarian jika ada
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('keterangan', 'like', "%{$search}%")
+                  ->orWhere('referensi', 'like', "%{$search}%");
+        }
+
+        // Terapkan filter kategori jika ada
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_transaksi_id', $request->input('kategori_id'));
+        }
+
+        $pengeluarans = $query->paginate(15)->withQueryString();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('dashboard.keuangan._pengeluaran_table', compact('pengeluarans'))->render();
+        }
+
+        // Jika request biasa, kembalikan view lengkap
         return view('dashboard.keuangan.pengeluaran',[
             'title' => 'Pengeluaran',
-            'pengeluarans' => Pengeluaran::latest()->paginate(15),
+            'pengeluarans' => $pengeluarans,
             'kategoris' => KategoriTransaksi::where([
                 'status' => 1,
                 'jenis' => 'pengeluaran'
-                ])->get(['id', 'nama']),
+            ])->whereHas('pengeluarans') // <-- Tambahkan baris ini
+            ->orderBy('nama')
+            ->get(['id', 'nama']),
             'referensi_otomatis' => $this->generateExpenseReferenceNumber()
         ]);
     }

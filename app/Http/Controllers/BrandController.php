@@ -15,11 +15,28 @@ class BrandController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $statuses = Brand::select('status')->distinct()->pluck('status');
+        $query = Brand::withCount('produks')->latest();
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('nama', 'LIKE', "%{$search}%");
+        }
+        if ($request->filled('status')) {
+            $statusValue = $request->input('status') === 'Aktif' ? 1 : 0;
+            $query->where('status', $statusValue);
+        }
+
+        $brands = $query->paginate(15)->withQueryString();
+        if ($request->ajax()) {
+            return view('dashboard.produk._brand_table', compact('brands'))->render();
+        }
+
         return view('dashboard.produk.brand',[
             'title' => 'Data Brand',
-            'brands' => Brand::withCount('produks')->latest()->paginate(20)
+            'brands' => $brands,
+            'statuses' => $statuses,
         ]);
     }
 

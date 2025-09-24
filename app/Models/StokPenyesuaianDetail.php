@@ -14,7 +14,7 @@ class StokPenyesuaianDetail extends Model
     /**
      * Nama tabel di database, sesuai dengan file migrasi.
      */
-    protected $table = 'stok_penyesuaians_details';
+    protected $table = 'stok_penyesuaian_details';
 
     protected $guarded = ['id'];
 
@@ -43,8 +43,8 @@ class StokPenyesuaianDetail extends Model
     {
         return Attribute::make(
             get: fn () => $this->tipe === 'IN'
-                ? '<span class="badge badge-sm bg-gradient-success">Masuk</span>'
-                : '<span class="badge badge-sm bg-gradient-danger">Keluar</span>',
+                ? '<span class="badge badge-sm badge-success">Masuk</span>'
+                : '<span class="badge badge-sm badge-danger">Keluar</span>',
         );
     }
 

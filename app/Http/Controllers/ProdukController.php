@@ -25,10 +25,38 @@ class ProdukController extends Controller
      */
     public function index()
     {
+        // Ambil request
+        $request = request();
+
+        // Mulai query builder
+        $query = Produk::with(['kategori_produk', 'brand', 'unit', 'user'])->latest();
+
+        // Terapkan filter pencarian jika ada input 'search'
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama_produk', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%")
+                  ->orWhere('barcode', 'like', "%{$search}%");
+            });
+        }
+
+        // Terapkan filter kategori jika ada input 'kategori'
+        if ($request->filled('kategori')) {
+            $query->where('kategori_produk_id', $request->input('kategori'));
+        }
+
+        $produks = $query->paginate(10)->withQueryString();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('dashboard.produk.produk._produk_table', ['produk' => $produks])->render();
+        }
+
         return view('dashboard.produk.produk.index', [
-        // Eager load relasi untuk menghindari N+1 query problem
-        'produk' => Produk::with(['kategori_produk', 'brand', 'unit'])->latest()->paginate(10)
-    ]);
+            'produk' => $produks,
+            'kategoris' => KategoriProduk::where('status', 1)->whereHas('produks')->orderBy('nama')->get(),
+        ]);
     }
 
     /**
@@ -431,6 +459,8 @@ class ProdukController extends Controller
         $lastSaleDateSubquery = ItemPenjualan::select('penjualans.tanggal_penjualan')
             ->join('penjualans', 'item_penjualans.penjualan_id', '=', 'penjualans.id')
             ->whereColumn('item_penjualans.produk_id', 'produks.id')
+            // PERBAIKAN: Hanya ambil tanggal dari penjualan yang tidak dibatalkan.
+            ->where('penjualans.status_pembayaran', '!=', 'Dibatalkan')
             ->orderBy('penjualans.tanggal_penjualan', 'desc')
             ->limit(1);
 

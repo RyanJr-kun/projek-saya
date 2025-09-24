@@ -20,9 +20,10 @@
                         <h6 class="mb-n1">Detail Penyesuaian Stok</h6>
                         <p class="text-sm mb-0">Rincian penyesuaian untuk <span class="fw-bold">{{ $penyesuaian->kode_penyesuaian }}</span></p>
                     </div>
-                    <div class="ms-md-auto mt-2">
-                        <a href="{{ route('stok-penyesuaian.index') }}" class="btn btn-outline-secondary mb-0">
-                            <i class="bi bi-arrow-left me-2"></i>Kembali ke Riwayat
+                    <div class="ms-md-auto ">
+                        <a href="{{ route('stok-penyesuaian.index') }}" class="btn btn-outline-secondary mb-0 d-flex mt-md-2">
+                            <i class="bi bi-arrow-left mx-2"></i>
+                            <span class="d-none d-md-block">Kembali ke Riwayat</span>
                         </a>
                     </div>
                 </div>

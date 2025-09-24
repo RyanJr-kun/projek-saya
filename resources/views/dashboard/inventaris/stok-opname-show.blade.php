@@ -41,7 +41,7 @@
                     </div>
                     <div class="col-md-4">
                         <p class="text-sm mb-1"><strong class="text-dark">Dilakukan oleh:</strong> {{ $stokOpname->user->username ?? 'N/A' }}</p>
-                        <p class="text-sm mb-1"><strong class="text-dark">Status:</strong> <span class="badge badge-sm bg-gradient-success">{{ $stokOpname->status }}</span></p>
+                        <p class="text-sm mb-1"><strong class="text-dark">Status:</strong> <span class="badge badge-sm badge-success">{{ $stokOpname->status }}</span></p>
                     </div>
                     <div class="col-md-4">
                         <p class="text-sm mb-1"><strong class="text-dark">Catatan Umum:</strong></p>

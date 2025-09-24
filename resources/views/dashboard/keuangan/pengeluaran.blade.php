@@ -35,94 +35,20 @@
                 <div class="filter-container">
                     <div class="row g-3 align-items-center justify-content-between">
                         <div class="col-5 col-lg-3 ms-3">
-                            <input type="text" id="searchInput" class="form-control" placeholder="Cari keterangan...">
+                            <input type="text" id="searchInput" name="search" class="form-control" placeholder="Cari keterangan/referensi..." value="{{ request('search') }}">
                         </div>
                         <div class="col-5 col-lg-2 me-3">
-                            <select id="kategoriFilter" class="form-select">
+                            <select id="kategoriFilter" name="kategori_id" class="form-select">
                                 <option value="">Semua Kategori</option>
                                 @foreach ($kategoris as $kategori)
-                                    <option value="{{ $kategori->nama }}">{{ $kategori->nama }}</option>
+                                    <option value="{{ $kategori->id }}" @selected(request('kategori_id') == $kategori->id)>{{ $kategori->nama }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive p-0 my-3">
-                    <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
-                        <thead>
-                            <tr class="table-secondary">
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder">Referensi</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Pengeluaran</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Kategori</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Detail</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Tanggal</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Jumlah</th>
-                                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-3">Pembuat</th>
-                                <th class="text-dark"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="isiTable">
-                            @forelse ($pengeluarans as $pengeluaran)
-                            <tr>
-                                <td>
-                                    <p title="referensi" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $pengeluaran->referensi ?? '-' }}</p>
-                                </td>
-
-                                <td>
-                                    <p title="keterangan pengeluaran" class="text-xs text-dark fw-bold mb-0">{{ $pengeluaran->keterangan }}</p>
-                                </td>
-                                <td>
-                                    <p title="kategori pengeluaran" class="text-xs text-dark fw-bold mb-0">{{ $pengeluaran->kategori_transaksi->nama }}</p>
-                                </td>
-                                <td>
-                                    <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ $pengeluaran->deskripsi ? Str::limit(strip_tags($pengeluaran->deskripsi), 40) : '-' }}</p>
-                                </td>
-                                <td>
-                                    <p title="tanggal pengeluaran" class="text-xs text-dark fw-bold mb-0">{{ $pengeluaran->tanggal }}</p>
-                                </td>
-                                <td>
-                                    <p title="jumlah pengeluaran" class="text-xs text-dark fw-bold mb-0">@money($pengeluaran->jumlah)</p>
-                                </td>
-                                <td>
-                                    <div title="foto & nama user" class="d-flex align-items-center px-2 py-1">
-                                        @if ($pengeluaran->user->img_user)
-                                            <img src="{{ asset('storage/' . $pengeluaran->user->img_user) }}" class="avatar avatar-sm me-3" alt="user_img">
-                                        @else
-                                            <img src="{{ asset('assets/img/user.webp') }}" class="avatar avatar-sm me-3" alt="Gambar User default">
-                                        @endif
-                                        <h6 class="mb-0 text-sm">{{ $pengeluaran->user->nama }}</h6>
-                                    </div>
-                                </td>
-
-                                <td class="text-center">
-                                    <a href="#" class="text-dark fw-bold px-3 text-xs"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editModal"
-                                        data-url="{{ route('pengeluaran.getjson', $pengeluaran->id) }}"
-                                        data-update-url="{{ route('pengeluaran.update', $pengeluaran->id) }}"
-                                        title="Edit pengeluaran">
-                                        <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>
-                                    </a>
-                                    <a href="#" class="text-dark delete-pengeluaran-btn me-md-4"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteConfirmationModal"
-                                        data-pengeluaran-id="{{ $pengeluaran->id }}"
-                                        data-pengeluaran-name="{{ $pengeluaran->keterangan }}"
-                                        title="Hapus pengeluaran">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="8" class="text-center py-3">
-                                    <p class="text-sm text-dark fw-bold mb-0">Belum ada data pengeluaran.</p>
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <div class="my-3 ms-3">{{ $pengeluarans->onEachSide(1)->links() }}</div>
+                <div id="pengeluaran-table-container">
+                    @include('dashboard.keuangan._pengeluaran_table', ['pengeluarans' => $pengeluarans])
                 </div>
             </div>
         </div>
@@ -248,6 +174,46 @@
             </div>
         </div>
 
+        {{-- modal view --}}
+        <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0 mb-n3">
+                        <h6 class="modal-title" id="viewModalLabel">Detail Pengeluaran</h6>
+                        <button type="button" class="btn btn-close bg-danger rounded-3 me-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12 col-6">
+                                <p id="view_referensi" class="mb-0 fw-bolder"></p>
+                                <p id="view_tanggal" class="text-xs"></p>
+                            </div>
+                            <div class="col-md-6 col-6">
+                                <p class="text-sm mb-1"><strong>Kategori:</strong></p>
+                                <p id="view_kategori"></p>
+                            </div>
+                            <div class="col-md-6 col-6">
+                                <p class="text-sm mb-1"><strong>Jumlah Pengeluaran:</strong></p>
+                                <p id="view_jumlah" class=" text-danger"></p>
+                            </div>
+                            <div class="col-md-12 col-6">
+                                <p class="text-sm mb-1"><strong>Pengeluaran Untuk:</strong></p>
+                                <p id="view_keterangan" class=""></p>
+                            </div>
+                            <div class="col-12">
+                                <p class="text-sm mb-1"><strong>Detail:</strong></p>
+                                <div id="view_deskripsi" class="p-2 border rounded" style="min-height: 80px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         {{-- modal delete --}}
         <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -271,6 +237,8 @@
     </div>
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // --- INISIALISASI QUILL ---
@@ -314,7 +282,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 document.getElementById('edit_keterangan').value = data.keterangan;
-                                document.getElementById('edit_kategori_transaksi_id').value = data.kategori_pengeluaran_id;
+                                document.getElementById('edit_kategori_transaksi_id').value = data.kategori_transaksi_id;
                                 document.getElementById('edit_tanggal').value = data.tanggal;
                                 document.getElementById('edit_jumlah').value = data.jumlah;
                                 document.getElementById('edit_referensi').value = data.referensi;
@@ -327,51 +295,99 @@
                     });
                 }
 
+                // --- MODAL VIEW ---
+                const viewModal = document.getElementById('viewModal');
+                if (viewModal) {
+                    viewModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        const dataUrl = button.getAttribute('data-url');
+
+                        // Fungsi untuk memformat mata uang
+                        const formatCurrency = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+
+                        // Fungsi untuk memformat tanggal
+                        const formatDate = (dateString) => {
+                            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                            return new Date(dateString).toLocaleDateString('id-ID', options);
+                        };
+
+                        fetch(dataUrl)
+                            .then(response => response.json())
+                            .then(data => {
+                                // Memuat relasi dari controller sudah memastikan data ini ada
+                                const kategoriNama = data.kategori_transaksi?.nama || 'Tidak ada kategori';
+
+                                document.getElementById('view_referensi').textContent = data.referensi || '-';
+                                document.getElementById('view_tanggal').textContent = formatDate(data.tanggal);
+                                document.getElementById('view_kategori').textContent = kategoriNama;
+                                document.getElementById('view_jumlah').textContent = formatCurrency(data.jumlah);
+                                document.getElementById('view_keterangan').textContent = data.keterangan;
+                                document.getElementById('view_deskripsi').innerHTML = data.deskripsi || '<p class="text-muted">Tidak ada detail.</p>';
+                            })
+                            .catch(error => console.error('Error fetching pengeluaran data for view:', error));
+                    });
+                }
+
+
                 // --- MODAL DELETE ---
                 const deleteModal = document.getElementById('deleteConfirmationModal');
                 if (deleteModal) {
                     deleteModal.addEventListener('show.bs.modal', function (event) {
                         const button = event.relatedTarget;
-                        const pengeluaranId = button.getAttribute('data-pengeluaran-id');
+                        const pengeluaranReferensi = button.getAttribute('data-pengeluaran-referensi');
                         const pengeluaranName = button.getAttribute('data-pengeluaran-name');
 
                         const modalBodyName = deleteModal.querySelector('#pengeluaranNameToDelete');
                         const deleteForm = deleteModal.querySelector('#deletePengeluaranForm');
 
                         modalBodyName.textContent = pengeluaranName;
-                        deleteForm.action = `/pengeluaran/${pengeluaranId}`;
+                        deleteForm.action = `/pengeluaran/${pengeluaranReferensi}`;
                     });
                 }
 
-                // --- FILTER ---
-                const searchInput = document.getElementById('searchInput');
-                const kategoriFilter = document.getElementById('kategoriFilter');
-                const tableBody = document.getElementById('isiTable');
-                const rows = tableBody.getElementsByTagName('tr');
-
-                function filterTable() {
-                    const searchText = searchInput.value.toLowerCase();
-                    const kategoriValue = kategoriFilter.value;
-
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        const keteranganCell = row.cells[1];
-                        const kategoriCell = row.cells[2];
-
-                        if (keteranganCell && kategoriCell) {
-                            const keteranganText = keteranganCell.textContent.toLowerCase().trim();
-                            const kategoriText = kategoriCell.textContent.trim();
-
-                            const searchMatch = keteranganText.includes(searchText);
-                            const kategoriMatch = (kategoriValue === "" || kategoriText === kategoriValue);
-
-                            row.style.display = (searchMatch && kategoriMatch) ? "" : "none";
-                        }
+                // --- AJAX FILTER & SEARCH ---
+                $(document).ready(function() {
+                    // Fungsi untuk menunda eksekusi (debounce)
+                    function debounce(func, delay) {
+                        let timeout;
+                        return function(...args) {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => func.apply(this, args), delay);
+                        };
                     }
-                }
 
-                if(searchInput) searchInput.addEventListener('keyup', filterTable);
-                if(kategoriFilter) kategoriFilter.addEventListener('change', filterTable);
+                    // Fungsi untuk mengambil data dengan AJAX
+                    function fetchData(page = 1) {
+                        let search = $('#searchInput').val();
+                        let kategori_id = $('#kategoriFilter').val();
+                        let url = '{{ route("pengeluaran.index") }}';
+
+                        $('#pengeluaran-table-container').css('opacity', 0.5); // Efek loading
+
+                        $.ajax({
+                            url: url,
+                            data: { search: search, kategori_id: kategori_id, page: page },
+                            success: function(data) {
+                                $('#pengeluaran-table-container').html(data).css('opacity', 1);
+                                window.history.pushState({path:url + '?page=' + page + '&search=' + search + '&kategori_id=' + kategori_id},'',url + '?page=' + page + '&search=' + search + '&kategori_id=' + kategori_id);
+                            },
+                            error: function() {
+                                $('#pengeluaran-table-container').css('opacity', 1);
+                                Swal.fire('Gagal', 'Gagal memuat data. Silakan coba lagi.', 'error');
+                            }
+                        });
+                    }
+
+                    $('#searchInput').on('keyup', debounce(function() { fetchData(1); }, 500));
+                    $('#kategoriFilter').on('change', function() { fetchData(1); });
+                    $(document).on('click', '#pengeluaran-table-container .pagination a', function(e) {
+                        e.preventDefault();
+                        let page = $(this).attr('href').split('page=')[1];
+                        if (page) {
+                            fetchData(page);
+                        }
+                    });
+                });
 
                 // --- SHOW CREATE MODAL ON VALIDATION ERROR ---
                 const hasError = document.querySelector('.is-invalid');

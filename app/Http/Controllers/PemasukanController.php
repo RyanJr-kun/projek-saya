@@ -14,15 +14,40 @@ class PemasukanController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Memuat relasi untuk efisiensi dan memulai query
+        $query = Pemasukan::with(['kategori_transaksi', 'user'])->latest();
+
+        // Terapkan filter pencarian berdasarkan keterangan
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('keterangan', 'like', "%{$search}%")
+                  ->orWhere('referensi', 'like', "%{$search}%");
+        }
+
+        // Terapkan filter berdasarkan ID kategori
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_transaksi_id', $request->input('kategori_id'));
+        }
+
+        $pemasukans = $query->paginate(15)->withQueryString();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('dashboard.keuangan._pemasukan_table', compact('pemasukans'))->render();
+        }
+
+        // Jika request biasa, kembalikan view lengkap
         return view('dashboard.keuangan.pemasukan', [
             'title' => 'Pemasukan',
-            'pemasukans' => Pemasukan::latest()->paginate(15),
+            'pemasukans' => $pemasukans,
             'kategoris' => KategoriTransaksi::where([
                 'status' => 1,
                 'jenis' => 'pemasukan'
-                ])->get(['id', 'nama']),
+            ])->whereHas('pemasukans') // <-- Tambahkan baris ini
+            ->orderBy('nama')
+            ->get(['id', 'nama']),
             'referensi_otomatis' => $this->generateIncomeReferenceNumber()
         ]);
     }
