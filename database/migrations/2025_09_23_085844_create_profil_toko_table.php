@@ -12,15 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('profil_toko', function (Blueprint $table) {
-            $table->id(); // Akan selalu bernilai 1
+            $table->id();
             $table->string('nama_toko', 100);
             $table->text('alamat')->nullable();
             $table->string('telepon', 20)->nullable();
             $table->string('email', 100)->nullable();
-            $table->string('logo')->nullable(); // Path ke file logo
-            $table->string('nama_bank', 50)->nullable();
-            $table->string('nomor_rekening', 50)->nullable();
-            $table->string('atas_nama_rekening', 100)->nullable();
+            $table->string('logo')->nullable();
             $table->timestamps();
         });
     }

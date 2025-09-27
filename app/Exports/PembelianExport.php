@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Exports;
 
 use App\Models\Pembelian;
 use Maatwebsite\Excel\Concerns\FromCollection;

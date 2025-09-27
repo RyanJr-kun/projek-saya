@@ -88,18 +88,40 @@
                 const inputElement = document.querySelector('#logo');
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
+                // Siapkan array file untuk FilePond
+                const pondFiles = [];
+                @if($profil->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($profil->logo))
+                    pondFiles.push({
+                        source: '{{ $profil->logo }}',
+                        options: {
+                            type: 'local',
+                            file: {
+                                name: '{{ basename($profil->logo) }}',
+                                size: {{ \Illuminate\Support\Facades\Storage::disk('public')->size($profil->logo) }},
+                            },
+                            metadata: {
+                                poster: '{{ asset('storage/' . $profil->logo) }}'
+                            }
+                        }
+                    });
+                @endif
+
                 FilePond.create(inputElement, {
-                    files: [ @if($profil->logo) { source: '{{ asset('storage/' . $profil->logo) }}', options: { type: 'local' } } @endif ],
+                    files: pondFiles,
                     labelIdle: `Seret & Lepas gambar atau <span class="filepond--label-action">Cari</span>`,
-                    imagePreviewHeight: 170,
-                    imageCropAspectRatio: '1:1',
-                    allowImageCrop: true,
+                    // ... opsi lainnya
                     acceptedFileTypes: ['image/png', 'image/jpeg', 'image/svg+xml'],
                     maxFileSize: '2MB',
                     server: {
-                        process: { url: '{{ route("pengaturan.profil-toko.upload") }}', headers: { 'X-CSRF-TOKEN': csrfToken } },
-                        revert: { url: '{{ route("pengaturan.profil-toko.revert") }}', headers: { 'X-CSRF-TOKEN': csrfToken } },
-                        load: '/storage/'
+                        process: {
+                            url: '{{ route("pengaturan.profil-toko.upload") }}',
+                            headers: { 'X-CSRF-TOKEN': csrfToken }
+                        },
+                        revert: {
+                            url: '{{ route("pengaturan.profil-toko.revert") }}',
+                            headers: { 'X-CSRF-TOKEN': csrfToken }
+                        }
+                        // Properti 'load' sudah dihapus dari sini
                     },
                 });
             });

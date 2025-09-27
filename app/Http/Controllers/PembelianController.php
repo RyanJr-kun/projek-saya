@@ -8,9 +8,10 @@ use App\Models\Pembelian;
 use App\Models\Pajak;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\PembelianDetail;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\ProfilToko;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PembelianController extends Controller
 {
@@ -226,10 +227,13 @@ class PembelianController extends Controller
     {
         // Eager load relasi untuk efisiensi query dan menghindari N+1 problem
         $pembelian->load('pemasok', 'user', 'details.produk');
+        $profilToko = ProfilToko::first();
 
         return view('dashboard.pembelian.show', [
             'title' => 'Detail Pembelian: ' . $pembelian->referensi,
             'pembelian' => $pembelian,
+            'profilToko' => $profilToko,
+
         ]);
     }
 
@@ -336,16 +340,7 @@ class PembelianController extends Controller
                     }
                 }
 
-                // Logika khusus jika status diubah dari 'Dibatalkan' menjadi aktif
-                if ($statusLama === 'Dibatalkan' && $statusBaru !== 'Dibatalkan') {
-                    // Stok lama tidak perlu dikembalikan karena tidak pernah dikurangi.
-                    // Cukup tambahkan stok baru jika status barang 'Diterima'.
-                    // Ini sudah ditangani oleh logika di atas.
-                }
-
-                // Jika status diubah menjadi 'Dibatalkan', stok lama sudah dikembalikan.
-                // Tidak ada stok baru yang ditambahkan. Ini juga sudah ditangani.
-
+                if ($statusLama === 'Dibatalkan' && $statusBaru !== 'Dibatalkan') {}
                 // --- PENGHITUNGAN ULANG TOTAL (SERVER-SIDE) ---
                 $subtotal_keseluruhan = 0;
                 $total_pajak_item = 0;
@@ -431,21 +426,50 @@ class PembelianController extends Controller
      */
     public function destroy(Pembelian $pembelian)
     {
-        try {
-            DB::transaction(function () use ($pembelian) {
-                // Kembalikan stok hanya jika barangnya pernah diterima dan status belum 'Dibatalkan'
-                if ($pembelian->status_barang === 'Diterima' && $pembelian->status_pembayaran !== 'Dibatalkan') {
-                    foreach ($pembelian->details as $detail) {
-                        Produk::where('id', $detail->produk_id)->decrement('qty', $detail->qty);
-                    }
-                }
-                $pembelian->delete(); // Ini akan menghapus detail juga karena relasi cascade
-            });
-            Alert::success('Berhasil', 'Transaksi pembelian berhasil dihapus.');
-            return redirect()->route('pembelian.index');
-        } catch (\Exception $e) {
-            Alert::error('Gagal', 'Gagal menghapus transaksi: ' . $e->getMessage());
-            return back();
-        }
+        // try {
+        //     DB::transaction(function () use ($pembelian) {
+        //         // Kembalikan stok hanya jika barangnya pernah diterima dan status belum 'Dibatalkan'
+        //         if ($pembelian->status_barang === 'Diterima' && $pembelian->status_pembayaran !== 'Dibatalkan') {
+        //             foreach ($pembelian->details as $detail) {
+        //                 Produk::where('id', $detail->produk_id)->decrement('qty', $detail->qty);
+        //             }
+        //         }
+        //         $pembelian->delete(); // Ini akan menghapus detail juga karena relasi cascade
+        //     });
+        //     Alert::success('Berhasil', 'Transaksi pembelian berhasil dihapus.');
+        //     return redirect()->route('pembelian.index');
+        // } catch (\Exception $e) {
+        //     Alert::error('Gagal', 'Gagal menghapus transaksi: ' . $e->getMessage());
+        //     return back();
+        // }
+    }
+
+    public function printThermal(Pembelian $pembelian)
+    {
+        // Eager load relasi yang dibutuhkan
+        $pembelian->load('pemasok', 'details.produk', 'details.serialNumbers');
+        $profilToko = ProfilToko::first();
+
+        return view('dashboard.pembelian.thermal', compact('pembelian', 'profilToko'));
+    }
+
+    /**
+     * Generate PDF for the specified resource.
+     */
+    public function generatePdf(Pembelian $pembelian)
+    {
+        // Eager load relasi untuk efisiensi
+        $pembelian->load('pemasok', 'user', 'details.produk', 'details.pajak', 'details.serialNumbers');
+        $profilToko = ProfilToko::first();
+
+        // Data yang akan dikirim ke view
+        $data = [
+            'pembelian' => $pembelian,
+            'profilToko' => $profilToko,
+        ];
+
+        // Membuat PDF
+        $pdf = Pdf::loadView('dashboard.pembelian.faktur-pdf', $data);
+        return $pdf->stream('faktur-pembelian-' . $pembelian->referensi . '.pdf');
     }
 }

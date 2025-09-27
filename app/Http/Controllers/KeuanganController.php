@@ -28,14 +28,16 @@ class KeuanganController extends Controller
         $totalPemasukan = Pemasukan::whereBetween('tanggal', [$startDate, $endDate])->sum('jumlah');
         $totalPengeluaran = Pengeluaran::whereBetween('tanggal', [$startDate, $endDate])->sum('jumlah');
         $labaRugi = $totalPemasukan - $totalPengeluaran;
+        $totalTransaksi = Pemasukan::whereBetween('tanggal', [$startDate, $endDate])->count()
+                        + Pengeluaran::whereBetween('tanggal', [$startDate, $endDate])->count();
 
         // 3. Ambil transaksi terbaru (gabungan pemasukan & pengeluaran)
         $pemasukans = Pemasukan::with('kategori_transaksi')
-            ->select('id', 'tanggal', 'deskripsi', 'jumlah', 'kategori_transaksi_id', DB::raw("'pemasukan' as type"))
+            ->select('id', 'tanggal', 'keterangan', 'jumlah', 'kategori_transaksi_id', DB::raw("'pemasukan' as type"))
             ;
 
         $pengeluarans = Pengeluaran::with('kategori_transaksi')
-            ->select('id', 'tanggal', 'deskripsi', 'jumlah', 'kategori_transaksi_id', DB::raw("'pengeluaran' as type"))
+            ->select('id', 'tanggal', 'keterangan', 'jumlah', 'kategori_transaksi_id', DB::raw("'pengeluaran' as type"))
             ;
 
         // Gabungkan, urutkan, dan batasi hasilnya
@@ -79,6 +81,7 @@ class KeuanganController extends Controller
             'totalPemasukan' => $totalPemasukan,
             'totalPengeluaran' => $totalPengeluaran,
             'labaRugi' => $labaRugi,
+            'totalTransaksi' => $totalTransaksi,
             'recentTransactions' => $recentTransactions,
             'recentInvoices' => $recentInvoices,
             'startDate' => $startDate,

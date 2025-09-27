@@ -40,7 +40,7 @@
                         <div class="col-5 col-lg-2 me-3">
                             <select id="kategoriFilter" name="kategori_id" class="form-select">
                                 <option value="">Semua Kategori</option>
-                                @foreach ($kategoris as $kategori)
+                                @foreach ($kategoriFilters as $kategori)
                                     <option value="{{ $kategori->id }}" @selected(request('kategori_id') == $kategori->id)>{{ $kategori->nama }}</option>
                                 @endforeach
                             </select>
@@ -69,7 +69,7 @@
                                     <label for="kategori_transaksi_id" class="form-label">Kategori</label>
                                     <select name="kategori_transaksi_id" id="kategori_transaksi_id" class="form-select @error('kategori_transaksi_id') is-invalid @enderror" required>
                                         <option value="">Pilih Kategori</option>
-                                        @foreach ($kategoris as $kategori)
+                                        @foreach ($allKategoris as $kategori)
                                             <option value="{{ $kategori->id }}" {{ old('kategori_transaksi_id') == $kategori->id ? 'selected' : '' }}>{{ $kategori->nama }}</option>
                                         @endforeach
                                     </select>
@@ -128,13 +128,12 @@
                         <form id="editPengeluaranForm" method="post">
                             @method('put')
                             @csrf
-
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="edit_kategori_transaksi_id" class="form-label">Kategori</label>
                                     <select name="kategori_transaksi_id" id="edit_kategori_transaksi_id" class="form-select" required>
                                         <option value="">Pilih Kategori</option>
-                                        @foreach ($kategoris as $kategori)
+                                        @foreach ($allKategoris as $kategori)
                                             <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
                                         @endforeach
                                     </select>

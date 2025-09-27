@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Pajak;
 use App\Models\Produk;
 use App\Models\Pelanggan;
+use App\Models\ProfilToko;
 use App\Models\Penjualan;
 use Illuminate\Http\Request;
 use App\Models\KategoriProduk;
 // BARU: Import model SerialNumber
 use App\Models\SerialNumber;
 use Illuminate\Support\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -277,11 +279,13 @@ class PenjualanController extends Controller
     public function show(Penjualan $penjualan)
     {
         // Eager load relasi untuk menghindari N+1 problem
-        $penjualan->load('items.produk.serialNumbers', 'pelanggan', 'user');
+        $penjualan->load('items.produk', 'items.serialNumbers', 'pelanggan', 'user');
+        $profilToko = ProfilToko::first();
 
         return view('dashboard.penjualan.show', [
             'title' => 'Faktur Penjualan: ' . $penjualan->referensi,
             'penjualan' => $penjualan,
+            'profilToko' => $profilToko,
         ]);
     }
 
@@ -529,6 +533,26 @@ class PenjualanController extends Controller
         // }
     }
 
+    /**
+     * Generate PDF for the specified resource.
+     */
+    public function generatePdf(Penjualan $penjualan)
+    {
+        // Eager load relasi untuk efisiensi
+        $penjualan->load('pelanggan', 'user', 'items.produk', 'items.serialNumbers');
+        $profilToko = ProfilToko::first();
+
+        // Data yang akan dikirim ke view
+        $data = [
+            'penjualan' => $penjualan,
+            'profilToko' => $profilToko,
+        ];
+
+        // Membuat PDF
+        $pdf = Pdf::loadView('dashboard.penjualan.faktur-penjualan-pdf', $data);
+        return $pdf->stream('faktur-penjualan-' . $penjualan->referensi . '.pdf');
+    }
+
 
 
 
@@ -553,6 +577,21 @@ class PenjualanController extends Controller
         }
         // Jika bukan request AJAX, kembalikan ke halaman sebelumnya atau 404
         return redirect()->back();
+    }
+
+    /**
+     * Menampilkan struk thermal untuk penjualan.
+     *
+     * @param  \App\Models\Penjualan  $penjualan
+     * @return \Illuminate\View\View
+     */
+    public function printThermal(Penjualan $penjualan)
+    {
+        // Eager load relasi yang dibutuhkan untuk efisiensi
+        $penjualan->load('pelanggan', 'user', 'items.produk', 'items.serialNumbers');
+        $profilToko = ProfilToko::first();
+
+        return view('dashboard.penjualan.thermal', compact('penjualan', 'profilToko'));
     }
 
 }

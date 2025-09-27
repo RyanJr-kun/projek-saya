@@ -368,6 +368,31 @@ class ProdukController extends Controller
         return response()->json($stok);
     }
 
+    /**
+     * Mengambil data produk berdasarkan barcode untuk kasir.
+     */
+    public function getByBarcode($barcode)
+    {
+        // Eager load relasi yang dibutuhkan di kasir
+        $produk = Produk::with(['pajak'])
+                        ->where('barcode', $barcode)
+                        ->first();
+
+        if ($produk) {
+            // Cek stok
+            if ($produk->qty < 1) {
+                // Menggunakan status 422 untuk error yang bisa diproses client
+                return response()->json(['message' => 'Stok produk habis.'], 422);
+            }
+            // Mengembalikan data produk jika ditemukan dan stok tersedia
+            return response()->json($produk);
+        }
+
+        // Mengembalikan error 404 jika produk tidak ditemukan
+        return response()->json(['message' => 'Produk dengan barcode ini tidak ditemukan.'], 404);
+    }
+
+
     public function getLowStockNotifications()
     {
         $lowStockProducts = Produk::whereColumn('qty', '<=', 'stok_minimum')

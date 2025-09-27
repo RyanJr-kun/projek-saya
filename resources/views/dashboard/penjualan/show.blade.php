@@ -35,55 +35,52 @@
     <div class="container-fluid py-4">
         <div class="card rounded-2 printable-area">
             <div class="card-header d-flex justify-content-between align-items-center pb-0">
-                <h5 class="mb-0 fw-bolder">Detail Penjualan</h5>
+                <h5 class="mb-2 fw-bolder mb-md-0">Detail Penjualan</h5>
                 <div class="no-print">
-                    <a href="{{ route('penjualan.index') }}" class="btn btn-sm btn-outline-secondary mb-0">
+                    <a href="{{ url()->previous() }}" class="btn btn-sm btn-outline-secondary mb-0">
                         <i class="bi bi-arrow-left me-1"></i> Kembali
                     </a>
-                    <button onclick="window.print()" class="btn btn-sm btn-info mb-0">
-                        <i class="bi bi-printer me-1"></i> Cetak
-                    </button>
+                    {{-- Tambahkan route ke thermal print jika ada --}}
+                    <a href="{{ route('penjualan.thermal', $penjualan->referensi) }}" target="_blank" class="btn btn-sm btn-dark mx-2 mb-0">
+                        <i class="bi bi-receipt me-1"></i> Struk
+                    </a>
+                    <a href="{{ route('penjualan.pdf', $penjualan->referensi) }}" target="_blank" class="btn btn-sm btn-outline-danger px-2 mb-0" data-bs-toggle="tooltip" title="Export PDF">
+                        <img src="{{ asset('assets/img/pdf.png') }}" alt="Download PDF" width="20" height="20">
+                    </a>
                 </div>
             </div>
             <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <h6 class="mb-1">Pelanggan:</h6>
-                        <p class="text-lg fw-bolder text-dark mb-0">{{ $penjualan->pelanggan->nama ?? 'Pelanggan Umum' }}</p>
-                        <p class="text-sm mb-1 ">{{ $penjualan->pelanggan->kontak ?? '' }}</p>
-                        <p class="text-sm mb-0">{{ $penjualan->pelanggan->alamat ?? '' }}</p>
+                <div class="row mb-4 gx-4">
+                    {{-- Kolom Kiri: Info Toko & Pelanggan --}}
+                    <div class="col-lg-6">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="mb-2">Dari:</h6>
+                                <h5 class="text-dark text-uppercase fw-bolder mb-1">{{ $profilToko->nama_toko ?? 'Nama Toko Anda' }}</h5>
+                                <p class="text-sm mb-1">{{ $profilToko->alamat ?? 'Alamat toko belum diatur' }}</p>
+                                <p class="text-sm mb-0">Email: {{ $profilToko->email ?? '-' }}</p>
+                                <p class="text-sm mb-0">Telp: {{ $profilToko->telepon ?? '-' }}</p>
+                            </div>
+                            <div class="col-md-6 mt-4 mt-md-0">
+                                <h6 class="mb-2">Kepada (Pelanggan):</h6>
+                                <h5 class="text-dark fw-bolder mb-1">{{ $penjualan->pelanggan->nama ?? 'Pelanggan Umum' }}</h5>
+                                <p class="text-sm mb-1">{{ $penjualan->pelanggan->alamat ?? 'Alamat tidak tersedia' }}</p>
+                                <p class="text-sm mb-0">Email: {{ $penjualan->pelanggan->email ?? '-' }}</p>
+                                <p class="text-sm mb-0">Kontak: {{ $penjualan->pelanggan->kontak ?? '-' }}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-4 mt-3 mt-md-0">
-                        <h6>Dibuat Oleh:</h6>
-                        <p class="text-sm mb-1">{{ $penjualan->user->nama ?? 'User Dihapus' }}</p>
-                        <p class="text-sm mb-0">{{ $penjualan->user->email ?? '-' }}</p>
-                    </div>
-                    <div class="col-md-4 text-md-start mt-3 mt-md-0">
-                        <h6>Informasi Transaksi:</h6>
-                        <table class="table table-borderless table-sm" style="width: auto;">
-                            <tbody>
-                                <tr class="text-sm">
-                                    <td class="ps-0">Invoice</td>
-                                    <td class="px-1">:</td>
-                                    <td>{{ $penjualan->referensi }}</td>
-                                </tr>
-                                <tr class="text-sm">
-                                    <td class="ps-0">Tanggal</td>
-                                    <td class="px-1">:</td>
-                                    <td>{{ \Carbon\Carbon::parse($penjualan->tanggal_penjualan)->translatedFormat('d F Y, H:i') }}</td>
-                                </tr>
-                                <tr class="text-sm">
-                                    <td class="ps-0">Metode Bayar</td>
-                                    <td class="px-1">:</td>
-                                    <td>{{ $penjualan->metode_pembayaran }}</td>
-                                </tr>
-                                <tr class="text-sm">
-                                    <td class="ps-0">Status</td>
-                                    <td class="px-1">:</td>
-                                    <td><span class="badge badge-sm {{ $penjualan->status_pembayaran == 'Lunas' ? 'badge-success' : ($penjualan->status_pembayaran == 'Belum Lunas' ? 'badge-warning' : 'badge-danger') }}">{{ $penjualan->status_pembayaran }}</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    {{-- Kolom Kanan: Info Transaksi --}}
+                    <div class="col-lg-6 mt-4 mt-lg-0">
+                        <h6 class="mb-2">Informasi Transaksi</h6>
+                        <div class="border rounded-2 p-3">
+                            <p class="text-sm mb-2 d-flex justify-content-between"><strong>Referensi:</strong> <span>{{ $penjualan->referensi }}</span></p>
+                            <p class="text-sm mb-2 d-flex justify-content-between"><strong>Tanggal:</strong> <span>{{ \Carbon\Carbon::parse($penjualan->tanggal_penjualan)->translatedFormat('d F Y, H:i') }}</span></p>
+                            <p class="text-sm mb-2 d-flex justify-content-between"><strong>Metode Bayar:</strong> <span>{{ $penjualan->metode_pembayaran }}</span></p>
+                            <p class="text-sm mb-2 d-flex justify-content-between"><strong>Status Bayar:</strong> <span class="badge badge-sm {{ $penjualan->status_pembayaran == 'Lunas' ? 'badge-success' : ($penjualan->status_pembayaran == 'Belum Lunas' ? 'badge-warning' : 'badge-danger') }}">{{ $penjualan->status_pembayaran }}</span></p>
+                            <hr class="horizontal dark my-2">
+                            <p class="text-sm mb-0 d-flex justify-content-between"><strong>Dibuat Oleh:</strong> <span>{{ $penjualan->user->nama ?? 'User Dihapus' }}</span></p>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -127,7 +124,7 @@
                             <p class="text-sm mb-2">@money($penjualan->diskon)</p>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <p class="text-sm mb-2">Pajak:</p>
+                            <p class="text-sm mb-2">PPN:</p>
                             <p class="text-sm mb-2">@money($penjualan->pajak)</p>
                         </div>
                         <div class="d-flex justify-content-between">

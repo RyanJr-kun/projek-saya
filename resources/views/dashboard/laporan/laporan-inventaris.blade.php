@@ -13,6 +13,80 @@
     @endsection
 
     <div class="container-fluid p-3">
+        {{-- Summary Cards --}}
+        <div class="row g-3 mb-4">
+            <div class="col-xl-3 col-sm-6">
+                <div class="card rounded-2 border border-primary">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="icon icon-shape icon-md bg-gradient-primary shadow-primary text-center  me-3">
+                                <i class="ni ni-box-2 text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-capitalize font-weight-bold">Total Jenis Produk</p>
+                                <h5 class="font-weight-bolder mb-0">
+                                    {{ number_format($summary->total_produk, 0, ',', '.') }}
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+                <div class="card rounded-2 border border-info">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="icon icon-shape icon-md bg-gradient-info shadow-info text-center  me-3">
+                                <i class="ni ni-archive-2 text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-capitalize font-weight-bold">Total Stok Produk</p>
+                                <h5 class="font-weight-bolder mb-0">
+                                    {{ number_format($summary->total_stok, 0, ',', '.') }}
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+                <div class="card rounded-2 border border-success">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="icon icon-shape icon-md bg-gradient-success shadow-success text-center  me-3">
+                                <i class="ni ni-curved-next text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-capitalize font-weight-bold">Total Masuk <span
+                                        class="text-xxs text-muted">(Filter)</span></p>
+                                <h5 class="font-weight-bolder mb-0 text-success">
+                                    +{{ number_format($summary->total_masuk, 0, ',', '.') }}
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6">
+                <div class="card rounded-2 border border-danger">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <div class="icon icon-shape icon-md bg-gradient-danger shadow-danger text-center  me-3">
+                                <i class="ni ni-send text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-capitalize font-weight-bold">Total Keluar <span
+                                        class="text-xxs text-muted">(Filter)</span></p>
+                                <h5 class="font-weight-bolder mb-0 text-danger">
+                                    -{{ number_format($summary->total_keluar, 0, ',', '.') }}
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card rounded-2">
             <div class="card-header pb-0 px-3 pt-2 mb-3">
                 <div class="d-flex justify-content-between align-items-center">
@@ -21,18 +95,12 @@
                         <p class="text-sm mb-0">Melacak semua transaksi masuk dan keluar barang.</p>
                     </div>
                     <div class="dropdown mt-2">
-                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="exportDropdown"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-download me-2"></i>Ekspor
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="exportDropdown">
-                            <li><a class="dropdown-item" href="#" id="exportXlsx">
-                                    <img src="{{ asset('assets/img/xls.png') }}" alt="Download Excel" width="20"
-                                        height="20" class="me-2"> Excel (.xlsx)</a></li>
-                            <li><a class="dropdown-item" href="#" id="exportPdf">
-                                    <img src="{{ asset('assets/img/pdf.png') }}" alt="Download PDF" width="20"
-                                        height="20" class="me-2">PDF</a></li>
-                        </ul>
+                        <a href="#" id="exportPdf" class="btn btn-outline-danger me-2 p-2 mb-0" data-bs-toggle="tooltip" title="Export PDF">
+                            <img src="{{ asset('assets/img/pdf.png') }}" alt="Download PDF" width="20" height="20">
+                        </a>
+                        <a href="#" id="exportXlsx" class="btn btn-outline-success me-2 p-2 mb-0" data-bs-toggle="tooltip" title="Export EXCEL">
+                        <img src="{{ asset('assets/img/xls.png') }}" alt="Download Excel" width="20" height="20">
+                        </a>
                     </div>
                 </div>
             </div>

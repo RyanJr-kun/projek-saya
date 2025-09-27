@@ -19,6 +19,15 @@ class PemasukanController extends Controller
         // Memuat relasi untuk efisiensi dan memulai query
         $query = Pemasukan::with(['kategori_transaksi', 'user'])->latest();
 
+        $kategoriFilters = KategoriTransaksi::where('jenis', 'pemasukan')
+                                        ->whereHas('pemasukans')
+                                        ->orderBy('nama')
+                                        ->get();
+        $allKategoris = KategoriTransaksi::where('jenis', 'pemasukan')
+                                        ->where('status', 1)
+                                        ->orderBy('nama')
+                                        ->get();
+
         // Terapkan filter pencarian berdasarkan keterangan
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -42,12 +51,8 @@ class PemasukanController extends Controller
         return view('dashboard.keuangan.pemasukan', [
             'title' => 'Pemasukan',
             'pemasukans' => $pemasukans,
-            'kategoris' => KategoriTransaksi::where([
-                'status' => 1,
-                'jenis' => 'pemasukan'
-            ])->whereHas('pemasukans') // <-- Tambahkan baris ini
-            ->orderBy('nama')
-            ->get(['id', 'nama']),
+            'kategoriFilters' => $kategoriFilters,
+            'allKategoris' => $allKategoris,
             'referensi_otomatis' => $this->generateIncomeReferenceNumber()
         ]);
     }

@@ -25,7 +25,7 @@
             </li>
 
             {{-- penjualan --}}
-            <li class="nav-item">@php $isPenjualanActive = request()->routeIs('penjualan.*', 'pelanggan.*'); @endphp
+            <li class="nav-item">@php $isPenjualanActive = request()->routeIs('penjualan.*', 'pelanggan.*', 'retur-penjualan.*'); @endphp
                 <a data-bs-toggle="collapse" href="#penjualan" class="nav-link {{ $isPenjualanActive ? 'active' : '' }}" aria-controls="penjualan" role="button" aria-expanded="{{ $isPenjualanActive ? 'true' : 'false' }}">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="bi bi-bag-dash text-dark text-sm opacity-10"></i>
@@ -51,9 +51,16 @@
                             <span class="sidenav-normal"> Pelanggan </span>
                             </a>
                         </li>
+                        <li class="nav-item ">
+                            <a class="nav-link {{ request()->routeIs('retur-penjualan.*') ? 'active' : '' }}" href="{{ route('retur-penjualan.index') }}">
+
+                            <span class="sidenav-normal"> Retur Penjualan </span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </li>
+
 
             @can('is-admin')
             {{-- pembelian --}}
@@ -179,6 +186,21 @@
                 </a>
             </li>
             <hr class="horizontal dark my-2">
+
+             @can('is-admin')
+             <li class="nav-item">
+                <p class="ps-4 mb-0 text-uppercase text-xs font-weight-bolder">Branding & Promo</p>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('promo.*') ? 'active' : '' }} " href="{{ route('promo.index') }}">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-percent text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Promo & Diskon</span>
+                </a>
+            </li>
+            <hr class="horizontal dark my-2">
+            @endcan
 
             {{-- Keuangan dan Laporan --}}
             <li class="nav-item">

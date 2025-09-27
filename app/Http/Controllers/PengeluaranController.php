@@ -19,6 +19,15 @@ class PengeluaranController extends Controller
         // Mulai query dengan eager loading untuk efisiensi
         $query = Pengeluaran::with(['user', 'kategori_transaksi'])->latest();
 
+        $kategoriFilters = KategoriTransaksi::where('jenis', 'pengeluaran')
+                                        ->whereHas('pengeluarans')
+                                        ->orderBy('nama')
+                                        ->get();
+        $allKategoris = KategoriTransaksi::where('jenis', 'pengeluaran')
+                                        ->where('status', 1)
+                                        ->orderBy('nama')
+                                        ->get();
+
         // Terapkan filter pencarian jika ada
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -40,14 +49,10 @@ class PengeluaranController extends Controller
 
         // Jika request biasa, kembalikan view lengkap
         return view('dashboard.keuangan.pengeluaran',[
-            'title' => 'Pengeluaran',
+            'title' => 'Data Pengeluaran',
             'pengeluarans' => $pengeluarans,
-            'kategoris' => KategoriTransaksi::where([
-                'status' => 1,
-                'jenis' => 'pengeluaran'
-            ])->whereHas('pengeluarans') // <-- Tambahkan baris ini
-            ->orderBy('nama')
-            ->get(['id', 'nama']),
+            'kategoriFilters' => $kategoriFilters,
+            'allKategoris' => $allKategoris,
             'referensi_otomatis' => $this->generateExpenseReferenceNumber()
         ]);
     }

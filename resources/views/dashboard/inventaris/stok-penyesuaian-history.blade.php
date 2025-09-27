@@ -19,10 +19,9 @@
                         <p class="text-sm mb-0">Daftar semua penyesuaian stok yang pernah dibuat.</p>
                     </div>
                     <div class="ms-md-auto mt-2">
-                        <a href="{{ route('stok-penyesuaian.create') }}" class="btn btn-outline-info mb-0 d-flex">
+                        <a href="{{ route('stok-penyesuaian.create') }}" class="btn btn-outline-info mb-0">
                             <i class="bi bi-plus-lg"></i>
-                            <span class="d-none d-md-block ms-2"> Penyesuaian</span>
-                        </a>
+                            Penyesuaian</a>
                     </div>
                 </div>
             </div>
@@ -69,11 +68,11 @@
                                 <td><p class="text-sm mb-0">{{ $penyesuaian->user->username ?? 'N/A' }}</p></td>
                                 <td><p class="text-sm mb-0 text-truncate" style="max-width: 250px;">{{ $penyesuaian->catatan ?: '-' }}</p></td>
                                 <td class="text-center">
-                                    <a href="{{ route('stok-penyesuaian.show', $penyesuaian) }}" class="btn btn-link text-dark px-3 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
+                                    <a href="{{ route('stok-penyesuaian.show', $penyesuaian) }}" class="btn btn-link text-dark mb-0 pe-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail">
                                         <i class="bi bi-eye-fill" aria-hidden="true"></i>
                                     </a>
-                                    <button type="button" class="btn btn-link text-danger px-3 mb-0" data-bs-toggle="modal" data-bs-target="#cancelConfirmationModal" data-kode-penyesuaian="{{ $penyesuaian->kode_penyesuaian }}">
-                                        <i class="bi bi-trash-fill" aria-hidden="true"></i>
+                                    <button type="button" class="btn btn-link text-danger mb-0" data-bs-toggle="modal" data-bs-target="#cancelConfirmationModal" data-kode-penyesuaian="{{ $penyesuaian->kode_penyesuaian }}">
+                                        <i class="bi bi-trash3-fill" aria-hidden="true"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -101,8 +100,8 @@
                 <div class="modal-body text-center mt-3 mx-n5">
                     <i class="bi bi-exclamation-triangle-fill fa-3x text-warning mb-3"></i>
                     <h5 class="mb-2">Batalkan Penyesuaian?</h5>
-                    <p class="mb-0">Anda yakin ingin membatalkan penyesuaian <strong id="kodePenyesuaianToCancel"></strong>?</p>
-                    <small class="text-danger">Tindakan ini akan mengembalikan stok produk ke keadaan semula dan tidak dapat diurungkan.</small>
+                    <p class="mb-0">Anda yakin ingin membatalkan penyesuaian <br> <strong id="kodePenyesuaianToCancel"></strong>?</p>
+                    <small class="text-danger ">Tindakan ini akan mengembalikan stok produk <br> ke keadaan semula dan tidak dapat diurungkan.</small>
                     <div class="mt-4">
                         <form id="cancelForm" method="POST" action="#">
                             @method('DELETE')

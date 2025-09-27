@@ -23,7 +23,7 @@
         {{-- Wrapper for main content and footer to enable sticky footer --}}
         <div class="main-content position-relative border-radius-lg d-flex flex-column min-vh-100">
             <main>
-                <nav class="navbar navbar-main navbar-expand-lg px-0 px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false" >
+                <nav class="navbar navbar-main navbar-expand-lg px-2 shadow-none border-radius-xl " id="navbarBlur" data-scroll="false" >
                     <div class="container-fluid py-0 px-3">
                         @yield('breadcrumb')
                         <div class="collapse navbar-collapse mt-md-0 mt-2" id="navbar">

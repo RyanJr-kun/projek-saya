@@ -90,10 +90,30 @@ class ProfilTokoController extends Controller
      */
     public function upload(Request $request)
     {
-        if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('tmp/profil-toko', 'public');
-            return $path;
+        // Validasi input terlebih dahulu
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'logo' => 'required|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
+        ]);
+
+       // === PERBAIKAN DI SINI ===
+        if ($validator->fails()) {
+            // Gabungkan pesan error menjadi satu string
+            $errors = implode(', ', $validator->errors()->all());
+            // Kembalikan sebagai plain text dengan status error yang sesuai
+            return response($errors, 422)->header('Content-Type', 'text/plain');
         }
+
+        // Jika validasi berhasil dan file ada
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            // Simpan file ke direktori 'tmp' di dalam 'storage/app/public'
+            $path = $file->store('tmp/profil-toko', 'public');
+
+            // Kembalikan path file sebagai plain text, bukan JSON
+            return response($path, 200)->header('Content-Type', 'text/plain');
+        }
+
+        // Jika tidak ada file, kembalikan response error
         return response()->json(['error' => 'No file uploaded.'], 400);
     }
 
@@ -103,10 +123,16 @@ class ProfilTokoController extends Controller
     public function revert(Request $request)
     {
         $filePath = $request->getContent();
-        if ($filePath && Storage::disk('public')->exists($filePath)) {
-            Storage::disk('public')->delete($filePath);
-            return response()->json(['success' => true]);
+
+        // Tambahkan pengecekan untuk memastikan filePath bukan HTML
+        if (str_starts_with(trim($filePath), '<!DOCTYPE')) {
+            return response()->json(['error' => 'Invalid path provided.'], 400);
         }
-        return response()->json(['error' => 'File not found.'], 404);
+
+        if ($filePath && Storage::disk('public')->exists($filePath) && str_starts_with($filePath, 'tmp/')) {
+            Storage::disk('public')->delete($filePath);
+            return response()->noContent();
+        }
+        return response()->json(['error' => 'File not found.'], 404); // Tetap JSON untuk error
     }
 }

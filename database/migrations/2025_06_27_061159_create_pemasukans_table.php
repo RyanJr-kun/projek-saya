@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pemasukans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kategori_transaksi_id')->constrained('kategori_transaksis')->onDelete('restrict');
-            $table->date('tanggal');
+            $table->dateTime('tanggal');
             $table->decimal('jumlah', 15, 0);
             $table->string('referensi')->nullable()->unique();
             $table->string('keterangan');

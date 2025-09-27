@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.addEventListener("DOMContentLoaded", function () {
     const sidenavScrollbar = document.querySelector("#sidenav-scrollbar");
-    if (sidenavScrollbar && navigator.platform.indexOf("Win") > -1) {
+    if (sidenavScrollbar) {
+        // Hapus kondisi '&& navigator.platform.indexOf("Win") > -1'
         Scrollbar.init(sidenavScrollbar, { damping: "0.5" });
     }
 });

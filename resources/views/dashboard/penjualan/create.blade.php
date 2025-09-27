@@ -838,6 +838,59 @@
                     resetButton.disabled = cart.size === 0;
                 };
 
+                // --- BARCODE SCANNER LOGIC ---
+                const handleBarcodeScan = async (barcode) => {
+                    if (!barcode) return;
+
+                    try {
+                        const url = "{{ route('get-data.produk.by-barcode', ['barcode' => 'BARCODE_PLACEHOLDER']) }}".replace('BARCODE_PLACEHOLDER', barcode);
+                        const response = await fetch(url);
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            // Menampilkan pesan error dari server (misal: stok habis, tidak ditemukan)
+                            throw new Error(data.message || 'Produk tidak ditemukan.');
+                        }
+
+                        // Jika produk ditemukan, siapkan data untuk ditambahkan ke keranjang
+                        const productData = {
+                            id: data.id,
+                            nama: data.nama_produk,
+                            harga: data.harga_jual,
+                            stok: data.qty,
+                            img: data.img_produk ? `{{ asset('storage/') }}/${data.img_produk}` : `{{ asset('assets/img/produk.webp') }}`,
+                            wajibSeri: data.wajib_seri ? 'true' : 'false',
+                            pajakId: data.pajak_id,
+                            pajakRate: data.pajak ? data.pajak.rate : 0
+                        };
+
+                        // Cek apakah produk sudah ada di keranjang
+                        const itemInCart = cart.get(productData.id);
+
+                        if (productData.wajibSeri === 'true') {
+                            // Jika wajib seri, selalu buka modal untuk memilih SN
+                            const requiredQty = itemInCart ? itemInCart.jumlah + 1 : 1;
+                            const existingSerials = itemInCart ? itemInCart.serial_numbers : [];
+                            tempProductDataForSN = productData; // Simpan data produk untuk modal
+                            openSerialNumberModal(productData.id, productData.nama, requiredQty, existingSerials);
+                        } else {
+                            // Jika tidak wajib seri, langsung tambah/update kuantitas
+                            if (itemInCart) {
+                                updateQuantity(productData.id, itemInCart.jumlah + 1);
+                            } else {
+                                addProductToCart(productData);
+                            }
+                        }
+
+                        // Kosongkan input setelah berhasil
+                        productSearchInput.value = '';
+
+                    } catch (error) {
+                        // Tampilkan notifikasi error kepada kasir
+                        alert(`Error: ${error.message}`);
+                    }
+                };
+
                 // --- EVENT LISTENERS ---
                 // --- PERUBAHAN 3: Membaca data-pajak-id saat produk diklik ---
                 productList.addEventListener('click', (e) => {
@@ -912,7 +965,15 @@
                         }
                     });
                 }
-                productSearchInput.addEventListener('keyup', filterProducts);
+
+                // Menggabungkan event listener untuk pencarian manual dan scan barcode
+                productSearchInput.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); // Mencegah form ter-submit
+                        handleBarcodeScan(e.target.value.trim());
+                    }
+                    filterProducts(); // Tetap jalankan filter untuk pencarian manual
+                });
 
                 mainForm.addEventListener('submit', function(e) {
                     if (cart.size === 0) {

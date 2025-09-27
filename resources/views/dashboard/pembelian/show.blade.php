@@ -1,25 +1,4 @@
 <x-layout>
-    @push('styles')
-        <style>
-            @media print {
-                body * {
-                    visibility: hidden;
-                }
-                .printable-area, .printable-area * {
-                    visibility: visible;
-                }
-                .printable-area {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                }
-                .no-print {
-                    display: none;
-                }
-            }
-        </style>
-    @endpush
 
     @section('breadcrumb')
         @php
@@ -34,53 +13,55 @@
 
     <div class="container-fluid py-4">
         <div class="card rounded-2 printable-area">
-            <div class="card-header d-flex justify-content-between align-items-center pb-0">
-                <h5 class="mb-0 fw-bolder">Detail Pembelian</h5>
-                <div class="no-print">
-                    <a href="{{ route('pembelian.index') }}" class="btn btn-sm btn-outline-secondary mb-0">
+            <div class="card-header d-md-flex justify-content-between align-items-center pb-0">
+                <h5 class="mb-2 fw-bolder mb-md-0">Detail Pembelian</h5>
+                <div>
+                    <a href="{{ url()->previous() }}" class="btn btn-sm btn-outline-secondary mb-0">
                         <i class="bi bi-arrow-left me-1"></i> Kembali
                     </a>
-                    <button onclick="window.print()" class="btn btn-sm btn-info mb-0">
-                        <i class="bi bi-printer me-1"></i> Cetak
-                    </button>
+                    <a href="{{ route('pembelian.thermal', $pembelian->referensi) }}" target="_blank" class="btn btn-sm btn-dark mx-2 mb-0">
+                        <i class="bi bi-receipt me-1"></i> Struk
+                    </a>
+                    <a href="{{ route('pembelian.pdf', $pembelian->referensi) }}" target="_blank" class="btn btn-sm btn-outline-danger px-2 mb-0" data-bs-toggle="tooltip" title="Export PDF">
+                        <img src="{{ asset('assets/img/pdf.png') }}" alt="Download PDF" width="20" height="20">
+                    </a>
                 </div>
             </div>
             <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <h6 class="mb-1">Pemasok:</h6>
-                        <p class="text-lg fw-bolder text-dark mb-0">{{ $pembelian->pemasok->nama ?? 'Pemasok Dihapus' }}</p>
-                        <p class="text-sm mb-1 ">{{ $pembelian->pemasok->kontak ?? '' }}</p>
-                        <p class="text-sm mb-0">{{ $pembelian->pemasok->alamat ?? '' }}</p>
+                <div class="row mb-4 gx-4">
+                    {{-- Kolom Kiri: Info Toko & Pemasok --}}
+                    <div class="col-lg-6">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="mb-2">Dari:</h6>
+                                <h5 class="text-dark text-uppercase fw-bolder mb-1">{{ $profilToko->nama_toko ?? 'Nama Toko Anda' }}</h5>
+                                <p class="text-sm mb-1">{{ $profilToko->alamat ?? 'Alamat toko belum diatur' }}</p>
+                                <p class="text-sm mb-0">Email: {{ $profilToko->email ?? '-' }}</p>
+                                <p class="text-sm mb-0">Telp: {{ $profilToko->telepon ?? '-' }}</p>
+                            </div>
+                            <div class="col-md-6 mt-4 mt-md-0">
+                                <h6 class="mb-2">Kepada (Pemasok):</h6>
+                                <h5 class="text-dark fw-bolder mb-1">{{ $pembelian->pemasok->nama ?? 'Pemasok Dihapus' }}</h5>
+                                <p class="text-sm mb-1">{{ $pembelian->pemasok->alamat ?? 'Alamat tidak tersedia' }}</p>
+                                <p class="text-sm mb-0">Email: {{ $pembelian->pemasok->email ?? '-' }}</p>
+                                <p class="text-sm mb-0">Kontak: {{ $pembelian->pemasok->kontak ?? '-' }}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-4 mt-3 mt-md-0">
-                        <h6>Dibuat Oleh:</h6>
-                        <p class="text-sm mb-1">{{ $pembelian->user->nama ?? 'User Dihapus' }}</p>
-                        <p class="text-sm mb-0">{{ $pembelian->user->email ?? '-' }}</p>
-                    </div>
-                    <div class="col-md-4 text-md-start mt-3 mt-md-0">
-                        <h6>Informasi Transaksi:</h6>
-                        <p class="text-sm mb-1">Referensi : {{ $pembelian->referensi }}</p>
-                        <p class="text-sm mb-1">Tanggal : {{ \Carbon\Carbon::parse($pembelian->tanggal_pembelian)->translatedFormat('d F Y') }}</p>
-                        <p class="text-sm mb-1">Status Barang :
-                            <span class="badge badge-sm {{ $pembelian->status_barang == 'Diterima' ? 'badge-success' : 'badge-warning' }}">
-                                {{ $pembelian->status_barang }}
-                            </span>
-
-                        </p>
-                        <p class="text-sm mb-0">Status Bayar:
-                            @php
-                                $statusClass = '';
-                                if ($pembelian->status_pembayaran == 'Lunas') $statusClass = 'badge-success';
-                                elseif ($pembelian->status_pembayaran == 'Lunas Sebagian') $statusClass = 'badge-warning';
-                                else $statusClass = 'badge-danger';
-                            @endphp
-                            <span class="badge badge-sm {{ $statusClass }}">
-                                {{ $pembelian->status_pembayaran }}
-                            </span>
-                        </p>
+                    {{-- Kolom Kanan: Info Transaksi --}}
+                    <div class="col-lg-6 mt-4 mt-lg-0">
+                        <h6 class="mb-2">Informasi Transaksi</h6>
+                        <div class="border rounded-2 p-3">
+                            <p class="text-sm mb-2 d-flex justify-content-between"><strong>Referensi:</strong> <span>{{ $pembelian->referensi }}</span></p>
+                            <p class="text-sm mb-2 d-flex justify-content-between"><strong>Tanggal:</strong> <span>{{ \Carbon\Carbon::parse($pembelian->tanggal_pembelian)->translatedFormat('d F Y') }}</span></p>
+                            <p class="text-sm mb-2 d-flex justify-content-between"><strong>Status Barang:</strong> <span class="badge badge-sm {{ $pembelian->status_barang == 'Diterima' ? 'badge-success' : 'badge-warning' }}">{{ $pembelian->status_barang }}</span></p>
+                            <p class="text-sm mb-2 d-flex justify-content-between"><strong>Status Bayar:</strong> <span class="badge badge-sm {{ $pembelian->status_pembayaran == 'Lunas' ? 'badge-success' : ($pembelian->status_pembayaran == 'Lunas Sebagian' ? 'badge-warning' : 'badge-danger') }}">{{ $pembelian->status_pembayaran }}</span></p>
+                            <hr class="horizontal dark my-2">
+                            <p class="text-sm mb-0 d-flex justify-content-between"><strong>Dibuat Oleh:</strong> <span>{{ $pembelian->user->nama ?? 'User Dihapus' }}</span></p>
+                        </div>
                     </div>
                 </div>
+
                 <div>
                     <p class="mb-1 fw-bolder">Ringkasan Pembelian:</p>
                 </div>

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pengeluarans', function (Blueprint $table) {
             $table->id();
-            $table->date('tanggal');
+            $table->dateTime('tanggal');
             $table->decimal('jumlah', 15, 0);
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('kategori_transaksi_id')->constrained('kategori_transaksis')->onDelete('restrict');

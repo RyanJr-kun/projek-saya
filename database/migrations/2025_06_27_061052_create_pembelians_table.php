@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('pemasok_id')->constrained('pemasoks');
             $table->string('referensi', 50)->unique();
-            $table->date('tanggal_pembelian');
+            $table->dateTime('tanggal_pembelian');
             $table->decimal('subtotal', 15, 0);
             $table->decimal('diskon', 15, 0)->default(0);
             $table->decimal('pajak', 15, 0)->default(0);

@@ -23,6 +23,8 @@ use App\Http\Controllers\ProfilTokoController as PengaturanProfilTokoController;
 use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\StokPenyesuaianController;
 use App\Http\Controllers\KategoriTransaksiController;
+use App\Http\Controllers\PromoController;
+use App\Http\Controllers\ReturPenjualanController;
 use App\Http\Controllers\DashboardController;
 
 //Autentikasi
@@ -53,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('get-data')->as('get-data.')->group(function () {
         Route::get('produk', [ProdukController::class, 'getData'])->name('produk');
         Route::get('cek-stok-produk', [ProdukController::class, 'cekStok'])->name('cek-stok');
+        Route::get('produk-by-barcode/{barcode}', [ProdukController::class, 'getByBarcode'])->name('produk.by-barcode');
         Route::get('low-stock-notifications', [ProdukController::class, 'getLowStockNotifications'])->name('notifications.low-stock');
         Route::get('notifications/unregistered-serials', [ProdukController::class, 'getUnregisteredSerialNotifications'])->name('notifications.unregistered-serials');
         // Tambahkan ini di dalam grup route yang memerlukan autentikasi
@@ -60,7 +63,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Rute untuk halaman "Semua Notifikasi"
-
     Route::get('/notifications/all', [ProdukController::class, 'allNotifications'])->name('notifications.all');
 
     // Grup Rute Produk
@@ -118,7 +120,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('/penjualan', PenjualanController::class);
     Route::get('/penjualan/{penjualan}/json', [PenjualanController::class, 'getjson'])->name('penjualan.getjson');
     Route::get('/pelanggan/{pelanggan}/json', [PelangganController::class, 'getjson'])->name('pelanggan.getjson');
+    Route::get('/penjualan/{penjualan:referensi}/thermal', [PenjualanController::class, 'printThermal'])->name('penjualan.thermal');
+    Route::get('/penjualan/{penjualan:referensi}/pdf', [PenjualanController::class, 'generatePdf'])->name('penjualan.pdf');
     Route::resource('pelanggan', PelangganController::class)->except('show','create','edit');
+
+    // Retur Penjualan
+    Route::resource('retur-penjualan', ReturPenjualanController::class)->except(['edit', 'update', 'destroy'])->parameters(['retur-penjualan' => 'retur_penjualan']);
 
     //pengeluaran.
     Route::get('/pengeluaran/{pengeluaran:referensi}/json', [PengeluaranController::class, 'getjson'])->name('pengeluaran.getjson');
@@ -134,8 +141,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/kategoritransaksi/chekSlug', [KategoriTransaksiController::class, 'chekSlug']);
 
     //Stok
-    // PERBAIKAN: Arahkan ke controller yang benar (ProdukController)
     Route::get('/stok/rendah', [ProdukController::class, 'laporanStokRendah'])->name('stok.rendah');
+
     // Laporan
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('inventaris', [LaporanController::class, 'inventaris'])->name('inventaris');
@@ -145,6 +152,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('penjualan', [LaporanController::class, 'penjualan'])->name('penjualan');
         Route::get('penjualan/export', [LaporanController::class, 'exportPenjualan'])->name('penjualan.export');
         Route::get('laba-rugi', [LaporanController::class, 'labaRugi'])->name('laba-rugi');
+        Route::get('laba-rugi/export', [LaporanController::class, 'exportLabaRugi'])->name('laba-rugi.export');
     });
 
     // Pengaturan
@@ -159,6 +167,8 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['admin', 'auth'])->group(function () {
     // Pembelian & Pemasok
     Route::resource('/pembelian', PembelianController::class)->parameter('pembelian', 'pembelian:referensi');
+    Route::get('/pembelian/{pembelian:referensi}/pdf', [PembelianController::class, 'generatePdf'])->name('pembelian.pdf');
+    Route::get('/pembelian/{pembelian:referensi}/thermal', [PembelianController::class, 'printThermal'])->name('pembelian.thermal');
 
     Route::get('/pemasok/{pemasok}/json', [PemasokController::class, 'getjson'])->name('pemasok.getjson');
     Route::resource('pemasok', PemasokController::class)->except('show','create','edit');
@@ -167,4 +177,7 @@ Route::middleware(['admin', 'auth'])->group(function () {
     Route::resource('users', UserController::class)->except('show')->parameter('users', 'user:username');
     Route::post('/dashboard/users/upload', [UserController::class, 'upload'])->name('users.upload');
     Route::delete('/dashboard/users/revert', [UserController::class, 'revert'])->name('users.revert');
+
+    // Promo & Diskon
+    Route::resource('promo', PromoController::class);
 });

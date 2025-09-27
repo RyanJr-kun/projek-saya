@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('penjualans', function (Blueprint $table) {
             $table->id();
             $table->string('referensi', 50)->unique();
-            $table->date('tanggal_penjualan');
+            $table->dateTime('tanggal_penjualan');
             $table->decimal('subtotal', 15, 0);
             $table->decimal('service', 15, 0)->default(0);
             $table->decimal('ongkir', 15, 0)->default(0);
