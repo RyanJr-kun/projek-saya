@@ -6,9 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>JO Computer</title>
     @vite([
-        'resources/scss/app.scss', // Memuat semua gaya
-        'resources/js/app.js'      // Memuat semua skrip
+        'resources/scss/app.scss',
+        'resources/js/app.js',
     ])
+    @stack('styles')
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
@@ -16,11 +17,9 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
 <body>
-
     <x-marketHeader></x-marketHeader>
-    <main>
-        {{ $slot }}
-    </main>
+    {{ $slot }}
     <x-marketFooter></x-marketFooter>
+    @stack('scripts')
 </body>
 </html>
