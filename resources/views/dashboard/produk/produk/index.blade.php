@@ -23,12 +23,6 @@
                     </div>
                     <div class="ms-auto mt-2">
                         <div class="d-none d-md-block">
-                            <a href="#Export-Pdf" type="button" class="btn btn-outline-danger me-2 p-2 mb-0" title="Export PDF">
-                                <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20">
-                            </a>
-                            <a href="#Export-Excel" class="btn btn-outline-success p-2 me-2 export mb-0" data-type="csv" type="button" title="Export Excel">
-                                <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20">
-                            </a>
                             <a href="{{ route('produk.trash') }}" class="btn btn-outline-secondary mb-0" title="Produk Diarsipkan">
                                 <i class="bi bi-trash3"></i>
                             </a>
@@ -41,16 +35,6 @@
                         <div class="dropdown d-block d-md-none ">
                             <button class="btn btn-outline-info dropdown-toggle mb-0" type="button" id="aksiMobile" data-bs-toggle="dropdown" aria-expanded="false">Pilih Aksi</button>
                             <ul class="dropdown-menu" aria-labelledby="aksiMobile">
-                                <li>
-                                    <a class="dropdown-item" href="#Export-Pdf">
-                                        <img src="assets/img/pdf.png" alt="Download PDF" width="20" height="20" class="me-2">Export PDF
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item export" href="#Export-Excel" data-type="csv">
-                                        <img src="assets/img/xls.png" alt="Download Excel" width="20" height="20" class="me-2">Export Excel
-                                    </a>
-                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('produk.trash') }}">

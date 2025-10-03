@@ -25,7 +25,7 @@
                         </div>
                     </td>
                     <td>
-                        <p class="text-sm fw-bolder mb-0">{{ $item->created_at->translatedFormat('d M Y, H:i') }}</p>
+                        <p class="text-sm fw-bolder mb-0">{{ \Carbon\Carbon::parse($item->tanggal_penjualan)->translatedFormat('d M Y, H:i') }}</p>
                     </td>
                     <td class="align-middle">
                         <span class="text-secondary text-sm fw-bolder"> @money($item->total_akhir) </span>

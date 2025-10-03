@@ -239,3 +239,95 @@ $black: #0b0b0b;
     }
 }
 
+/*
+*
+* Market Header Navigation
+*
+*/
+.nav-link-animated {
+    position: relative;
+    transition: color 0.3s ease-in-out;
+
+    &::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--bs-primary);
+        transform: scaleX(0);
+        transform-origin: bottom left;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    &:hover { color: var(--bs-primary) !important; }
+    &:hover::after { transform: scaleX(1); }
+}
+
+/*
+*
+* Market Footer
+*
+*/
+.footer-market {
+    .footer-link {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        padding-bottom: 2px;
+
+        &::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            display: block;
+            margin-top: 2px;
+            right: 0;
+            background: var(--bs-info);
+            transition: width 0.3s ease;
+        }
+
+        &:hover {
+            color: #ffffff;
+            &::after {
+                width: 100%;
+                left: 0;
+                background-color: var(--bs-info);
+            }
+        }
+    }
+
+    .social-icon {
+        color: rgba(255, 255, 255, 0.7);
+        transition: color 0.3s ease, transform 0.3s ease;
+
+        &:hover {
+            color: var(--bs-info);
+            transform: translateY(-3px);
+        }
+    }
+}
+
+@media (min-width: 992px) { // Hanya berlaku di layar besar (lg dan di atasnya)
+    .dropdown-hover-market {
+        .dropdown-menu {
+            // Sembunyikan menu secara default dan siapkan transisi
+            display: block;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px); // 1. Mulai dari posisi 10px lebih atas
+            pointer-events: none; // Mencegah interaksi saat menu tersembunyi
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s; // 2. Atur transisi yang lebih halus
+        }
+        &:hover > .dropdown-menu {
+            // Tampilkan menu saat parent di-hover
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0); // 3. Kembali ke posisi normal (efek slide-down)
+            pointer-events: auto; // Izinkan kembali interaksi saat menu terlihat
+        }
+    }
+}

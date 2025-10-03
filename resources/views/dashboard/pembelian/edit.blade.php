@@ -92,7 +92,6 @@
                                         <input type="hidden" name="items[{{ $index }}][produk_id]" value="{{ $detail->produk_id }}">
                                         <input type="hidden" name="items[{{ $index }}][qty]" class="item-qty-hidden" value="{{ $detail->qty }}">
                                         <input type="hidden" name="items[{{ $index }}][harga_beli]" class="item-harga-hidden" value="{{ $detail->harga_beli }}">
-                                        <input type="hidden" name="items[{{ $index }}][harga_jual]" class="item-harga-jual-hidden" value="{{ $detail->produk->harga_jual ?? 0 }}">
                                         <input type="hidden" name="items[{{ $index }}][diskon]" class="item-diskon-hidden" value="{{ $detail->diskon ?? 0 }}">
                                         <input type="hidden" name="items[{{ $index }}][pajak_id]" class="item-pajak-id-hidden" value="{{ $detail->pajak_id ?? '' }}">
                                         <input type="hidden" class="item-pajak-rate-hidden" value="{{ $pajak_rate }}">
@@ -216,10 +215,6 @@
                             <div class="col-md-6 col-12 form-group">
                                 <label for="edit-item-harga" class="form-control-label">Harga Beli <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit-item-harga" placeholder="0">
-                            </div>
-                            <div class="col-12 form-group">
-                                <label for="edit-item-harga-jual" class="form-control-label">Harga Jual <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="edit-item-harga-jual" placeholder="0">
                             </div>
                             <div class="col-6">
                                 <label for="edit-item-pajak-id" class="form-label">Pajak</label>
@@ -365,7 +360,6 @@
                             <input type="hidden" name="items[${itemCounter}][produk_id]" value="${produkId}">
                             <input type="hidden" name="items[${itemCounter}][qty]" class="item-qty-hidden" value="${qtyToAdd}">
                             <input type="hidden" name="items[${itemCounter}][harga_beli]" class="item-harga-hidden" value="${hargaBeli}">
-                            <input type="hidden" name="items[${itemCounter}][harga_jual]" class="item-harga-jual-hidden" value="${hargaJual}">
                             <input type="hidden" name="items[${itemCounter}][diskon]" class="item-diskon-hidden" value="0">
                             <input type="hidden" name="items[${itemCounter}][pajak_id]" class="item-pajak-id-hidden" value="${pajakId || ''}">
                             <input type="hidden" class="item-pajak-rate-hidden" value="${pajakRate}">
@@ -489,7 +483,6 @@
                 $("#edit-item-nama").val(row.find(".item-nama").text());
                 $("#edit-item-qty").val(row.find(".item-qty-hidden").val());
                 $("#edit-item-harga").val(new Intl.NumberFormat('id-ID').format(row.find(".item-harga-hidden").val()));
-                $("#edit-item-harga-jual").val(new Intl.NumberFormat('id-ID').format(row.find(".item-harga-jual-hidden").val()));
                 $("#edit-item-diskon").val(new Intl.NumberFormat('id-ID').format(row.find(".item-diskon-hidden").val()));
                 $("#edit-item-pajak-id").val(row.find(".item-pajak-id-hidden").val());
 
@@ -503,7 +496,6 @@
 
                 row.find(".item-qty, .item-qty-hidden").val($("#edit-item-qty").val());
                 row.find(".item-harga-hidden").val(parseCurrency($("#edit-item-harga").val()));
-                row.find(".item-harga-jual-hidden").val(parseCurrency($("#edit-item-harga-jual").val()));
                 row.find(".item-diskon-hidden").val(parseCurrency($("#edit-item-diskon").val()));
 
                 const selectedPajak = $("#edit-item-pajak-id option:selected");
@@ -529,7 +521,7 @@
             });
 
             // --- CURRENCY FORMATTING ---
-            $('#edit-item-harga, #edit-item-harga-jual, #edit-item-diskon, #ongkir, #diskon-tambahan, #bayar').on('input', function() {
+            $('#edit-item-harga, #edit-item-diskon, #ongkir, #diskon-tambahan, #bayar').on('input', function() {
                 formatInputAsCurrency($(this));
             });
 

@@ -110,12 +110,15 @@
                                         @endif
                                     </td>
                                     <td class="align-middle">
-                                        <a href="{{ route('pembelian.create')}}" class="mb-0 me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Beli Produk Ini">
-                                            <i class="bi bi-cart-plus-fill bi-lg"></i>
-                                        </a>
-                                        <a href="{{ route('produk.edit', $produk->slug) }}" class="fw-bolder text-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Produk">
-                                            <i class="bi bi-pencil-square bi-lg"></i>
-                                        </a>
+                                        {{-- Tombol aksi hanya untuk non-kasir --}}
+                                        @if (auth()->user()->role_id != 2)
+                                            <a href="{{ route('pembelian.create')}}" class="mb-0 me-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Beli Produk Ini">
+                                                <i class="bi bi-cart-plus-fill bi-lg"></i>
+                                            </a>
+                                            <a href="{{ route('produk.edit', $produk->slug) }}" class="fw-bolder text-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Produk">
+                                                <i class="bi bi-pencil-square bi-lg"></i>
+                                            </a>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

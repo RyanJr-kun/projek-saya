@@ -28,10 +28,13 @@
             {{-- Kolom 3: Kategori --}}
             <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
                 <h6 class="text-uppercase mb-4 font-weight-bold text-info">Kategori</h6>
-                <p><a href="#" class="footer-link">Laptop</a></p>
-                <p><a href="#" class="footer-link">PC Rakitan</a></p>
-                <p><a href="#" class="footer-link">Komponen</a></p>
-                <p><a href="#" class="footer-link">Aksesoris</a></p>
+                @if(isset($bestSellingCategories) && $bestSellingCategories->isNotEmpty())
+                    @foreach($bestSellingCategories as $kategori)
+                        <p><a href="{{ route('market.produk', ['kategori' => $kategori->slug]) }}" class="footer-link">{{ $kategori->nama }}</a></p>
+                    @endforeach
+                @else
+                    <p class="small text-muted">Kategori belum tersedia.</p>
+                @endif
             </div>
 
             {{-- Kolom 4: Media Sosial & Newsletter --}}

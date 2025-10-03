@@ -38,33 +38,21 @@
                                         @endif
                                     </div>
                                     <div class="card-body">
-                                        {{-- setting auth --}}
-                                    <form role="form" action="/login" method="post">
-                                        @csrf
-                                        <div class="mb-3">
-                                        <input autocomplete="email" name="email" id="email" type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Email" aria-label="Email" autofocus required>
-                                        @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        </div>
-                                        <div class="mb-3">
-                                        <input name="password" id="password" type="password" class="form-control form-control-lg" placeholder="Password" aria-label="Password" required>
-                                        </div>
-                                        <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="rememberMe">
-                                        <label class="form-check-label" for="rememberMe">Selalu Ingat Saya.</label>
-                                        </div>
-                                        <div class="text-center">
-                                        <button type="submit" class="btn btn-lg btn-info w-100 mt-4 mb-0" >Login</button>
-                                        </div>
-                                    </form>
-
-                                    </div>
-                                    <div class="card-footer text-center pt-0 px-lg-2 px-1">
-                                    <p class="mb-4 text-sm mx-auto">
-                                        Lupa Password?
-                                        <a href="javascript:;" class="text-blue font-weight-bold">Klik Disini.</a>
-                                    </p>
+                                        <form role="form" action="/login" method="post">
+                                            @csrf
+                                            <div class="mb-3">
+                                                <input autocomplete="email" name="email" id="email" type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="Email" aria-label="Email" autofocus required>
+                                                @error('email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="mb-3">
+                                                <input name="password" id="password" type="password" class="form-control form-control-lg" placeholder="Password" aria-label="Password" required>
+                                            </div>
+                                            <div class="text-center">
+                                                <button type="submit" class="btn btn-lg btn-info w-100 mt-4 mb-0" >Login</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

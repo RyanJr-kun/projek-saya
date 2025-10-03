@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\StokController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
@@ -18,29 +17,25 @@ use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\SerialNumberController;
-use App\Http\Controllers\Pengaturan\ProfilTokoController;
 use App\Http\Controllers\ProfilTokoController as PengaturanProfilTokoController;
 use App\Http\Controllers\KategoriProdukController;
 use App\Http\Controllers\StokPenyesuaianController;
 use App\Http\Controllers\KategoriTransaksiController;
 use App\Http\Controllers\PromoController;
-use App\Http\Controllers\ReturPenjualanController;
+use App\Http\Controllers\MarketController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BannerController;
+
+// Rute untuk Web Market (Publik)
+Route::get('/', [MarketController::class, 'index']);
+Route::get('/market/produk', [MarketController::class, 'produk'])->name('market.produk');
+Route::get('/produk/{slug}', [MarketController::class, 'produkDetail'])->name('market.produk.detail');
+Route::get('/market/tentang', [MarketController::class, 'tentang'])->name('market.tentang');
 
 //Autentikasi
 Route::get('login', [LoginController::class, 'index'])->name('login')->middleware('guest');
 Route::post('login', [LoginController::class, 'authenticate']);
 Route::post('logout',[LoginController::class, 'logout'])->name('logout');
-
-
-// market-beranda
-Route::get('/', function () {
-    return view('Market.beranda', [
-        'title' => 'Beranda'
-    ]);
-});
-
-
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
@@ -123,10 +118,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/penjualan/{penjualan:referensi}/thermal', [PenjualanController::class, 'printThermal'])->name('penjualan.thermal');
     Route::get('/penjualan/{penjualan:referensi}/pdf', [PenjualanController::class, 'generatePdf'])->name('penjualan.pdf');
     Route::resource('pelanggan', PelangganController::class)->except('show','create','edit');
-
-    // Retur Penjualan
-    Route::resource('retur-penjualan', ReturPenjualanController::class)->except(['edit', 'update', 'destroy'])->parameters(['retur-penjualan' => 'retur_penjualan']);
-
     //pengeluaran.
     Route::get('/pengeluaran/{pengeluaran:referensi}/json', [PengeluaranController::class, 'getjson'])->name('pengeluaran.getjson');
     Route::resource('pengeluaran',PengeluaranController::class)->except('show','create','edit')->parameter('pengeluaran', 'pengeluaran:referensi');
@@ -162,6 +153,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('profil-toko/upload', [PengaturanProfilTokoController::class, 'upload'])->name('profil-toko.upload');
         Route::delete('profil-toko/revert', [PengaturanProfilTokoController::class, 'revert'])->name('profil-toko.revert');
     });
+
+    Route::resource('promo', PromoController::class);
+
+    // Banner
+    Route::get('/banner/{banner}/json', [BannerController::class, 'getJson'])->name('banner.getjson');
+    Route::post('/banner/upload', [BannerController::class, 'upload'])->name('banner.upload');
+    Route::delete('/banner/revert', [BannerController::class, 'revert'])->name('banner.revert');
+    Route::resource('banner', BannerController::class)->except(['show', 'create', 'edit']);
+
 });
 
 Route::middleware(['admin', 'auth'])->group(function () {
@@ -179,5 +179,5 @@ Route::middleware(['admin', 'auth'])->group(function () {
     Route::delete('/dashboard/users/revert', [UserController::class, 'revert'])->name('users.revert');
 
     // Promo & Diskon
-    Route::resource('promo', PromoController::class);
+
 });

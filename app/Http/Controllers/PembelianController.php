@@ -114,7 +114,6 @@ class PembelianController extends Controller
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.qty' => 'required|integer|min:1',
             'items.*.harga_beli' => 'required|numeric|min:0',
-            'items.*.harga_jual' => 'required|numeric|min:0',
             'items.*.diskon' => 'nullable|numeric|min:0',
             'items.*.pajak_id' => 'nullable|exists:pajaks,id',
         ]);
@@ -200,7 +199,6 @@ class PembelianController extends Controller
 
                     // Update data di tabel produk master
                     $produk->harga_beli = $itemData['harga_beli'];
-                    $produk->harga_jual = $itemData['harga_jual'];
 
                     // Tambah stok hanya jika status barang 'Diterima'
                     if ($validatedData['status_barang'] === 'Diterima') {
@@ -305,7 +303,6 @@ class PembelianController extends Controller
             'items.*.produk_id' => 'required|exists:produks,id',
             'items.*.qty' => 'required|integer|min:1',
             'items.*.harga_beli' => 'required|numeric|min:0',
-            'items.*.harga_jual' => 'required|numeric|min:0',
             'items.*.diskon' => 'nullable|numeric|min:0',
             'items.*.pajak_id' => 'nullable|exists:pajaks,id',
         ]);
@@ -407,7 +404,6 @@ class PembelianController extends Controller
                     $produk = $produks->get($itemData['produk_id']);
                     if ($produk) {
                         $produk->harga_beli = $itemData['harga_beli'];
-                        $produk->harga_jual = $itemData['harga_jual'];
                         $produk->save();
                     }
                 }

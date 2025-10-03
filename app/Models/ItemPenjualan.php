@@ -26,4 +26,8 @@ class ItemPenjualan extends Model
     {
         return $this->hasMany(SerialNumber::class);
     }
+    public function itemReturPenjualans(): HasMany
+    {
+        return $this->hasMany(ItemReturPenjualan::class);
+    }
 }

@@ -1,4 +1,4 @@
-<div class="table-responsive p-0 mt-3">
+<div class="table-responsive p-0 mt-2">
     <table class="table table-hover align-items-center justify-content-start mb-0" id="tableData">
         <thead>
             <tr class="table-secondary">

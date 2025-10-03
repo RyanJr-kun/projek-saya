@@ -1,4 +1,4 @@
-<header class="sticky-top bg-white shadow-0">
+<header class="bg-white shadow-0">
     {{-- 2. MAIN HEADER (Logo, Search, Icons) --}}
     <div class="main-header container-fluid container-xl border-bottom ">
         <div class="d-flex justify-content-between align-items-center py-3 border-top">
@@ -110,19 +110,33 @@
         <div class="container-fluid container-xl border-md-top">
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav">
-                    <li class="nav-item me-4"><a class="nav-link text-sm nav-link-animated active" aria-current="page" href="#">Beranda</a></li>
-                    <li class="nav-item dropdown me-4">
-                        <a class="nav-link text-sm dropdown-toggle" href="#" id="kategoriDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Kategori</a>
-                        <ul class="dropdown-menu dropdown-menu-end p-2 mt-2 rounded-2" aria-labelledby="kategoriDropdown">
-                            <li><a class="dropdown-item border-radius-md" href="#">Laptop</a></li>
-                            <li><a class="dropdown-item border-radius-md" href="#">PC Rakitan</a></li>
-                            <li><a class="dropdown-item border-radius-md" href="#">Komponen</a></li>
-                            <li><a class="dropdown-item border-radius-md" href="#">Aksesoris</a></li>
-                        </ul>
+                    <li class="nav-item me-4">
+                        <a class="nav-link text-sm nav-link-animated active" aria-current="page" href="{{ url('/') }}">Beranda</a>
                     </li>
-                    <li class="nav-item me-4"><a class="nav-link text-sm nav-link-animated" href="#">Promo</a></li>
-                    <li class="nav-item me-4"><a class="nav-link text-sm nav-link-animated" href="#">Tentang Kami</a></li>
-                    <li class="nav-item"><a class="nav-link text-sm nav-link-animated" href="#">Kontak</a></li>
+                    <li class="nav-item me-4">
+                        <div class="dropdown dropdown-hover-market">
+                            <a class="nav-link text-sm dropdown-toggle" href="#" id="produkDrop" role="button" data-bs-toggle="dropdown" aria-expanded="false">Produk</a>
+                            <ul class="dropdown-menu p-2 mt-2 rounded-2" aria-labelledby="produkDrop">
+                                @forelse ($kategoris as $kategori)
+                                <li>
+                                    {{-- Arahkan ke halaman produk dengan filter kategori --}}
+                                    <a class="dropdown-item border-radius-md" href="{{ route('market.produk', ['kategori' => $kategori->slug]) }}">{{ $kategori->nama }}</a>
+                                </li>
+                                @empty
+                                <li><a class="dropdown-item border-radius-md text-muted" href="#">Kategori tidak tersedia</a></li>
+                                @endforelse
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item me-4">
+                        <a class="nav-link text-sm nav-link-animated" href="#">Populer</a>
+                    </li>
+                    <li class="nav-item me-4">
+                        <a class="nav-link text-sm nav-link-animated" href="#">Explor</a>
+                    </li>
+                    <li class="nav-item me-4">
+                        <a class="nav-link text-sm nav-link-animated" href="{{ route('market.tentang') }}">Tentang Kami</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -139,12 +153,16 @@
                 <li class="nav-item"><a class="nav-link fs-5" href="#">Beranda</a></li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle fs-5" href="#" id="offcanvasKategoriDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Kategori</a>
-                    <ul class="dropdown-menu border-0" aria-labelledby="offcanvasKategoriDropdown">
-                        <li><a class="dropdown-item" href="#">Laptop</a></li>
-                        <li><a class="dropdown-item" href="#">PC Rakitan</a></li>
-                        <li><a class="dropdown-item" href="#">Komponen</a></li>
-                        <li><a class="dropdown-item" href="#">Aksesoris</a></li>
-                    </ul>
+                     <ul class="dropdown-menu border-0" aria-labelledby="offcanvasKategoriDropdown">
+                        @forelse ($kategoris as $kategori)
+                        <li>
+                            {{-- Arahkan ke halaman produk dengan filter kategori --}}
+                            <a class="dropdown-item" href="{{ route('market.produk', ['kategori' => $kategori->slug]) }}">{{ $kategori->nama }}</a>
+                        </li>
+                        @empty
+                        <li><a class="dropdown-item text-muted" href="#">Tidak ada kategori</a></li>
+                        @endforelse
+                     </ul>
                 </li>
                 <li class="nav-item"><a class="nav-link fs-5" href="#">Promo</a></li>
                 <li class="nav-item"><a class="nav-link fs-5" href="#">Tentang Kami</a></li>

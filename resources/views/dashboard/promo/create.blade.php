@@ -32,8 +32,8 @@
                     @include('dashboard.promo._form')
 
                     <div class="d-flex justify-content-end mt-4">
-                        <a href="{{ route('promo.index') }}" class="btn btn-secondary me-2">Batal</a>
-                        <button type="submit" class="btn btn-info">Simpan Promo</button>
+                        <button type="submit" class="btn btn-outline-info me-2 ">Simpan Promo</button>
+                        <a href="{{ route('promo.index') }}" class="btn btn-secondary ">Batal</a>
                     </div>
                 </form>
             </div>

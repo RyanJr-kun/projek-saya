@@ -1,13 +1,9 @@
 <x-layout>
-    @push('styles')
-        {{-- Optional: Add any specific styles for this page --}}
-    @endpush
-
     @section('breadcrumb')
         @php
             $breadcrumbItems = [
                 ['name' => 'Page', 'url' => '#'],
-                ['name' => 'Manajemen Promo & Diskon', 'url' => route('promo.index')],
+                ['name' => 'Manajemen Promosi', 'url' => route('promo.index')],
             ];
         @endphp
         <x-breadcrumb :items="$breadcrumbItems" />
@@ -15,15 +11,15 @@
 
     <div class="container-fluid p-3">
         <div class="card rounded-2">
-            <div class="card-header pb-0 px-3 pt-2 mb-3">
+            <div class="card-header pb-0 px-3 pt-2">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="mb-n1">Daftar Promo & Diskon</h6>
-                        <p class="text-sm mb-0">Kelola semua promosi dan diskon Anda di sini.</p>
+                        <p class="text-sm mb-0">Kelola semua promosi dan diskon <br class="d-sm-none"> Anda di sini.</p>
                     </div>
                     <div class="ms-md-auto mt-2">
                         <a href="{{ route('promo.create') }}" class="btn btn-outline-info mb-0">
-                            <i class="fa fa-plus me-2"></i>Tambah Promo
+                            <i class="fa fa-plus me-2"></i>Promo
                         </a>
                     </div>
                 </div>
@@ -43,7 +39,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="promo-table-container" class="mt-3">
+                <div id="promo-table-container">
                     @include('dashboard.promo._promo_table')
                 </div>
             </div>

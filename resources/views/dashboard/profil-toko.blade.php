@@ -12,7 +12,7 @@
 
         <div class="card shadow mb-4">
             <div class="card-body">
-                <form action="{{ route('pengaturan.profil-toko.update') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('pengaturan.profil-toko.update') }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -114,11 +114,11 @@
                     maxFileSize: '2MB',
                     server: {
                         process: {
-                            url: '{{ route("pengaturan.profil-toko.upload") }}',
+                            url: '{{ route('pengaturan.profil-toko.upload') }}',
                             headers: { 'X-CSRF-TOKEN': csrfToken }
                         },
                         revert: {
-                            url: '{{ route("pengaturan.profil-toko.revert") }}',
+                            url: '{{ route('pengaturan.profil-toko.revert') }}',
                             headers: { 'X-CSRF-TOKEN': csrfToken }
                         }
                         // Properti 'load' sudah dihapus dari sini

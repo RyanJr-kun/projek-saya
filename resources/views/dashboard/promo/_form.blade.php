@@ -68,8 +68,8 @@
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
-    <div class="col-12 form-check form-switch form-check-reverse mt-3">
-        <label class="form-check-label" for="status">Status Aktif</label>
+    <div class="col-12 form-check form-switch ms-2 mt-3">
         <input class="form-check-input" type="checkbox" id="status" name="status" value="1" @checked(old('status', $promo->status ?? true))>
+        <label class="form-check-label" for="status">Status Aktif</label>
     </div>
 </div>

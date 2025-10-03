@@ -9,14 +9,12 @@ use App\Models\Produk;
 use App\Models\Garansi;
 use Illuminate\Http\Request;
 use App\Models\ItemPenjualan;
-use App\Models\Penjualan;
 use App\Models\KategoriProduk;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 use \Cviebrock\EloquentSluggable\Services\SlugService;
-use Illuminate\Support\Str;
 
 class ProdukController extends Controller
 {

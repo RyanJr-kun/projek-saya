@@ -173,8 +173,13 @@
                                         <p class="text-xs text-secondary mb-0">{{ $item->sku ?? '-' }}</p>
                                     </td>
                                     <td>
-                                        <span
-                                            class="badge badge-sm badge-{{ ['Pembelian' => 'success', 'Penjualan' => 'info', 'Stok Opname' => 'primary', 'Penyesuaian' => 'warning'][$item->tipe_gerakan] ?? 'secondary' }}">{{ $item->tipe_gerakan }}</span>
+                                        <span class="badge badge-sm badge-{{[
+                                        'Pembelian' => 'success',
+                                        'Penjualan' => 'info',
+                                        'Retur Penjualan' => 'dark',
+                                        'Stok Opname' => 'primary',
+                                        'Penyesuaian' => 'warning'
+                                        ][$item->tipe_gerakan] ?? 'secondary' }}">{{ $item->tipe_gerakan }} </span>
                                     </td>
                                     <td>
                                         @if ($item->route_name && $item->referensi_id)

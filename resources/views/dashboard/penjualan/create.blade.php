@@ -1299,8 +1299,8 @@
                                             <p class="text-xs text-secondary mb-0">${sale.nama} &bull; ${sale.waktu}</p>
                                         </div>
                                         <div class="text-end">
-                                            <span class="text-sm fw-bold text-success">${formatCurrency(sale.total_akhir)}</span>
-                                            <p class="badge badge-sm bg-gradient-info mb-0">${sale.status}</p>
+                                            <span class="text-sm fw-bold text-dark me-2">${formatCurrency(sale.total_akhir)}</span>
+                                            <p class="badge badge-sm badge-success mb-0">${sale.status}</p>
                                         </div>
                                     </a>`;
                             });

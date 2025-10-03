@@ -127,7 +127,7 @@ class LaporanController extends Controller
         $summary = $totalQuery->selectRaw('SUM(jumlah_masuk) as total_masuk, SUM(jumlah_keluar) as total_keluar')->first();
 
         // Urutkan dan lakukan paginasi
-        $pergerakan = $query->orderBy('tanggal', 'desc')->paginate(25)->withQueryString();
+        $pergerakan = $query->orderBy('tanggal', 'desc')->paginate(50)->withQueryString();
 
         return view('dashboard.laporan.laporan-inventaris', [
             'title' => 'Laporan Pergerakan Inventaris',
@@ -265,7 +265,7 @@ class LaporanController extends Controller
             return $pdf->download($fileName);
         }
 
-        return Excel::download(new InventarisExport($data['pergerakan']), $fileName, ExcelFormats::XLSX);
+        return Excel::download(new InventarisExport($pergerakan), $fileName, ExcelFormats::XLSX);
     }
 
     /**
@@ -312,7 +312,7 @@ class LaporanController extends Controller
         $totals->total_due = $totalQuery->sum(DB::raw('total_akhir - jumlah_dibayar'));
 
         // Lakukan paginasi
-        $pembelians = $query->paginate(20)->withQueryString();
+        $pembelians = $query->paginate(50)->withQueryString();
 
         return view('dashboard.laporan.laporan-pembelian', [
             'title' => 'Laporan Pembelian',
@@ -371,7 +371,7 @@ class LaporanController extends Controller
             $pdf = Pdf::loadView('dashboard.laporan.pdf.export-pembelian', $data);
             return $pdf->download($fileName);
         }
-        return Excel::download(new PembelianExport($data), $fileName, ExcelFormats::XLSX);
+        return Excel::download(new PembelianExport($pembelians), $fileName, ExcelFormats::XLSX);
     }
     /**
      * Menampilkan laporan penjualan.
@@ -408,7 +408,7 @@ class LaporanController extends Controller
         $totals->total_products_sold = $totalItemsQuery->join('item_penjualans', 'penjualans.id', '=', 'item_penjualans.penjualan_id')->sum('item_penjualans.jumlah');
 
         // Lakukan paginasi
-        $penjualans = $query->paginate(20)->withQueryString();
+        $penjualans = $query->paginate(50)->withQueryString();
 
         return view('dashboard.laporan.laporan-penjualan', [
             'title' => 'Laporan Penjualan',
@@ -477,7 +477,7 @@ class LaporanController extends Controller
             return $pdf->download($fileName);
         }
 
-        return Excel::download(new PenjualanExport($data), $fileName, ExcelFormats::XLSX);
+        return Excel::download(new PenjualanExport($penjualans), $fileName, ExcelFormats::XLSX);
     }
 
     /**

@@ -38,69 +38,74 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+
+            <div class="{{ auth()->user()->role_id != 2 ? 'col-md-3' : 'col-md-12' }}">
                 <div class="card rounded-2" style="background-color: #29b648;">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-start">
                             <div class="icon icon-shape bg-white shadow shadow-success align-items-center text-center rounded-3 me-3">
                                 <i class="bi bi-cart-check-fill" aria-hidden="true" style="color: #29b648;"></i>
                             </div>
-                            <div class="numbers">
+                            <div class="numbers w-100">
                                 <p class="text-xs mt-2 mb-0 text-white font-weight-bold">Penjualan</p>
-                                <h5 class="font-weight-bolder text-white">@money($totalPenjualanPeriode)</h5>
+                                <h5 class="font-weight-bolder text-white mb-0">@money($totalPenjualanPeriode)</h5>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card rounded-2" style="background-color: #2e4466;">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center justify-content-start">
-                            <div class="icon icon-shape bg-white shadow shadow-danger align-items-center text-center rounded-3 me-3">
-                                <i class="bi bi-box-arrow-in-down-right" aria-hidden="true" style="color: #2e4466;"></i>
-                            </div>
-                            <div class="numbers">
-                                <p class="text-xs mt-2 mb-0 text-white font-weight-bold">Retur Penjualan</p>
-                                <h5 class="font-weight-bolder text-white">@money($totalReturPenjualanPeriode)</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card rounded-2" style="background-color: #178ae8;">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center justify-content-start">
-                            <div class="icon icon-shape bg-white shadow shadow-info align-items-center text-center rounded-3 me-3">
-                                <i class="bi bi-bag-plus-fill" aria-hidden="true" style="color: #178ae8;"></i>
-                            </div>
-                            <div class="numbers">
-                                <p class="text-xs mt-2 mb-0 text-white font-weight-bold">Pembelian</p>
-                                <h5 class="font-weight-bolder text-white">@money($totalPembelianPeriode)</h5>
+            {{-- Tampilkan card berikut hanya jika pengguna bukan kasir (role_id != 2) --}}
+            @if (auth()->user()->role_id != 2)
+                <div class="col-md-3">
+                    <div class="card rounded-2" style="background-color: #2e4466;">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <div class="icon icon-shape bg-white shadow shadow-danger align-items-center text-center rounded-3 me-3">
+                                    <i class="bi bi-box-arrow-in-down-right" aria-hidden="true" style="color: #2e4466;"></i>
+                                </div>
+                                <div class="numbers">
+                                    <p class="text-xs mt-2 mb-0 text-white font-weight-bold">Retur Penjualan</p>
+                                    <h5 class="font-weight-bolder text-white">@money($totalReturPenjualanPeriode)</h5>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card rounded-2" style="background-color: #8392ab;">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center justify-content-start">
-                            <div class="icon icon-shape bg-white shadow shadow-secondary align-items-center text-center rounded-3 me-3">
-                                <i class="bi bi-box-arrow-down-left" aria-hidden="true" style="color: #8392ab;"></i>
-                            </div>
-                            <div class="numbers">
-                                <p class="text-xs mt-2 mb-0 text-white font-weight-bold">Retur Pembelian</p>
-                                <h5 class="font-weight-bolder text-white">@money($totalReturPembelianPeriode)</h5>
+                <div class="col-md-3">
+                    <div class="card rounded-2" style="background-color: #178ae8;">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <div class="icon icon-shape bg-white shadow shadow-info align-items-center text-center rounded-3 me-3">
+                                    <i class="bi bi-bag-plus-fill" aria-hidden="true" style="color: #178ae8;"></i>
+                                </div>
+                                <div class="numbers">
+                                    <p class="text-xs mt-2 mb-0 text-white font-weight-bold">Pembelian</p>
+                                    <h5 class="font-weight-bolder text-white">@money($totalPembelianPeriode)</h5>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="col-md-3">
+                    <div class="card rounded-2" style="background-color: #8392ab;">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center justify-content-start">
+                                <div class="icon icon-shape bg-white shadow shadow-secondary align-items-center text-center rounded-3 me-3">
+                                    <i class="bi bi-box-arrow-down-left" aria-hidden="true" style="color: #8392ab;"></i>
+                                </div>
+                                <div class="numbers">
+                                    <p class="text-xs mt-2 mb-0 text-white font-weight-bold">Retur Pembelian</p>
+                                    <h5 class="font-weight-bolder text-white">@money($totalReturPembelianPeriode)</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             {{-- Card Pendapatan --}}
-            <div class="col-md-3">
+            {{-- Jika kasir, buat kolom lebih lebar (col-md-6) --}}
+            <div class="{{ auth()->user()->role_id != 2 ? 'col-md-3' : 'col-md-6' }}">
                 <div class="card rounded-2 border border-success">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center">
@@ -122,7 +127,8 @@
                 </div>
             </div>
             {{-- Card Transaksi --}}
-            <div class="col-md-3">
+            {{-- Jika kasir, buat kolom lebih lebar (col-md-6) --}}
+            <div class="{{ auth()->user()->role_id != 2 ? 'col-md-3' : 'col-md-6' }}">
                 <div class="card rounded-2 border border-primary">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center">
@@ -143,44 +149,47 @@
                     </div>
                 </div>
             </div>
-            {{-- Card Pengeluaran --}}
-            <div class="col-md-3">
-                <div class="card rounded-2 border border-warning">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="icon icon-shape bg-gradient-warning shadow-warning text-center me-3">
-                                <i class="bi bi-wallet2 text-lg opacity-10" aria-hidden="true"></i>
+            {{-- Tampilkan card berikut hanya jika pengguna bukan kasir (role_id != 2) --}}
+            @if (auth()->user()->role_id != 2)
+                {{-- Card Pengeluaran --}}
+                <div class="col-md-3">
+                    <div class="card rounded-2 border border-warning">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon icon-shape bg-gradient-warning shadow-warning text-center me-3">
+                                    <i class="bi bi-wallet2 text-lg opacity-10" aria-hidden="true"></i>
+                                </div>
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Pengeluaran</p>
+                                    <h5 class="font-weight-bolder mb-0">@money($totalPengeluaranPeriode)</h5>
+                                </div>
                             </div>
-                            <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Pengeluaran</p>
-                                <h5 class="font-weight-bolder mb-0">@money($totalPengeluaranPeriode)</h5>
-                            </div>
+                            <p class="mb-0 mt-2 text-sm">
+                                <a href="{{ route('keuangan') }}" class="text-primary font-weight-bolder">Lihat Detail</a>
+                            </p>
                         </div>
-                        <p class="mb-0 mt-2 text-sm">
-                            <a href="{{ route('keuangan') }}" class="text-primary font-weight-bolder">Lihat Detail</a>
-                        </p>
                     </div>
                 </div>
-            </div>
-            {{-- Card Laba Bersih --}}
-            <div class="col-md-3">
-                <div class="card rounded-2 border border-info">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="icon icon-shape bg-gradient-info shadow-info text-center me-3">
-                                <i class="bi bi-graph-up-arrow text-lg opacity-10" aria-hidden="true"></i>
+                {{-- Card Laba Bersih --}}
+                <div class="col-md-3">
+                    <div class="card rounded-2 border border-info">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon icon-shape bg-gradient-info shadow-info text-center me-3">
+                                    <i class="bi bi-graph-up-arrow text-lg opacity-10" aria-hidden="true"></i>
+                                </div>
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Laba Bersih</p>
+                                    <h5 class="font-weight-bolder mb-0 {{ $labaBersihPeriode >= 0 ? 'text-success' : 'text-danger' }}">@money($labaBersihPeriode)</h5>
+                                </div>
                             </div>
-                            <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Laba Bersih</p>
-                                <h5 class="font-weight-bolder mb-0 {{ $labaBersihPeriode >= 0 ? 'text-success' : 'text-danger' }}">@money($labaBersihPeriode)</h5>
-                            </div>
+                            <p class="mb-0 mt-2 text-sm">
+                                <a href="{{ route('laporan.laba-rugi') }}" class="text-primary font-weight-bolder">Lihat Laporan</a>
+                            </p>
                         </div>
-                        <p class="mb-0 mt-2 text-sm">
-                            <a href="{{ route('laporan.laba-rugi') }}" class="text-primary font-weight-bolder">Lihat Laporan</a>
-                        </p>
                     </div>
                 </div>
-            </div>
+            @endif
 
             <div class="col-md-7">
                 <div class="card z-index-2 rounded-2 ">
@@ -267,9 +276,12 @@
                                                 <span class="text-xs">Min. <span class="font-weight-bold">{{ $produk->stok_minimum }}</span></span>
                                             </div>
                                         </div>
-                                        <a href="{{ route('pembelian.create')}}" class="btn btn-sm btn-dark mb-0 px-2 py-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Beli Produk Ini">
-                                            <i class="bi bi-cart-plus bi-sm"></i>
-                                        </a>
+                                        {{-- Tombol beli hanya untuk non-kasir --}}
+                                        @if (auth()->user()->role_id != 2)
+                                            <a href="{{ route('pembelian.create')}}" class="btn btn-sm btn-dark mb-0 px-2 py-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Beli Produk Ini">
+                                                <i class="bi bi-cart-plus bi-sm"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </li>
                             @empty
