@@ -249,7 +249,7 @@ $black: #0b0b0b;
     transition: color 0.3s ease-in-out;
 
     &::after {
-        content: '';
+        content: "";
         position: absolute;
         width: 100%;
         height: 2px;
@@ -261,8 +261,12 @@ $black: #0b0b0b;
         transition: transform 0.3s ease-in-out;
     }
 
-    &:hover { color: var(--bs-primary) !important; }
-    &:hover::after { transform: scaleX(1); }
+    &:hover {
+        color: var(--bs-primary) !important;
+    }
+    &:hover::after {
+        transform: scaleX(1);
+    }
 }
 
 /*
@@ -279,7 +283,7 @@ $black: #0b0b0b;
         padding-bottom: 2px;
 
         &::after {
-            content: '';
+            content: "";
             position: absolute;
             width: 0;
             height: 1px;
@@ -311,14 +315,17 @@ $black: #0b0b0b;
     }
 }
 
-@media (min-width: 992px) { // Hanya berlaku di layar besar (lg dan di atasnya)
+@media (min-width: 992px) {
+    // Hanya berlaku di layar besar (lg dan di atasnya)
     .dropdown-hover-market {
         .dropdown-menu {
             // Sembunyikan menu secara default dan siapkan transisi
             display: block;
             opacity: 0;
             visibility: hidden;
-            transform: translateY(-10px); // 1. Mulai dari posisi 10px lebih atas
+            transform: translateY(
+                -10px
+            ); // 1. Mulai dari posisi 10px lebih atas
             pointer-events: none; // Mencegah interaksi saat menu tersembunyi
             transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s; // 2. Atur transisi yang lebih halus
         }
@@ -326,8 +333,71 @@ $black: #0b0b0b;
             // Tampilkan menu saat parent di-hover
             opacity: 1;
             visibility: visible;
-            transform: translateY(0); // 3. Kembali ke posisi normal (efek slide-down)
+            transform: translateY(
+                0
+            ); // 3. Kembali ke posisi normal (efek slide-down)
             pointer-events: auto; // Izinkan kembali interaksi saat menu terlihat
         }
+    }
+}
+
+/*
+*
+* Market Page - Card Image Hover Effect
+*
+*/
+.category-card,
+.product-card {
+    .card-img-top {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    &:hover .card-img-top {
+        transform: scale(1.05);
+    }
+}
+
+/*
+*
+* Market Page - Category Scroll Buttons
+*
+*/
+.category-scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    &.prev {
+        left: -20px;
+    }
+
+    &.next {
+        right: -20px;
+    }
+
+    &:hover {
+        transform: translateY(-50%) scale(1.1);
+    }
+}
+
+/* Efek hover untuk menampilkan tombol navigasi kategori */
+.category-scroll-wrapper {
+    .category-scroll-btn {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    &:hover .category-scroll-btn {
+        opacity: 1;
+        visibility: visible;
     }
 }

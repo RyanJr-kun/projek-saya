@@ -9,6 +9,7 @@ use App\Models\Produk;
 use App\Models\KategoriProduk;
 use App\Models\ProfilToko;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MarketController extends Controller
 {
@@ -50,9 +51,43 @@ class MarketController extends Controller
                        ->get();
 
         // Ambil kategori produk yang memiliki produk untuk ditampilkan di menu header.
-        $kategorisForMenu = KategoriProduk::whereHas('produks')
+        $kategorisForMenu = KategoriProduk::withCount('produks')
+                                       ->whereHas('produks')
                                        ->orderBy('nama')
                                        ->get();
+
+        // Ambil 6 produk terlaris sepanjang waktu
+        $produkTerlaris = Produk::with(['unit'])
+            ->select('produks.*', DB::raw('SUM(item_penjualans.jumlah) as total_terjual'))
+            ->join('item_penjualans', 'produks.id', '=', 'item_penjualans.produk_id')
+            ->join('penjualans', 'item_penjualans.penjualan_id', '=', 'penjualans.id')
+            ->where('penjualans.status_pembayaran', '!=', 'Dibatalkan')
+            ->groupBy(
+                'produks.id',
+                'produks.user_id',
+                'produks.kategori_produk_id',
+                'produks.brand_id',
+                'produks.unit_id',
+                'produks.garansi_id',
+                'produks.pajak_id',
+                'produks.nama_produk',
+                'produks.slug',
+                'produks.barcode',
+                'produks.sku',
+                'produks.deskripsi',
+                'produks.harga_jual',
+                'produks.harga_beli',
+                'produks.qty',
+                'produks.stok_minimum',
+                'produks.img_produk',
+                'produks.wajib_seri',
+                'produks.created_at',
+                'produks.updated_at',
+                'produks.deleted_at'
+            )
+            ->orderByDesc('total_terjual')
+            ->limit(6)
+            ->get();
 
         return view('market.beranda',[
             'title' => 'Beranda',
@@ -60,6 +95,7 @@ class MarketController extends Controller
             'mainBanners' => $mainBanners,
             'promoVertikalBanners' => $promoVertikalBanners,
             'bestsellerBanners' => $bestsellerBanners,
+            'produkTerlaris' => $produkTerlaris,
             'promos' => $promos,
             'kategoris' => $kategorisForMenu, // Kirim data kategori ke view
         ]);
