@@ -39,7 +39,7 @@
                                     <tr><td class="fw-bold">Stok Saat Ini</td><td>: {{ $produk->qty }}</td></tr>
                                     <tr><td class="fw-bold">Stok Minimum</td><td>: {{ $produk->stok_minimum }}</td></tr>
                                     <tr><td class="fw-bold">Garansi</td><td>: {{ $produk->garansi?->nama ?? 'Tidak ada garansi' }}</td></tr>
-                                    <tr><td class="fw-bold">Pajak</td><td>: {{ $produk->pajak?->nama_pajak ?? 'Tidak ada' }} ({{ $produk->pajak->rate}}%)</td></tr>
+                                    <tr><td class="fw-bold">Pajak</td><td>: {{ $produk->pajak?->nama_pajak ?? 'Tidak ada' }}</td></tr>
                                     <tr><td class="fw-bold">Dibuat oleh</td><td>: {{ $produk->user->nama }}</td></tr>
                                     <tr>
                                         <td class="fw-bold align-text-top">Deskripsi</td>

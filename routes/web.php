@@ -29,7 +29,7 @@ use App\Http\Controllers\BannerController;
 // Rute untuk Web Market (Publik)
 Route::get('/', [MarketController::class, 'index']);
 Route::get('/market/produk', [MarketController::class, 'produk'])->name('market.produk');
-Route::get('/produk/{slug}', [MarketController::class, 'produkDetail'])->name('market.produk.detail');
+Route::get('/market/produk/{slug}', [MarketController::class, 'produkDetail'])->name('market.produk.detail');
 Route::get('/market/tentang', [MarketController::class, 'tentang'])->name('market.tentang');
 
 //Autentikasi
@@ -62,21 +62,11 @@ Route::middleware(['auth'])->group(function () {
 
     // Grup Rute Produk
     Route::prefix('produk')->name('produk.')->group(function () {
-        // Rute untuk Soft Deletes (Trash)
-        Route::get('trash', [ProdukController::class, 'trash'])->name('trash');
-        Route::post('{slug}/restore', [ProdukController::class, 'restore'])->name('restore');
-        Route::post('restore-multiple', [ProdukController::class, 'restoreMultiple'])->name('restoreMultiple');
-        Route::delete('{slug}/force-delete', [ProdukController::class, 'forceDelete'])->name('forceDelete');
-        Route::post('force-delete-multiple', [ProdukController::class, 'forceDeleteMultiple'])->name('forceDeleteMultiple');
-        // Rute untuk Filepond
         Route::post('upload', [ProdukController::class, 'upload'])->name('upload');
         Route::delete('revert', [ProdukController::class, 'revert'])->name('revert');
-        // Rute untuk slug
         Route::get('checkSlug', [ProdukController::class, 'checkSlug'])->name('checkSlug');
     });
-
-    Route::resource('users', UserController::class)->except('show')->parameter('users', 'user:username');
-    Route::resource('produk', ProdukController::class)->parameters(['produk' => 'produk:slug']);
+    Route::resource('produk', ProdukController::class)->parameter('produk', 'produk:slug');
 
     //serial-number
     Route::get('serialNumber/{produk_slug?}', [SerialNumberController::class, 'index'])->name('serialNumber.index');
@@ -153,7 +143,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('profil-toko/upload', [PengaturanProfilTokoController::class, 'upload'])->name('profil-toko.upload');
         Route::delete('profil-toko/revert', [PengaturanProfilTokoController::class, 'revert'])->name('profil-toko.revert');
     });
-
     Route::resource('promo', PromoController::class);
 
     // Banner
@@ -174,7 +163,7 @@ Route::middleware(['admin', 'auth'])->group(function () {
     Route::resource('pemasok', PemasokController::class)->except('show','create','edit');
 
     //users
-    Route::resource('users', UserController::class)->except('show')->parameter('users', 'user:username');
+    Route::resource('users', UserController::class)->except('show')->parameter('user', 'user:username');
     Route::post('/dashboard/users/upload', [UserController::class, 'upload'])->name('users.upload');
     Route::delete('/dashboard/users/revert', [UserController::class, 'revert'])->name('users.revert');
 

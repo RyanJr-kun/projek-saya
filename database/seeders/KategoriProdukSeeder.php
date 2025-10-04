@@ -23,18 +23,18 @@ class KategoriProdukSeeder extends Seeder
             'Laptop Gaming',
             'Laptop Ultrabook',
             'PC Desktop',
-            'PC All-in-One (AIO)',
+            'PC',
             'Mini PC',
 
             // == Komponen PC Inti ==
-            'Processor (CPU)',
+            'Processor',
             'Motherboard',
-            'VGA Card / Kartu Grafis',
-            'RAM (Memory)',
+            'VGA',
+            'RAM',
 
             // == Penyimpanan Data ==
             'SSD Internal',
-            'Hard Disk Internal (HDD)',
+            'HDD Internal',
             'Penyimpanan Eksternal',
             'Flashdisk',
             'Memory Card',

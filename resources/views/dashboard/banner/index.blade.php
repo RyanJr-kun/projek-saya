@@ -74,10 +74,10 @@
                                     </td>
                                     <td class="align-middle">
                                         <a href="javascript:;" class="text-secondary font-weight-bold text-xs me-3" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{ $banner->id }}" title="Edit banner">
-                                            <i class="bi bi-pencil-square bi-lg text-dark"></i>
+                                            <i class="bi bi-pencil-square bi-sm text-dark"></i>
                                         </a>
                                         <a href="javascript:;" class="text-secondary font-weight-bold text-xs delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ $banner->id }}" data-title="{{ $banner->judul ?? 'Tanpa Judul'}}" title="Hapus banner">
-                                            <i class="bi bi-trash bi-lg text-danger"></i>
+                                            <i class="bi bi-trash bi-sm text-dark"></i>
                                         </a>
                                     </td>
                                 </tr>

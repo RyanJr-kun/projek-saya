@@ -22,31 +22,11 @@
                         </p>
                     </div>
                     <div class="ms-auto mt-2">
-                        <div class="d-none d-md-block">
-                            <a href="{{ route('produk.trash') }}" class="btn btn-outline-secondary mb-0" title="Produk Diarsipkan">
-                                <i class="bi bi-trash3"></i>
-                            </a>
-                            <a href="{{ route('produk.create') }}">
-                                <button class="btn btn-outline-info mb-0">
-                                    <i class="bi bi-plus-lg cursor-pointer pe-2"></i> Produk
-                                </button>
-                            </a>
-                        </div>
-                        <div class="dropdown d-block d-md-none ">
-                            <button class="btn btn-outline-info dropdown-toggle mb-0" type="button" id="aksiMobile" data-bs-toggle="dropdown" aria-expanded="false">Pilih Aksi</button>
-                            <ul class="dropdown-menu" aria-labelledby="aksiMobile">
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('produk.trash') }}">
-                                        <i class="bi bi-trash3 me-2"></i>Produk Diarsipkan</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-info " href="{{ route('produk.create') }}">
-                                        <i class="bi bi-plus-lg  cursor-pointer pe-2"></i> Produk
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                        <a href="{{ route('produk.create') }}">
+                            <button class="btn btn-outline-info mb-0">
+                                <i class="bi bi-plus-lg cursor-pointer pe-2"></i> Produk
+                            </button>
+                        </a>
                     </div>
                 </div>
             </div>

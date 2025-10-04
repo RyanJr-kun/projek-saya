@@ -63,11 +63,11 @@ class ProdukController extends Controller
     public function create()
     {
         return view('dashboard.produk.produk.create',[
-            'kategori' => KategoriProduk::all(),
-            'brand' => Brand::all(),
-            'unit' => Unit::all(),
-            'garansi' => Garansi::all(),
-            'pajak' => Pajak::all(),
+            'kategori' => KategoriProduk::where('status', 1)->orderBy('nama')->get(),
+            'brand' => Brand::where('status', 1)->orderBy('nama')->get(),
+            'unit' => Unit::where('status', 1)->orderBy('nama')->get(),
+            'garansi' => Garansi::where('status', 1)->orderBy('nama')->get(),
+            'pajak' => Pajak::orderBy('nama_pajak')->get(),
         ]);
     }
 
@@ -105,10 +105,10 @@ class ProdukController extends Controller
         $validatedData['wajib_seri'] = $request->boolean('wajib_seri');
 
         // Pindahkan gambar dari temp ke folder produk
-        if ($request->img_produk) {
-            $tempPath = $request->img_produk;
+        if ($request->filled('img_produk') && str_starts_with($request->img_produk, 'tmp/')) {
+            $tempPath = $request->input('img_produk');
             if (Storage::disk('public')->exists($tempPath)) {
-                $newPath = str_replace('tmp/produk/', 'produk/', $tempPath);
+                $newPath = 'produk/' . basename($tempPath);
                 Storage::disk('public')->move($tempPath, $newPath);
                 $validatedData['img_produk'] = $newPath;
             }
@@ -126,8 +126,7 @@ class ProdukController extends Controller
      */
     public function show(Produk $produk)
     {
-       return view('dashboard.inventaris.produk.show',[
-            // Eager load relationships to prevent N+1 query issues
+       return view('dashboard.produk.produk.show',[
             'produk' => $produk->load(['kategori_produk', 'brand', 'unit', 'garansi', 'user', 'pajak'])
         ]);
     }
@@ -139,11 +138,11 @@ class ProdukController extends Controller
     {
         return view('dashboard.produk.produk.edit',[
             'produk' => $produk,
-            'kategoris' => KategoriProduk::all(),
-            'brands' => Brand::all(),
-            'units' => Unit::all(),
-            'garansis' => Garansi::all(),
-            'pajak' => Pajak::all(),
+            'kategoris' => KategoriProduk::where('status', 1)->orderBy('nama')->get(),
+            'brands' => Brand::where('status', 1)->orderBy('nama')->get(),
+            'units' => Unit::where('status', 1)->orderBy('nama')->get(),
+            'garansis' => Garansi::where('status', 1)->orderBy('nama')->get(),
+            'pajak' => Pajak::orderBy('nama_pajak')->get(),
         ]);
     }
 
@@ -188,8 +187,8 @@ class ProdukController extends Controller
                 if ($produk->img_produk && Storage::disk('public')->exists($produk->img_produk)) {
                     Storage::disk('public')->delete($produk->img_produk);
                 }
-                // Pindahkan gambar baru dari tmp ke folder produk
-                $newPath = str_replace('tmp/produk/', 'produk/', $tempPath);
+                // Pindahkan gambar baru dari tmp ke folder produk (lebih aman dengan basename)
+                $newPath = 'produk/' . basename($tempPath);
                 Storage::disk('public')->move($tempPath, $newPath);
                 $validatedData['img_produk'] = $newPath;
             }
@@ -213,92 +212,48 @@ class ProdukController extends Controller
      */
     public function destroy(Request $request, Produk $produk)
     {
-
         try {
-            // Panggil method delete(), yang sekarang akan melakukan soft delete
-            $produk->delete();
+            // Pengecekan relasi sebelum menghapus
+            if ($produk->itemPenjualans()->exists() || $produk->pembelianDetails()->exists()) {
+                $message = 'Produk tidak dapat dihapus karena sudah memiliki riwayat transaksi.';
+                if ($request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+                Alert::error('Gagal', $message);
+                return back();
+            }
+
+            // Hapus serial number terkait jika ada
+            $produk->serialNumbers()->delete();
+
+            // Hapus gambar terkait secara permanen jika ada
+            if ($produk->img_produk && Storage::disk('public')->exists($produk->img_produk)) {
+                Storage::disk('public')->delete($produk->img_produk);
+            }
+
+            // Panggil method forceDelete() untuk menghapus permanen dari database
+            $produk->forceDelete();
 
             // Kirim respons JSON jika ini adalah permintaan AJAX
             if ($request->wantsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Produk berhasil dihapus (diarsipkan).'
+                    'message' => 'Produk berhasil dihapus'
                 ]);
             }
 
             // Respons standar jika bukan AJAX
-            Alert::success('Berhasil', 'Produk berhasil dihapus (diarsipkan).');
+            Alert::success('Berhasil', 'Produk berhasil dihapus');
             return redirect()->route('produk.index');
 
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'Gagal menghapus produk.'], 500);
+                // Sertakan pesan error untuk debugging di sisi client jika perlu
+                return response()->json(['success' => false, 'message' => 'Gagal menghapus produk: ' . $e->getMessage()], 500);
             }
             Alert::error('Gagal', 'Terjadi kesalahan saat menghapus produk.');
             return back();
         }
-    }
-
-    /**
-     * Display a listing of the soft-deleted resources.
-     */
-    public function trash()
-    {
-        $trashedProduk = Produk::onlyTrashed()->latest()->paginate(10);
-        return view('dashboard.inventaris.produk.trash', [
-            'title' => 'Produk Diarsipkan',
-            'produk' => $trashedProduk
-        ]);
-    }
-
-    /**
-     * Restore the specified soft-deleted resource.
-     */
-    public function restore($slug)
-    {
-        $produk = Produk::onlyTrashed()->where('slug', $slug)->firstOrFail();
-        $produk->restore();
-
-        Alert::success('Berhasil', 'Produk berhasil dipulihkan.');
-        return redirect()->route('produk.trash');
-    }
-
-    /**
-     * Restore multiple soft-deleted resources.
-     */
-    public function restoreMultiple(Request $request)
-    {
-        $validated = $request->validate([
-            'produk_ids' => 'required|array',
-            'produk_ids.*' => 'exists:produks,id',
-        ]);
-
-        $count = count($validated['produk_ids']);
-
-        Produk::onlyTrashed()
-            ->whereIn('id', $validated['produk_ids'])
-            ->restore();
-
-        Alert::success('Berhasil', $count . ' produk berhasil dipulihkan.');
-        return redirect()->route('produk.trash');
-    }
-
-    /**
-     * Permanently delete the specified resource from storage.
-     */
-    public function forceDelete($slug)
-    {
-        $produk = Produk::onlyTrashed()->where('slug', $slug)->firstOrFail();
-
-        // Hapus gambar terkait secara permanen jika ada
-        if ($produk->img_produk && Storage::disk('public')->exists($produk->img_produk)) {
-            Storage::disk('public')->delete($produk->img_produk);
-        }
-
-        $produk->forceDelete();
-
-        Alert::success('Berhasil', 'Produk berhasil dihapus secara permanen.');
-        return redirect()->route('produk.trash');
     }
 
     public function checkSlug(Request $request)

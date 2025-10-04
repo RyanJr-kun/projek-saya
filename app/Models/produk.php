@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -13,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Produk extends Model
 {
-    use HasFactory, SoftDeletes, Sluggable;
+    use HasFactory, Sluggable;
 
     protected $guarded = ['id'];
     protected $with = ['kategori_produk', 'user', 'brand', 'unit', 'garansi'];
@@ -49,6 +48,5 @@ class Produk extends Model
     public function itemPenjualans() : HasMany { return $this->hasMany(ItemPenjualan::class); }
     public function pembelianDetails() : HasMany { return $this->hasMany(PembelianDetail::class); }
     public function serialNumbers(): HasMany { return $this->hasMany(SerialNumber::class); }
-
     public function latestPurchaseDetail() { return $this->hasOne(\App\Models\PembelianDetail::class)->latestOfMany(); }
 }

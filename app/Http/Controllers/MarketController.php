@@ -62,29 +62,7 @@ class MarketController extends Controller
             ->join('item_penjualans', 'produks.id', '=', 'item_penjualans.produk_id')
             ->join('penjualans', 'item_penjualans.penjualan_id', '=', 'penjualans.id')
             ->where('penjualans.status_pembayaran', '!=', 'Dibatalkan')
-            ->groupBy(
-                'produks.id',
-                'produks.user_id',
-                'produks.kategori_produk_id',
-                'produks.brand_id',
-                'produks.unit_id',
-                'produks.garansi_id',
-                'produks.pajak_id',
-                'produks.nama_produk',
-                'produks.slug',
-                'produks.barcode',
-                'produks.sku',
-                'produks.deskripsi',
-                'produks.harga_jual',
-                'produks.harga_beli',
-                'produks.qty',
-                'produks.stok_minimum',
-                'produks.img_produk',
-                'produks.wajib_seri',
-                'produks.created_at',
-                'produks.updated_at',
-                'produks.deleted_at'
-            )
+            ->groupBy('produks.id') // Group by the primary key is sufficient for most SQL modes
             ->orderByDesc('total_terjual')
             ->limit(6)
             ->get();
@@ -122,7 +100,7 @@ class MarketController extends Controller
      * @param  string  $slug
      * @return \Illuminate\View\View
      */
-    public function produkDetail($slug) // Mengubah nama method agar konsisten dengan route
+    public function produkDetail($slug)
     {
         // PERBAIKAN: Eager load semua relasi yang mungkin ditampilkan di halaman detail.
         $produk = Produk::with(['kategori_produk', 'brand', 'unit', 'garansi', 'pajak', 'user'])

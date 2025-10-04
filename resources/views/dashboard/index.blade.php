@@ -439,16 +439,19 @@
                                         <h6 class="text-center fw-bolder">{{ $totalPelanggan }}</h6>
                                     </div>
                                 </div>
-                                <div class="p-2 rounded-3 border mx-3 bg-light w-100">
-                                    <div class="text-center mb-3">
-                                        <i class="bi bi-person-fill-check bi-lg  text-warning opacity-10"></i>
+                                {{-- Tampilkan hanya untuk admin --}}
+                                @if (auth()->user()->role_id == 1)
+                                    <div class="p-2 rounded-3 border mx-3 bg-light w-100">
+                                        <div class="text-center mb-3">
+                                            <i class="bi bi-person-fill-check bi-lg  text-warning opacity-10"></i>
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <span class="mb-1 text-sm text-center">Total Pemasok</span>
+                                            <h6 class="text-center fw-bolder">{{ $totalPemasok }}</h6>
+                                        </div>
                                     </div>
-                                    <div class="d-flex flex-column">
-                                        <span class="mb-1 text-sm text-center">Total Pemasok</span>
-                                        <h6 class="text-center fw-bolder">{{ $totalPemasok }}</h6>
-                                    </div>
-                                </div>
-                                <div class="p-2 rounded-3 border bg-light w-100">
+                                @endif
+                                <div class="p-2 rounded-3 border {{ auth()->user()->role_id == 1 ? '' : 'mx-3' }} bg-light w-100">
                                     <div class="text-center mb-3">
                                         <i class="bi bi-cart-dash-fill bi-lg  text-success opacity-10"></i>
                                     </div>
@@ -457,15 +460,18 @@
                                         <h6 class="text-center fw-bolder">{{ $totalOrder }}</h6>
                                     </div>
                                 </div>
-                                <div class="p-2 rounded-3 border ms-3 bg-light w-100">
-                                    <div class="text-center mb-3">
-                                        <i class="bi bi-cart-plus-fill bi-lg  text-danger opacity-10"></i>
+                                {{-- Tampilkan hanya untuk admin --}}
+                                @if (auth()->user()->role_id == 1)
+                                    <div class="p-2 rounded-3 border ms-3 bg-light w-100">
+                                        <div class="text-center mb-3">
+                                            <i class="bi bi-cart-plus-fill bi-lg  text-danger opacity-10"></i>
+                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <span class="mb-1 text-sm text-center">Total Pembelian</span>
+                                            <h6 class="text-center fw-bolder">{{ $totalPembelian }}</h6>
+                                        </div>
                                     </div>
-                                    <div class="d-flex flex-column">
-                                        <span class="mb-1 text-sm text-center">Total Pembelian</span>
-                                        <h6 class="text-center fw-bolder">{{ $totalPembelian }}</h6>
-                                    </div>
-                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
