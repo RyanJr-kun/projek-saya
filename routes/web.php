@@ -144,6 +144,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('profil-toko/revert', [PengaturanProfilTokoController::class, 'revert'])->name('profil-toko.revert');
     });
     Route::resource('promo', PromoController::class);
+    Route::post('promo/validate-code', [PromoController::class, 'validateCode'])->name('promo.validateCode');
+    Route::patch('/promo/{promo}/update-status/', [PromoController::class, 'updateStatus'])->name('promo.updateStatus');
 
     // Banner
     Route::get('/banner/{banner}/json', [BannerController::class, 'getJson'])->name('banner.getjson');
@@ -166,7 +168,5 @@ Route::middleware(['admin', 'auth'])->group(function () {
     Route::resource('users', UserController::class)->except('show')->parameter('user', 'user:username');
     Route::post('/dashboard/users/upload', [UserController::class, 'upload'])->name('users.upload');
     Route::delete('/dashboard/users/revert', [UserController::class, 'revert'])->name('users.revert');
-
-    // Promo & Diskon
 
 });

@@ -154,7 +154,7 @@
 
                     <div class="col-md-3">
                         <label for="garansi" class="form-label">Garansi</label>
-                        <select class="form-select @error('garansi') is-invalid @enderror" id="garansi" name="garansi">
+                        <select class="form-select @error('garansi') is-invalid @enderror" id="garansi" name="garansi" required>
                             <option value="" disabled selected>Pilih</option>
                              @foreach ($garansis as $garansi)
                                     <option value="{{ $garansi->id }}" @selected(old('garansi', $produk->garansi_id) == $garansi->id)>{{ $garansi->nama }} </option>

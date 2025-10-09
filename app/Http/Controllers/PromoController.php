@@ -65,14 +65,21 @@ class PromoController extends Controller
             'max_diskon' => 'nullable|numeric|min:0',
             'tanggal_mulai' => 'required|date',
             'tanggal_berakhir' => 'required|date|after_or_equal:tanggal_mulai',
+            'produks' => 'nullable|array',
+            'produks.*' => 'exists:produks,id',
             'status' => 'nullable|boolean',
             'deskripsi' => 'nullable|string',
+
         ]);
 
         $validatedData['user_id'] = Auth::id();
         $validatedData['status'] = $request->has('status');
 
-        Promo::create($validatedData);
+        $promo = Promo::create($validatedData);
+
+        if ($request->has('produks')) {
+            $promo->produks()->sync($request->produks);
+        }
 
         Alert::success('Berhasil', 'Promo baru berhasil ditambahkan!');
         return redirect()->route('promo.index');
@@ -114,6 +121,8 @@ class PromoController extends Controller
             'max_diskon' => 'nullable|numeric|min:0',
             'tanggal_mulai' => 'required|date',
             'tanggal_berakhir' => 'required|date|after_or_equal:tanggal_mulai',
+            'produks' => 'nullable|array',
+            'produks.*' => 'exists:produks,id',
             'status' => 'nullable|boolean',
             'deskripsi' => 'nullable|string',
         ]);
@@ -122,6 +131,8 @@ class PromoController extends Controller
         $validatedData['status'] = $request->has('status');
 
         $promo->update($validatedData);
+
+        $promo->produks()->sync($request->produks ?? []);
 
         Alert::success('Berhasil', 'Promo berhasil diperbarui!');
         return redirect()->route('promo.index');
@@ -148,5 +159,69 @@ class PromoController extends Controller
     public function getJson(Promo $promo)
     {
         return response()->json($promo);
+    }
+
+    /**
+     * Validate a promo code via AJAX.
+     */
+    public function validateCode(Request $request)
+    {
+        $request->validate([
+            'kode_promo' => 'required|string',
+            'subtotal' => 'required|numeric|min:0',
+        ]);
+
+        $kodePromo = $request->input('kode_promo');
+        $subtotal = $request->input('subtotal');
+
+        $promo = Promo::where('kode_promo', $kodePromo)->first();
+
+        // Cek 1: Kode promo tidak ditemukan
+        if (!$promo) {
+            return response()->json(['success' => false, 'message' => 'Kode promo tidak ditemukan.'], 404);
+        }
+
+        // Cek 2: Promo tidak aktif
+        if (!$promo->status) {
+            return response()->json(['success' => false, 'message' => 'Promo sudah tidak aktif.'], 422);
+        }
+
+        // Cek 3: Tanggal promo belum/sudah lewat
+        $now = now();
+        if ($now->isBefore($promo->tanggal_mulai) || $now->isAfter($promo->tanggal_berakhir)) {
+            return response()->json(['success' => false, 'message' => 'Promo tidak berlaku pada tanggal ini.'], 422);
+        }
+
+        // Cek 4: Minimum pembelian tidak tercapai
+        if ($promo->min_pembelian && $subtotal < $promo->min_pembelian) {
+            $minPembelianFormatted = 'Rp ' . number_format($promo->min_pembelian, 0, ',', '.');
+            return response()->json(['success' => false, 'message' => "Minimum pembelian untuk promo ini adalah {$minPembelianFormatted}."], 422);
+        }
+
+        // Jika semua validasi lolos, kembalikan data promo
+        return response()->json(['success' => true, 'promo' => $promo]);
+    }
+
+    /**
+     * Update the status of a promo via AJAX.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Promo  $promo
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateStatus(Request $request, Promo $promo)
+    {
+        // Hanya update jika statusnya saat ini aktif
+        if ($promo->status) {
+            $promo->status = false;
+            $promo->save();
+
+            return response()->json(['success' => true, 'message' => 'Status promo berhasil diperbarui.']);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Status promo sudah tidak aktif.'
+        ], 409); // 409 Conflict
     }
 }

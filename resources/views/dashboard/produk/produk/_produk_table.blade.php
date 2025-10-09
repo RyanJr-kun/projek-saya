@@ -21,7 +21,7 @@
                             @if ($produks->img_produk)
                                 <img src="{{ asset('storage/' . $produks->img_produk) }}" class="avatar avatar-lg me-3" alt="{{ $produks->nama_produk }}">
                             @else
-                                <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-lg me-3" alt="Gambar produk default">
+                                <img src="{{ asset('assets/img/produk.png') }}" class="avatar avatar-lg me-3" alt="Gambar produk default">
                             @endif
                         </div>
                         <div class="d-flex flex-column justify-content-start">

@@ -68,7 +68,10 @@ class PenjualanController extends Controller
     {
 
         // PERBAIKAN: Eager load relasi untuk efisiensi dan ketersediaan data di view
-        $produks = Produk::with(['kategori_produk', 'unit', 'pajak'])->where('qty', '>', 0)->orderBy('nama_produk')->get();
+        $produks = Produk::with(['kategori_produk', 'unit', 'pajak', 'promos'])
+                     ->where('qty', '>', 0)
+                     ->orderBy('nama_produk')
+                     ->get();
         $pelanggans = Pelanggan::where('status', 1)->orderBy('nama')->get();
         $kategoris = KategoriProduk::where('status', 1)->orderBy('nama')->get();
         $pajaks = Pajak::all(); // Ambil semua data pajak
@@ -314,10 +317,8 @@ class PenjualanController extends Controller
      */
     public function update(Request $request, Penjualan $penjualan)
     {
-        // --- LOGIKA PEMBATALAN CEPAT DARI HALAMAN INDEX ---
-        // Cek jika request hanya untuk membatalkan transaksi tanpa data item lengkap.
+
         if ($request->input('status_pembayaran') === 'Dibatalkan' && !$request->has('items')) {
-            // Hanya proses jika statusnya belum 'Dibatalkan' untuk menghindari duplikasi.
             if ($penjualan->status_pembayaran !== 'Dibatalkan') {
                 try {
                     DB::transaction(function () use ($penjualan) {
@@ -325,31 +326,25 @@ class PenjualanController extends Controller
                         foreach ($penjualan->items as $item) {
                             Produk::where('id', $item->produk_id)->increment('qty', $item->jumlah);
                         }
-
-                        // 2. Update status penjualan menjadi 'Dibatalkan'.
                         $penjualan->update(['status_pembayaran' => 'Dibatalkan']);
                     });
-
                     Alert::success('Berhasil', 'Transaksi berhasil dibatalkan dan stok telah dikembalikan.');
                 } catch (\Exception $e) {
                     Alert::error('Gagal', 'Gagal membatalkan transaksi: ' . $e->getMessage());
                 }
             } else {
-                // Jika sudah dibatalkan, cukup berikan notifikasi tanpa melakukan apa-apa.
                 Alert::info('Info', 'Transaksi ini sudah dalam status Dibatalkan.');
             }
             return redirect()->route('penjualan.index');
         }
 
-        // --- LOGIKA UPDATE LENGKAP DARI HALAMAN EDIT ---
         $request->merge([
         'jumlah_dibayar' => preg_replace('/[^0-9]/', '', $request->input('jumlah_dibayar')),
         'service' => preg_replace('/[^0-9]/', '', $request->input('service', 0)),
         'ongkir' => preg_replace('/[^0-9]/', '', $request->input('ongkir', 0)),
         'diskon' => preg_replace('/[^0-9]/', '', $request->input('diskon', 0)),
         ]);
-        // Validasi ini tampaknya menggunakan logika pajak eksklusif, berbeda dengan method store().
-        // 1. Validasi data yang masuk dari form edit
+
         $validatedData = $request->validate([
             'pelanggan_id' => 'nullable|exists:pelanggans,id',
             'tanggal_penjualan' => 'required|date',
@@ -366,19 +361,44 @@ class PenjualanController extends Controller
             'items.*.harga_jual' => 'required|numeric|min:0',
             'items.*.diskon' => 'required|numeric|min:0',
             'items.*.pajak_id' => 'nullable|exists:pajaks,id',
+            'items.*.serial_numbers' => 'nullable|array',
+            'items.*.serial_numbers.*' => 'string',
         ]);
 
         try {
-            // Ambil data pajak yang relevan dalam satu query untuk efisiensi
             $pajakIds = collect($validatedData['items'])->pluck('pajak_id')->filter()->unique();
             $pajaksData = Pajak::whereIn('id', $pajakIds)->get()->keyBy('id');
 
             $penjualan = DB::transaction(function () use ($request, $penjualan, $validatedData, $pajaksData) {
+                // --- MANAJEMEN NOMOR SERI ---
+                // 1. Ambil semua item LAMA beserta nomor serinya SEBELUM ada perubahan.
+                $oldItemsWithSerials = $penjualan->items()->with('serialNumbers')->get();
+
+                // 2. Kumpulkan semua nomor seri LAMA ke dalam satu array.
+                $oldSerialNumbers = $oldItemsWithSerials->pluck('serialNumbers')->flatten()->pluck('nomor_seri')->all();
+
+                // 3. Kumpulkan semua nomor seri BARU dari request.
+                $newSerialNumbers = collect($validatedData['items'])
+                    ->where('serial_numbers')
+                    ->pluck('serial_numbers')
+                    ->flatten()
+                    ->all();
+
+                // 4. Cari nomor seri yang ada di daftar LAMA tapi TIDAK ADA di daftar BARU.
+                // Ini adalah nomor seri yang itemnya dihapus dari transaksi.
+                $serialsToMakeAvailable = array_diff($oldSerialNumbers, $newSerialNumbers);
+
+                // 5. Jika ada, update statusnya kembali menjadi 'Tersedia'.
+                if (!empty($serialsToMakeAvailable)) {
+                    SerialNumber::whereIn('nomor_seri', $serialsToMakeAvailable)
+                        ->update(['status' => 'Tersedia', 'item_penjualan_id' => null]);
+                }
+
                 // --- MANAJEMEN STOK ---
                 $statusLama = $penjualan->status_pembayaran;
                 $statusBaru = $validatedData['status_pembayaran'];
 
-                // a. Ambil semua produk yang relevan untuk data baru dalam satu query
+                // a. Ambil semua produk yang relevan untuk data baru dalam satu query (eager load wajib_seri)
                 $newProdukIds = collect($validatedData['items'])->pluck('produk_id');
                 $produks = Produk::whereIn('id', $newProdukIds)->get()->keyBy('id');
 
@@ -387,6 +407,13 @@ class PenjualanController extends Controller
                     // Status diubah menjadi Dibatalkan -> Kembalikan stok item lama
                     if ($statusLama !== 'Dibatalkan') {
                         foreach ($penjualan->items as $oldItem) {
+                            // Jika status diubah jadi Dibatalkan, semua SN juga harus dikembalikan
+                            // (Logika ini sudah tercakup di `array_diff` di atas karena $newSerialNumbers akan kosong)
+                            // Namun, kita tambahkan di sini untuk penanganan pembatalan cepat.
+                            SerialNumber::where('item_penjualan_id', $oldItem->id)->update([
+                                'status' => 'Tersedia',
+                                'item_penjualan_id' => null
+                            ]);
                             Produk::where('id', $oldItem->produk_id)->increment('qty', $oldItem->jumlah);
                         }
                     }
@@ -410,6 +437,21 @@ class PenjualanController extends Controller
                         $stokTersedia = $produkQtysSaatIni->get($itemData['produk_id'], 0);
                         if (!$produk || $stokTersedia < $itemData['jumlah']) {
                             throw new \Exception("Stok untuk produk '{$produk->nama_produk}' tidak mencukupi (tersedia: {$stokTersedia}, dibutuhkan: {$itemData['jumlah']}).");
+                        }
+
+                        // Validasi ulang nomor seri yang dikirim
+                        if ($produk->wajib_seri) {
+                            if (!isset($itemData['serial_numbers']) || count($itemData['serial_numbers']) !== (int)$itemData['jumlah']) {
+                                throw new \Exception("Jumlah nomor seri untuk produk '{$produk->nama_produk}' tidak sesuai dengan kuantitas.");
+                            }
+                            // Verifikasi bahwa SN yang dikirim valid (Tersedia ATAU sudah terikat dengan transaksi ini sebelumnya)
+                            $validSnCount = SerialNumber::where('produk_id', $produk->id)
+                                ->whereIn('nomor_seri', $itemData['serial_numbers'])
+                                ->where(fn($q) => $q->where('status', 'Tersedia')->orWhereIn('nomor_seri', $oldSerialNumbers))
+                                ->count();
+                            if ($validSnCount !== (int)$itemData['jumlah']) {
+                                throw new \Exception("Satu atau lebih nomor seri untuk '{$produk->nama_produk}' tidak valid atau sudah terjual di transaksi lain.");
+                            }
                         }
                     }
 
@@ -471,7 +513,7 @@ class PenjualanController extends Controller
                 $penjualan->items()->delete();
 
                 // c. Buat kembali item penjualan berdasarkan data baru
-                foreach ($validatedData['items'] as $itemData) {
+                foreach ($validatedData['items'] as $index => $itemData) {
                     // Hitung ulang DPP dan Pajak per item untuk disimpan
                     $harga_jual_total_item = (float)$itemData['harga_jual'] * (int)$itemData['jumlah'];
                     $pajak_id = $itemData['pajak_id'] ?? null;
@@ -482,7 +524,7 @@ class PenjualanController extends Controller
                     // Subtotal item adalah DPP dikurangi diskon item
                     $subtotal_item_final = $dpp_item - $itemData['diskon'];
 
-                    $penjualan->items()->create([
+                    $newItem = $penjualan->items()->create([
                         'produk_id' => $itemData['produk_id'],
                         'jumlah' => $itemData['jumlah'],
                         'harga_jual' => $itemData['harga_jual'],
@@ -491,6 +533,16 @@ class PenjualanController extends Controller
                         'pajak_item' => $pajak_amount_item,
                         'subtotal' => $subtotal_item_final,
                     ]);
+
+                    // Update status nomor seri yang BARU menjadi 'Terjual' dan kaitkan dengan item baru
+                    if (isset($itemData['serial_numbers']) && !empty($itemData['serial_numbers'])) {
+                        SerialNumber::whereIn('nomor_seri', $itemData['serial_numbers'])
+                            ->where('produk_id', $itemData['produk_id'])
+                            ->update([
+                                'status' => 'Terjual',
+                                'item_penjualan_id' => $newItem->id
+                            ]);
+                    }
                 }
 
                 return $penjualan->load('items.produk', 'pelanggan', 'user');

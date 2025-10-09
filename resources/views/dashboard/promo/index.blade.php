@@ -132,6 +132,83 @@
                     fetchData(page);
                 }
             });
+            // --- PROMO COUNTDOWN LOGIC ---
+                let countdownInterval;
+
+                function initializeCountdowns() {
+                    // Hentikan interval sebelumnya jika ada
+                    if (countdownInterval) {
+                        clearInterval(countdownInterval);
+                    }
+
+                    const countdownElements = document.querySelectorAll('[id^="countdown-"]');
+                    if (countdownElements.length === 0) return;
+
+                    function updateAllCountdowns() {
+                        countdownElements.forEach(el => {
+                            const endTime = new Date(el.dataset.endTime).getTime();
+                            const promoId = el.dataset.promoId;
+                            const now = new Date().getTime();
+                            const distance = endTime - now;
+
+                            const statusContainer = document.getElementById(`status-container-${promoId}`);
+                            const statusBadge = statusContainer ? statusContainer.querySelector('.badge') : null;
+
+                            if (distance > 0) {
+                                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                                el.innerHTML = `${days}h ${hours}j ${minutes}m ${seconds}d`;
+
+                                // Pastikan statusnya 'Aktif' jika masih berjalan
+                                if (statusBadge && statusBadge.textContent.trim() === 'Tidak Aktif') {
+                                    statusBadge.className = 'badge badge-success';
+                                    statusBadge.textContent = 'Aktif';
+                                }
+
+                            } else {
+                                el.innerHTML = `<span class="text-danger">Berakhir</span>`;
+                                // Jika status masih 'Aktif', ubah dan panggil AJAX
+                                if (statusBadge && statusBadge.textContent.trim() === 'Aktif') {
+                                    statusBadge.className = 'badge badge-secondary';
+                                    statusBadge.textContent = 'Tidak Aktif';
+                                    updatePromoStatus(promoId);
+                                }
+                            }
+                        });
+                    }
+
+                    countdownInterval = setInterval(updateAllCountdowns, 1000);
+                    updateAllCountdowns(); // Panggil sekali saat inisialisasi
+                }
+
+                async function updatePromoStatus(promoId) {
+                    try {
+                        const response = await fetch(`/promo/${promoId}/update-status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        });
+                        const result = await response.json();
+                        if (!result.success) {
+                            console.error(`Gagal update status promo ${promoId}:`, result.message);
+                        }
+                    } catch (error) {
+                        console.error('Error saat update status promo:', error);
+                    }
+                }
+
+                // Inisialisasi countdown saat halaman dimuat
+                initializeCountdowns();
+
+                // Inisialisasi ulang setelah AJAX selesai
+                $(document).ajaxComplete(function() {
+                    initializeCountdowns();
+                });
         });
     </script>
     @endpush

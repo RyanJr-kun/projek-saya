@@ -7,6 +7,7 @@
                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Tipe Diskon</th>
                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Nilai Diskon</th>
                 <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Periode</th>
+                <th class="text-uppercase text-dark text-xs font-weight-bolder ps-2">Hitung Mundur</th>
                 <th class="text-center text-uppercase text-dark text-xs font-weight-bolder">Status</th>
                 <th class="text-dark"></th>
             </tr>
@@ -43,14 +44,19 @@
                         {{ \Carbon\Carbon::parse($promo->tanggal_mulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($promo->tanggal_berakhir)->format('d M Y') }}
                     </p>
                 </td>
-                <td class="align-middle text-center text-sm">
+                <td class="text-xs text-dark fw-bold mb-0" id="countdown-{{ $promo->id }}" data-end-time="{{ $promo->tanggal_berakhir->toIso8601String() }}" data-promo-id="{{ $promo->id }}">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </td>
+                <td class="align-middle text-center text-sm" id="status-container-{{ $promo->id }}">
                     @if ($promo->status)
                         <span class="badge badge-success">Aktif</span>
                     @else
                         <span class="badge badge-secondary">Tidak Aktif</span>
                     @endif
                 </td>
-                <td class="text-center align-middle">
+                <td class="align-middle">
                     <a href="{{ route('promo.show', $promo->id) }}" class="text-dark fw-bold px-2 text-xs" title="Lihat Detail">
                         <i class="bi bi-eye text-dark text-sm opacity-10"></i>
                     </a>
@@ -68,7 +74,7 @@
                 </td>
             </tr>
             @empty
-                <tr id="promo-row-empty"><td colspan="7" class="text-center py-4"><p class="text-dark text-sm fw-bold mb-0">Belum ada data promo.</p></td></tr>
+                <tr id="promo-row-empty"><td colspan="8" class="text-center py-4"><p class="text-dark text-sm fw-bold mb-0">Belum ada data promo.</p></td></tr>
             @endforelse
         </tbody>
     </table>

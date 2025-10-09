@@ -198,12 +198,12 @@
                                         <button type="button" class="btn btn-link text-dark p-0 m-0 btn-edit"
                                             data-id="{{ $sn->id }}" data-serial="{{ $sn->nomor_seri }}"
                                             data-status="{{ $sn->status }}" title="Edit SN">
-                                            <i class="bi bi-pencil-square bi-lg text-dark text-sm opacity-10"></i>
+                                            <i class="bi bi-pencil-square bi-sm text-dark text-sm opacity-10"></i>
                                         </button>
                                         <button type="button" class="btn btn-link text-danger p-0 m-0 ms-2 btn-delete"
                                             data-id="{{ $sn->id }}" data-serial="{{ $sn->nomor_seri }}"
                                             title="Hapus SN">
-                                            <i class="bi bi-trash bi-lg"></i>
+                                            <i class="bi bi-trash bi-sm"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -465,7 +465,7 @@
                                         <td class="ps-4">${counter++}</td>
                                         <td class="text-start">${serial}</td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-link text-danger p-0 m-0 btn-remove-temp" data-serial="${serial}"><i class="bi bi-trash bi-lg"></i></button>
+                                            <button type="button" class="btn btn-link text-danger p-0 m-0 btn-remove-temp" data-serial="${serial}"><i class="bi bi-trash bi-sm"></i></button>
                                         </td>
                                     </tr>`);
             });

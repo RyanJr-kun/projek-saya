@@ -9,25 +9,18 @@ class Promo extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'nama_promo',
-        'kode_promo',
-        'tipe_diskon',
-        'nilai_diskon',
-        'min_pembelian',
-        'max_diskon',
-        'tanggal_mulai',
-        'tanggal_berakhir',
-        'status',
-        'deskripsi',
-        'user_id',
-    ];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'tanggal_mulai' => 'datetime',
         'tanggal_berakhir' => 'datetime',
         'status' => 'boolean',
     ];
+
+    public function produks()
+    {
+        return $this->belongsToMany(Produk::class, 'promo_produk');
+    }
 
     public function user()
     {

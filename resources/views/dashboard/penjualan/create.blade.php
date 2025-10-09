@@ -119,7 +119,7 @@
                                 @foreach ($kategoris as $kategori)
                                     @if($kategori->produks->isNotEmpty())
                                         <div class="category-btn border rounded-1 d-flex align-items-center my-3 p-2 " style="height: 40px;  cursor: pointer;" data-category-id="{{ $kategori->id }}">
-                                            <img src="{{ $kategori->img_kategori ? asset('storage/' . $kategori->img_kategori) : asset('assets/img/produk.webp') }}" class="avatar avatar-xs rounded-1" alt="{{ $kategori->nama }}">
+                                            <img src="{{ $kategori->img_kategori ? asset('storage/' . $kategori->img_kategori) : asset('assets/img/produk.png') }}" class="avatar avatar-xs rounded-1" alt="{{ $kategori->nama }}">
                                             <p class="fw-bolder text-xs ms-2 mb-0 ">{{ $kategori->nama }}</p>
                                         </div>
                                     @endif
@@ -131,17 +131,18 @@
                         <div class="row" id="product-list">
                             @forelse ($produks as $produk)
                                 <div class="col-12 col-md-4 col-xl-3 mb-3" data-product-category-id="{{ $produk->kategori_produk_id }}">
-                                    <div class="card product-card rounded-2 px-2 pt-2"
+                                    <div class="card product-card rounded-2 p-2"
                                         data-id="{{ $produk->id }}"
                                         data-nama="{{ $produk->nama_produk }}"
-                                        data-harga="{{ $produk->harga_jual }}"
-                                        data-img="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp') }}"
+                                        data-harga="{{ $produk->harga_diskon ?? $produk->harga_jual }}"
+                                        data-harga-asli="{{ $produk->harga_jual }}"
+                                        data-img="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.png') }}"
                                         data-stok="{{ $produk->qty }}"
                                         data-wajib-seri="{{ $produk->wajib_seri ? 'true' : 'false' }}"
                                         data-pajak-id="{{ $produk->pajak_id }}"
                                         data-pajak-rate="{{ $produk->pajak->rate ?? 0 }}"
                                         data-disabled="{{ $produk->qty < 1 ? 'true' : 'false' }}">
-                                        <img class="card-img-top rounded-2" src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp') }}" alt="Gambar Produk">
+                                        <img class="card-img-top rounded-2" src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.png') }}" alt="Gambar Produk">
                                         <div class="card-body p-2">
                                             <div class="row g-1">
                                                 <div class="col-12">
@@ -149,12 +150,24 @@
                                                     <h6 class="mb-0 product-name text-sm">{{ $produk->nama_produk }}</h6>
                                                 </div>
                                                 <hr class="horizontal dark my-2">
-                                                <div class="col-8">
-                                                    <p class="font-weight-bold text-sm mb-0">{{ $produk->harga_formatted }}</p>
-                                                </div>
-                                                <div class="col-4 text-end">
-                                                    <p class="text-xs mb-0">{{ $produk->qty }} {{ $produk->unit->singkat }}</p>
-                                                </div>
+                                                @if($produk->harga_diskon)
+                                                    <div class="col-12">
+                                                        <div class="d-flex">
+                                                            <p class="text-sm text-muted  me-2 text-decoration-line-through">{{ $produk->harga_formatted }}</p>
+                                                            <p class="text-sm font-weight-bold text-dark mb-0">{{ 'Rp ' . number_format($produk->harga_diskon, 0, ',', '.') }}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 text-end">
+                                                        <p class="text-xs mt-n2 mb-0">{{ $produk->qty }} {{ $produk->unit->singkat }}</p>
+                                                    </div>
+                                                @else
+                                                    <div class="col-8">
+                                                        <p class="font-weight-bold text-sm mb-0">{{ $produk->harga_formatted }}</p>
+                                                    </div>
+                                                    <div class="col-4 text-end">
+                                                        <p class="text-xs mb-0">{{ $produk->qty }} {{ $produk->unit->singkat }}</p>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="card-footer p-2 pt-0 border-0">
@@ -444,6 +457,16 @@
                     <div class="modal-body">
                         <form id="editExtraCostForm" onsubmit="return false;">
                             <input type="hidden" id="extra-cost-type">
+                            {{-- Promo Code Section (Initially hidden) --}}
+                            <div id="promo-code-section" class="mb-3" style="display: none;">
+                                <label for="promo-code-input" class="form-control-label">Kode Promo</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="promo-code-input" placeholder="Masukkan kode promo">
+                                    <button class="btn btn-outline-secondary mb-0" type="button" id="apply-promo-btn">Terapkan</button>
+                                </div>
+                                <div id="promo-feedback" class="mt-2 text-xs"></div>
+                            </div>
+
                             <div class="form-group">
                                 <label for="extra-cost-value" class="form-control-label" id="extra-cost-label">Jumlah</label>
                                 <div class="input-group">
@@ -600,9 +623,11 @@
 
                 // DIUBAH: Fungsi ini sekarang menangani penambahan produk ke state `cart`
                 const addProductToCart = (productData, serialNumbers = []) => {
-                    const { id, nama, harga, stok, img, wajibSeri, pajakId, pajakRate } = productData; // Destructure all needed data
+                    // PERBAIKAN 1: Ambil juga `hargaAsli` dari productData
+                    const { id, nama, harga, hargaAsli, stok, img, wajibSeri, pajakId, pajakRate } = productData;
                     const parsedId = parseInt(id);
-                    const parsedHarga = parseFloat(harga);
+                    const parsedHargaFinal = parseFloat(harga); // Ini sudah harga diskon (jika ada) atau harga jual normal
+                    const parsedHargaAsli = parseFloat(hargaAsli); // Ini harga jual asli sebelum diskon
                     const parsedStok = parseInt(stok);
 
                     if (cart.has(parsedId)) {
@@ -619,11 +644,11 @@
                             cart.set(parsedId, {
                                 id: parsedId,
                                 nama,
-                                harga: parsedHarga,
+                                harga: parsedHargaAsli,
                                 stok: parsedStok,
                                 img,
                                 jumlah: initialQuantity,
-                                harga_jual: parsedHarga,
+                                harga_jual: parsedHargaFinal,
                                 diskon: 0,
                                 pajak_id: pajakId ? parseInt(pajakId) : null,
                                 pajak_rate: pajakRate ? parseFloat(pajakRate) : 0,
@@ -692,11 +717,11 @@
                         cart.forEach(item => {
                             const subtotalItem = (item.harga_jual * item.jumlah) - item.diskon; // Subtotal sebelum pajak
                             const pajakItem = subtotalItem * (item.pajak_rate / 100); // Hitung PPN untuk item ini
-                        // Harga jual total untuk item ini (sudah termasuk pajak) dikurangi diskon item
-                        const hargaJualTotalItem = (item.harga_jual * item.jumlah) - item.diskon;
-                        // Hitung DPP (Dasar Pengenaan Pajak) dan Pajak dari harga jual inklusif
-                        const dppItem = hargaJualTotalItem / (1 + (item.pajak_rate / 100));
-                        const pajakAmountItem = hargaJualTotalItem - dppItem;
+                            // Harga jual total untuk item ini (sudah termasuk pajak) dikurangi diskon item
+                            const hargaJualTotalItem = (item.harga_jual * item.jumlah) - item.diskon;
+                            // Hitung DPP (Dasar Pengenaan Pajak) dan Pajak dari harga jual inklusif
+                            const dppItem = hargaJualTotalItem / (1 + (item.pajak_rate / 100));
+                            const pajakAmountItem = hargaJualTotalItem - dppItem;
 
                             let serialNumberInputs = '';
                             if (item.serial_numbers && item.serial_numbers.length > 0) {
@@ -709,6 +734,15 @@
                             let serialNumberDisplay = '';
                             if (item.serial_numbers && item.serial_numbers.length > 0) {
                                 serialNumberDisplay = `<span class="text-xs text-muted d-block">SN: ${item.serial_numbers.join(', ')}</span>`;
+                            }
+
+                            let hargaDisplay = `<span class="text-xs">${formatCurrency(item.harga_jual)}</span>`;
+                            if (item.harga_jual < item.harga) { // Jika harga jual (final) lebih kecil dari harga asli
+                                hargaDisplay = `
+                                    <span class="text-xs text-danger">${formatCurrency(item.harga_jual)}</span>
+                                    <br>
+                                    <small class="text-muted text-decoration-line-through">${formatCurrency(item.harga)}</small>
+                                `;
                             }
 
                             // BARU: Logika untuk menampilkan/menyembunyikan tombol edit
@@ -858,7 +892,7 @@
                             nama: data.nama_produk,
                             harga: data.harga_jual,
                             stok: data.qty,
-                            img: data.img_produk ? `{{ asset('storage/') }}/${data.img_produk}` : `{{ asset('assets/img/produk.webp') }}`,
+                            img: data.img_produk ? `{{ asset('storage/') }}/${data.img_produk}` : `{{ asset('assets/img/produk.png') }}`,
                             wajibSeri: data.wajib_seri ? 'true' : 'false',
                             pajakId: data.pajak_id,
                             pajakRate: data.pajak ? data.pajak.rate : 0
@@ -898,13 +932,13 @@
                     if (!card) return;
 
                     // Ambil pajakId dari dataset card
-                    const { id, nama, harga, stok, disabled, img, wajibSeri, pajakId, pajakRate } = card.dataset;
+                    const { id, nama, harga, hargaAsli, stok, disabled, img, wajibSeri, pajakId, pajakRate } = card.dataset;
 
                     if (disabled === 'true') return;
 
                     const isWajibSeri = wajibSeri === 'true';
                     // Simpan semua data termasuk pajakId ke objek sementara
-                    tempProductDataForSN = { id, nama, harga, stok, img, wajibSeri, pajakId, pajakRate };
+                    tempProductDataForSN = { id, nama, harga, hargaAsli, stok, img, wajibSeri, pajakId, pajakRate };
 
                     if (isWajibSeri) {
                         const itemInCart = cart.get(parseInt(id));
@@ -1045,6 +1079,8 @@
                 const extraCostModal = new bootstrap.Modal(document.getElementById('editExtraCostModal'));
                 const extraCostModalEl = document.getElementById('editExtraCostModal');
                 const extraCostValueInput = document.getElementById('extra-cost-value');
+                const promoCodeSection = document.getElementById('promo-code-section');
+                const applyPromoBtn = document.getElementById('apply-promo-btn');
 
                 extraCostModalEl.addEventListener('show.bs.modal', function (event) {
                     const triggerElement = event.relatedTarget;
@@ -1058,6 +1094,16 @@
                     document.getElementById('editExtraCostModalLabel').textContent = `Edit ${label}`;
                     document.getElementById('extra-cost-label').textContent = label;
                     extraCostValueInput.value = new Intl.NumberFormat('id-ID').format(currentValue || 0);
+
+                    // Show promo section only for 'diskon'
+                    if (type === 'diskon') {
+                        promoCodeSection.style.display = 'block';
+                        extraCostValueInput.readOnly = false; // Pastikan tidak readonly
+                        document.getElementById('promo-code-input').value = '';
+                        document.getElementById('promo-feedback').innerHTML = '';
+                    } else {
+                        promoCodeSection.style.display = 'none';
+                    }
                     setTimeout(() => extraCostValueInput.focus(), 500); // Fokus ke input setelah modal tampil
                 });
 
@@ -1075,6 +1121,66 @@
 
                     calculateTotals();
                     extraCostModal.hide();
+                });
+
+                applyPromoBtn.addEventListener('click', async () => {
+                    const promoCode = document.getElementById('promo-code-input').value.trim();
+                    const promoFeedback = document.getElementById('promo-feedback');
+                    if (!promoCode) {
+                        promoFeedback.innerHTML = `<span class="text-danger">Silakan masukkan kode promo.</span>`;
+                        return;
+                    }
+
+                    // Ambil subtotal (DPP) dari total
+                    let subtotal = 0;
+                    cart.forEach(item => {
+                        const hargaJualTotalItem = (item.harga_jual * item.jumlah) - item.diskon;
+                        const dppItem = hargaJualTotalItem / (1 + (item.pajak_rate / 100));
+                        subtotal += dppItem;
+                    });
+
+                    promoFeedback.innerHTML = `<span class="text-muted">Memvalidasi...</span>`;
+
+                    try {
+                        const response = await fetch("{{ route('promo.validateCode') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                kode_promo: promoCode,
+                                subtotal: subtotal
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (!result.success) {
+                            throw new Error(result.message);
+                        }
+
+                        const promo = result.promo;
+                        let discountAmount = 0;
+
+                        if (promo.tipe_diskon === 'percentage') {
+                            discountAmount = subtotal * (promo.nilai_diskon / 100);
+                            if (promo.max_diskon && discountAmount > promo.max_diskon) {
+                                discountAmount = promo.max_diskon;
+                            }
+                        } else { // fixed
+                            discountAmount = promo.nilai_diskon;
+                        }
+
+                        extraCostValueInput.value = new Intl.NumberFormat('id-ID').format(discountAmount);
+                        extraCostValueInput.readOnly = true; // Kunci input setelah promo diterapkan
+                        promoFeedback.innerHTML = `<span class="text-success fw-bold">Promo "${promo.nama_promo}" berhasil diterapkan!</span>`;
+
+                    } catch (error) {
+                        promoFeedback.innerHTML = `<span class="text-danger">${error.message}</span>`;
+                        extraCostValueInput.readOnly = false; // Buka kembali jika gagal
+                    }
                 });
 
                 // GANTI SELURUH FUNGSI INI

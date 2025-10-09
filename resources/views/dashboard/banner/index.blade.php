@@ -45,7 +45,7 @@
                                     <td>
                                         <div class="d-flex px-2 py-1 align-items-center">
                                             <div>
-                                                <img src="{{ asset('storage/' . $banner->img_banner) }}" class="avatar avatar-lg me-3" alt="Banner Image">
+                                                <img src="{{ asset('storage/' . $banner->img_banner) }}" class="avatar avatar-sm me-3" alt="Banner Image">
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
                                                 <h6 class="mb-0 text-dark">{{ $banner->judul ?? 'Tanpa Judul' }}</h6>

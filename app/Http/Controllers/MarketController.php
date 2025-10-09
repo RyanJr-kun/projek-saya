@@ -8,7 +8,6 @@ use App\Models\Promo;
 use App\Models\Produk;
 use App\Models\KategoriProduk;
 use App\Models\ProfilToko;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MarketController extends Controller
@@ -21,9 +20,9 @@ class MarketController extends Controller
     public function index()
     {
         // Ambil produk terbaru dengan eager loading untuk performa
-        $produks = Produk::with(['kategori_produk', 'unit', 'brand'])
-                        ->latest()
-                        ->paginate(12);
+        $produks = Produk::with(['kategori_produk', 'unit', 'brand', 'promos'])
+                    ->latest()
+                    ->paginate(10);
 
         // Ambil banner yang aktif untuk Main Carousel, urutkan berdasarkan urutan
         $mainBanners = Banner::where('is_active', true)
@@ -62,7 +61,17 @@ class MarketController extends Controller
             ->join('item_penjualans', 'produks.id', '=', 'item_penjualans.produk_id')
             ->join('penjualans', 'item_penjualans.penjualan_id', '=', 'penjualans.id')
             ->where('penjualans.status_pembayaran', '!=', 'Dibatalkan')
-            ->groupBy('produks.id') // Group by the primary key is sufficient for most SQL modes
+            // PERBAIKAN: Tambahkan semua kolom yang dipilih ke GROUP BY untuk kompatibilitas dengan mode ONLY_FULL_GROUP_BY
+            ->groupBy(
+                'produks.id',
+                'produks.nama_produk',
+                'produks.slug',
+                'produks.barcode',
+                'produks.sku',
+                'produks.kategori_produk_id',
+                'produks.brand_id',
+                'produks.unit_id', 'produks.deskripsi', 'produks.harga_jual', 'produks.harga_beli', 'produks.qty', 'produks.garansi_id', 'produks.stok_minimum', 'produks.pajak_id', 'produks.img_produk', 'produks.wajib_seri', 'produks.user_id', 'produks.created_at', 'produks.updated_at'
+            )
             ->orderByDesc('total_terjual')
             ->limit(6)
             ->get();

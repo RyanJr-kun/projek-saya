@@ -19,8 +19,8 @@ return new class extends Migration
             $table->decimal('nilai_diskon', 10, 0); // Nilai diskon (misal: 10 untuk 10%, 50000 untuk Rp 50.000)
             $table->decimal('min_pembelian', 15, 0)->default(0); // Minimum pembelian untuk promo
             $table->decimal('max_diskon', 15, 0)->nullable(); // Maksimal diskon untuk tipe persentase
-            $table->datetime('tanggal_mulai');
-            $table->datetime('tanggal_berakhir');
+            $table->dateTime('tanggal_mulai');
+            $table->dateTime('tanggal_berakhir');
             $table->boolean('status')->default(true); // Aktif/Tidak Aktif
             $table->text('deskripsi')->nullable();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null'); // User yang membuat/mengedit

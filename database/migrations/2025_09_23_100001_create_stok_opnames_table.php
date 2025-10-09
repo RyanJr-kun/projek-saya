@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('stok_opnames', function (Blueprint $table) {
             $table->id();
             $table->string('kode_opname')->unique();
-            $table->datetime('tanggal_opname');
+            $table->dateTime('tanggal_opname');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->text('catatan')->nullable();
             $table->enum('status', ['Selesai', 'Draft'])->default('Selesai');

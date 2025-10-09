@@ -2,18 +2,18 @@
 
     {{-- Hero Section --}}
     @if ($mainBanners->isNotEmpty())
-        <div class="container py-4">
+        <div class="container  py-4">
             <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-indicators">
                     @foreach ($mainBanners as $key => $banner)
                         <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ $key }}" class="{{ $loop->first ? 'active' : '' }}" aria-current="{{ $loop->first ? 'true' : 'false' }}" aria-label="Slide {{ $key + 1 }}"></button>
                     @endforeach
                 </div>
-                <div class="carousel-inner rounded-3">
+                <div class="carousel-inner rounded-2">
                     @foreach ($mainBanners as $banner)
                         <div class="carousel-item {{ $loop->first ? 'active' : '' }}" data-bs-interval="5000">
                             <a href="{{ $banner->url_tujuan ?? '#' }}">
-                                <img src="{{ asset('storage/' . $banner->img_banner) }}" class="d-block w-100" alt="{{ $banner->judul ?? 'Banner' }}">
+                                <img src="{{ asset('storage/' . $banner->img_banner) }}" loading="eager" fetchpriority="high" decoding="async" class="d-block w-100 h-100" alt="{{ $banner->judul ?? 'Banner' }}">
                             </a>
                         </div>
                     @endforeach
@@ -55,15 +55,15 @@
         <div class="position-relative category-scroll-wrapper">
             <div id="category-scroll-container" class="d-flex gap-3 overflow-hidden">
                 @foreach ($kategoris as $kategori)
-                    <div class="category-item" style="flex: 0 0 auto; width: 200px;">
+                    <div class="category-item" style="flex: 0 0 auto; width: 120px;">
                         {{-- Ganti '#' dengan link ke halaman kategori jika ada --}}
                         <a href="#" class="text-decoration-none text-dark ">
-                            <div class="card category-card h-100 bg-light shadow-sm mx-2 mb-2 overflow-hidden">
-                                <img src="{{ $kategori->img_kategori ? asset('storage/' . $kategori->img_kategori) : asset('assets/img/produk.webp') }}" class="card-img-top" alt="{{ $kategori->nama }}" style="height: 150px;">
-                                <div class="card-body p-2 text-center">
-                                    <h6 class="card-title fw-bold text-truncate mb-1" title="{{ $kategori->nama }}">{{ $kategori->nama }}</h6>
-                                    <p class="card-text text-muted small">{{ $kategori->produks_count }} Produk</p>
-                                </div>
+                            <div class="card category-card bg-light border mx-2 mb-2 overflow-hidden">
+                                <img src="{{ $kategori->img_kategori ? asset('storage/' . $kategori->img_kategori) : asset('assets/img/produk.png') }}" class="card-img-top" alt="{{ $kategori->nama }}" >
+                            </div>
+                            <div class="card-body p-2 text-center">
+                                <h6 class="card-title fw-bold text-truncate mb-1" title="{{ $kategori->nama }}">{{ $kategori->nama }}</h6>
+                                <p class="card-text text-muted small">{{ $kategori->produks_count }} Produk</p>
                             </div>
                         </a>
                     </div>
@@ -81,6 +81,7 @@
     {{-- Promo Section --}}
     @if ($promoVertikalBanners->isNotEmpty())
     <div class="container px-4 py-5">
+        <h2 class="text-center mb-4 fw-bold">Promo Terbatas</h2>
         <div class="row g-4">
             {{-- Kolom untuk Promo Vertikal --}}
             {{-- Sembunyikan di mobile (d-none) dan tampilkan di desktop (d-lg-block) --}}
@@ -90,7 +91,7 @@
                         @foreach ($promoVertikalBanners as $banner)
                             <div class="carousel-item {{ $loop->first ? 'active' : '' }}" data-bs-interval="7000">
                                 <a href="{{ $banner->url_tujuan ?? '#' }}">
-                                    <img src="{{ asset('storage/' . $banner->img_banner) }}" class="d-block w-100" alt="{{ $banner->judul ?? 'Promo' }}">
+                                    <img src="{{ asset('storage/' . $banner->img_banner) }}" loading="lazy" width="120px" height="720px" class="d-block w-100" alt="{{ $banner->judul ?? 'Promo' }}">
                                 </a>
                             </div>
                         @endforeach
@@ -138,16 +139,15 @@
                         @foreach ($bestsellerBanners as $banner)
                             <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
                                 <a href="{{ $banner->url_tujuan ?? '#' }}">
-                                    <img src="{{ asset('storage/' . $banner->img_banner) }}" class="d-block w-100" alt="{{ $banner->judul ?? 'Bestseller Banner' }}">
+                                    <img src="{{ asset('storage/' . $banner->img_banner) }}" loading="lazy" class="d-block w-100 h-100" alt="{{ $banner->judul ?? 'Bestseller Banner' }}">
                                 </a>
                             </div>
                         @endforeach
                     </div>
                     <button class="carousel-control-prev" type="button" data-bs-target="#bestsellerCarousel" data-bs-slide="prev">
-                        <button class="carousel-control-prev" type="button" data-bs-target="#bestsellerCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
                         <button class="carousel-control-next" type="button" data-bs-target="#bestsellerCarousel" data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
@@ -160,15 +160,35 @@
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3 mt-4">
             @foreach ($produkTerlaris as $produk)
             <div class="col">
-                <div class="card shadow-sm product-card h-100 overflow-hidden">
-                    <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}" class="text-decoration-none text-dark">
-                        <img src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.webp') }}" class="card-img-top" alt="{{ $produk->nama_produk }}">
-                        <div class="card-body p-2">
-                            <h6 class="card-title small text-truncate" title="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</h6>
-                            <p class="text-info fw-bold mb-0">{{ $produk->harga_formatted }}</p>
-                            <small class="text-muted">Terjual: {{ $produk->total_terjual }} {{ $produk->unit->singkat }}</small>
+                <div class="card product-card overflow-hidden">
+                    <div class="product-card-img-container">
+                        <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}">
+                            <img src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.png') }}" loading="lazy"  class="card-img-top" alt="{{ $produk->nama_produk }}">
+                        </a>
+                        <div class="product-card-actions">
+                            @if ($produk->qty > 0)
+                                <button type="button" class="btn btn-dark w-100">
+                                    <i class="bi bi-cart-plus me-1"></i> Belanja
+                                </button>
+                            @else
+                                <button type="button" class="btn btn-dark w-100">Sold Out</button>
+                            @endif
                         </div>
+                    </div>
+                </div>
+                <div class="card-body py-2">
+                    <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}" class="text-decoration-none text-dark text-hover-primary">
+                        <p class="card-title fw-bold text-truncate" title="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</p>
                     </a>
+                    @if($produk->harga_diskon)
+                        <div class="d-md-flex">
+                            <p class="text-sm text-muted text-decoration-line-through mb-0">{{ $produk->harga_formatted }}</p>
+                            <p class="text-sm text-dark mb-0 ms-md-2">{{ 'Rp ' . number_format($produk->harga_diskon, 0, ',', '.') }}</p>
+                        </div>
+                    @else
+                        <p class="text-sm text-dark mb-0">{{ $produk->harga_formatted }}</p>
+                    @endif
+                    <small class="text-muted">Terjual: {{ $produk->total_terjual }} {{ $produk->unit?->singkat }}</small>
                 </div>
             </div>
             @endforeach
@@ -182,31 +202,43 @@
     <div class="album py-5 bg-light">
         <div class="container">
             <h2 class="text-center mb-5 fw-bold">Produk Unggulan</h2>
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-                {{-- Contoh Card Produk (Ulangi untuk setiap produk) --}}
-                @for ($i = 0; $i < 8; $i++)
-                <div class="col ">
-                    <div class="card shadow-sm product-card h-100">
-                        <a href="{{ route('market.produk.detail', ['slug' => 'contoh-produk-'.$i]) }}" class="text-decoration-none text-dark">
-                            <img src="https://via.placeholder.com/300x200/EEEEEE/000000?text=Produk+{{$i+1}}" class="card-img-top rounded-2" alt="Produk {{$i+1}}">
-                            <div class="card-body">
-                                <h5 class="card-title">Nama Produk {{$i+1}}</h5>
-                                <p class="card-text text-muted">Deskripsi singkat mengenai produk ini.</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <p class="text-info fw-bold fs-5 mb-0">Rp 1.500.000</p>
-                                    <small class="text-success">Stok Tersedia</small>
-                                </div>
+            <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+                {{-- Loop untuk produk unggulan --}}
+                @foreach ($produks as $produk)
+                <div class="col">
+                    <div class="card product-card overflow-hidden">
+                        <div class="product-card-img-container">
+                            <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}">
+                                <img src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.png') }}"  loading="lazy" class="card-img-top" alt="{{ $produk->nama_produk }}">
+                            </a>
+                            <div class="product-card-actions">
+                                @if ($produk->qty > 0)
+                                    <button type="button" class="btn btn-dark w-100">
+                                        <i class="bi bi-cart-plus me-1"></i> Belanja
+                                    </button>
+                                @else
+                                    <button type="button" class="btn btn-dark w-100">Sold Out</button>
+                                @endif
                             </div>
-                        </a>
-                        <div class="card-footer bg-transparent border-top-0 pb-3">
-                             <button type="button" class="btn btn-sm btn-outline-info w-100">
-                                <i class="bi bi-cart-plus"></i> Tambah ke Keranjang
-                            </button>
                         </div>
                     </div>
+                    <div class="card-body py-2">
+                            <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}" class="text-decoration-none text-dark text-hover-primary">
+                                <p class="card-title fw-bold text-truncate" title="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</p>
+                            </a>
+                            @if($produk->harga_diskon)
+                            <div class="d-md-flex">
+                                <p class="text-sm text-muted text-decoration-line-through mb-0">{{ $produk->harga_formatted }}</p>
+                                <p class="text-sm text-dark mb-md-0 ms-md-2">{{ 'Rp ' . number_format($produk->harga_diskon, 0, ',', '.') }}</p>
+                            </div>
+                            @else
+                                <p class="text-sm text-dark  mb-0">{{ $produk->harga_formatted }}</p>
+                            @endif
+                    </div>
+
                 </div>
-                @endfor
-                {{-- Akhir Contoh Card Produk --}}
+                @endforeach
+                {{-- Akhir loop produk --}}
             </div>
             <div class="text-center mt-5">
                 <a href="{{ route('market.produk') }}" class="btn btn-outline-dark">Lihat Semua Produk</a>

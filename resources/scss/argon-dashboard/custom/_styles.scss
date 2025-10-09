@@ -110,8 +110,8 @@ $black: #0b0b0b;
 
     // Efek saat cursor diarahkan ke tombol
     &:hover {
-        border-color: #28a745; // Green border on hover
-        box-shadow: 0 0 15px rgba(40, 167, 69, 0.3); // Green glow
+        border-color: #2835a7; // Green border on hover
+        box-shadow: 0 0 15px rgba(40, 49, 167, 0.3); // Green glow
     }
 
     // Gaya untuk tombol yang sedang aktif
@@ -147,8 +147,8 @@ $black: #0b0b0b;
     border: 1px solid transparent; // Default transparent border
 
     &:hover {
-        border-color: #28a745; // Green border on hover
-        box-shadow: 0 0 15px rgba(40, 167, 69, 0.3); // Green glow
+        border-color: #2835a7; // Green border on hover
+        box-shadow: 0 0 15px rgba(40, 49, 167, 0.3); // Green glow
     }
 
     &.active {
@@ -364,15 +364,13 @@ $black: #0b0b0b;
 */
 .category-scroll-btn {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 30%;
     z-index: 10;
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 
     &.prev {
@@ -399,5 +397,50 @@ $black: #0b0b0b;
     &:hover .category-scroll-btn {
         opacity: 1;
         visibility: visible;
+    }
+}
+
+/*
+*
+* Market Page - Product Card Hover Actions
+*
+*/
+.product-card-img-container {
+    position: relative;
+    overflow: hidden;
+
+    .product-card-actions {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 2;
+        padding: 0.5rem;
+        opacity: 0;
+        transform: translateY(100%); // Mulai dari bawah, di luar container
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.468) 0%,
+            rgba(0, 0, 0, 0) 100%
+        ); // Gradient agar teks terbaca
+    }
+
+    &:hover {
+        .product-card-actions {
+            opacity: 1;
+            transform: translateY(0); // Kembali ke posisi normal
+        }
+    }
+}
+
+/*
+*
+* Market Page - Product Card Title Hover
+*
+*/
+.text-hover-primary {
+    &:hover {
+        color: var(--bs-primary) !important;
     }
 }
