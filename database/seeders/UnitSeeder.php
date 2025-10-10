@@ -28,20 +28,6 @@ class UnitSeeder extends Seeder
             ['nama' => 'Roll', 'singkat' => 'Roll'],
             ['nama' => 'Lembar', 'singkat' => 'Lembar'],
 
-            // Satuan Ukuran Data & Kecepatan
-            ['nama' => 'Byte', 'singkat' => 'B'],
-            ['nama' => 'Kilobyte', 'singkat' => 'KB'],
-            ['nama' => 'Megabyte', 'singkat' => 'MB'],
-            ['nama' => 'Gigabyte', 'singkat' => 'GB'],
-            ['nama' => 'Terabyte', 'singkat' => 'TB'],
-            ['nama' => 'Megabit per second', 'singkat' => 'Mbps'],
-            ['nama' => 'Gigabit per second', 'singkat' => 'Gbps'],
-
-            // Satuan Frekuensi (Processor, RAM)
-            ['nama' => 'Hertz', 'singkat' => 'Hz'],
-            ['nama' => 'Megahertz', 'singkat' => 'MHz'],
-            ['nama' => 'Gigahertz', 'singkat' => 'GHz'],
-
             // Satuan Ukuran Fisik
             ['nama' => 'Milimeter', 'singkat' => 'mm'],
             ['nama' => 'Sentimeter', 'singkat' => 'cm'],
@@ -49,21 +35,6 @@ class UnitSeeder extends Seeder
             ['nama' => 'Inci', 'singkat' => 'Inch'],
             ['nama' => 'Gram', 'singkat' => 'g'],
             ['nama' => 'Kilogram', 'singkat' => 'kg'],
-
-            // Satuan Kelistrikan (PSU, Baterai, Komponen)
-            ['nama' => 'Watt', 'singkat' => 'W'],
-            ['nama' => 'Volt', 'singkat' => 'V'],
-            ['nama' => 'Ampere', 'singkat' => 'A'],
-            ['nama' => 'Milliampere Hour', 'singkat' => 'mAh'],
-            ['nama' => 'Ohm', 'singkat' => 'Ω'],
-            ['nama' => 'Kilowatt Hour', 'singkat' => 'kWh'],
-
-            // Satuan Lainnya (Layar, Printer)
-            ['nama' => 'Piksel', 'singkat' => 'Pixel'],
-            ['nama' => 'Dot per Inch', 'singkat' => 'DPI'],
-            ['nama' => 'Pages per Minute', 'singkat' => 'PPM'],
-            ['nama' => 'Nits', 'singkat' => 'Nits'],
-            ['nama' => 'Desibel', 'singkat' => 'dB'],
         ];
 
         // Looping untuk memasukkan data ke database

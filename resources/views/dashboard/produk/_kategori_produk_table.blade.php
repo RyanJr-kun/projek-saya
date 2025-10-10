@@ -18,7 +18,7 @@
                         @if ($kategori->img_kategori)
                             <img src="{{ asset('storage/' . $kategori->img_kategori) }}" class="avatar avatar-sm me-3" alt="{{ $kategori->nama }}">
                         @else
-                            <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
+                            <img src="{{ asset('assets/img/produk.png') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
                         @endif
                         <h6 class="mb-0 text-sm">{{ $kategori->nama }}</h6>
                     </div>

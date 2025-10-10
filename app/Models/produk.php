@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Produk extends Model
 {
-    use HasFactory, Sluggable;
+    use Sluggable;
 
     protected $guarded = ['id'];
     protected $with = ['kategori_produk', 'user', 'brand', 'unit', 'garansi'];
@@ -71,7 +70,7 @@ class Produk extends Model
 
         return $promo;
     }
-    
+
     public function getHargaDiskonAttribute()
     {
         if (!$this->active_promo) {

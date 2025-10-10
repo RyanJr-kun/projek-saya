@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Produk;
-use App\Models\Garansi;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+        GaransiSeeder::class,
         PelangganSeeder::class,
         RoleSeeder::class,
         PajakSeeder::class,
@@ -24,8 +23,6 @@ class DatabaseSeeder extends Seeder
         BrandSeeder::class,
         UserSeeder::class,
         ]);
-        
-        Garansi::factory()->count(5)->create();
-        Produk::factory(15)->create();
+
     }
 }

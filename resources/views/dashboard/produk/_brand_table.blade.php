@@ -17,7 +17,7 @@
                 @if ($brand->img_brand)
                     <img src="{{ asset('storage/' . $brand->img_brand) }}" class="avatar avatar-sm me-3" alt="{{ $brand->nama }}">
                 @else
-                    <img src="{{ asset('assets/img/produk.webp') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
+                    <img src="{{ asset('assets/img/produk.png') }}" class="avatar avatar-sm me-3" alt="Gambar produk default">
                 @endif
                 <h6 class="mb-0 text-sm">{{ $brand->nama }}</h6>
             </div>
