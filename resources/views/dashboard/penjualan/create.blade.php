@@ -143,6 +143,20 @@
                                         data-pajak-rate="{{ $produk->pajak->rate ?? 0 }}"
                                         data-disabled="{{ $produk->qty < 1 ? 'true' : 'false' }}">
                                         <img class="card-img-top rounded-2" src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.png') }}" alt="Gambar Produk">
+                                        {{-- Badge Stok Habis & Promo --}}
+                                        @if($produk->qty < 1)
+                                            <div class="product-badge">
+                                                <span class="badge badge-danger">Stok Habis</span>
+                                            </div>
+                                        @elseif($produk->promos->isNotEmpty() && $promo = $produk->promos->first())
+                                            <div class="product-badge">
+                                                @if($promo->tipe_diskon == 'percentage')
+                                                    <span class="badge badge-danger">{{ (int)$promo->nilai_diskon }}% OFF</span>
+                                                @else
+                                                    <span class="badge badge-info">PROMO</span>
+                                                @endif
+                                            </div>
+                                        @endif
                                         <div class="card-body p-2">
                                             <div class="row g-1">
                                                 <div class="col-12">
@@ -1164,8 +1178,13 @@
                         const promo = result.promo;
                         let discountAmount = 0;
 
+                        // PERBAIKAN: Terapkan pembulatan pada diskon persentase
                         if (promo.tipe_diskon === 'percentage') {
-                            discountAmount = subtotal * (promo.nilai_diskon / 100);
+                            // Hitung nilai diskon mentah
+                            let rawDiscount = subtotal * (promo.nilai_diskon / 100);
+                            // Bulatkan ke bilangan bulat terdekat
+                            discountAmount = Math.round(rawDiscount);
+
                             if (promo.max_diskon && discountAmount > promo.max_diskon) {
                                 discountAmount = promo.max_diskon;
                             }

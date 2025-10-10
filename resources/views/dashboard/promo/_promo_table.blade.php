@@ -58,7 +58,7 @@
                 </td>
                 <td class="align-middle">
                     <a href="{{ route('promo.show', $promo->id) }}" class="text-dark fw-bold px-2 text-xs" title="Lihat Detail">
-                        <i class="bi bi-eye text-dark text-sm opacity-10"></i>
+                        <i class="bi bi-eye-fill text-dark text-sm opacity-10"></i>
                     </a>
                     <a href="{{ route('promo.edit', $promo->id) }}" class="text-dark fw-bold px-2 text-xs" title="Edit Promo">
                         <i class="bi bi-pencil-square text-dark text-sm opacity-10"></i>

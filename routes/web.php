@@ -30,7 +30,9 @@ use App\Http\Controllers\BannerController;
 Route::get('/', [MarketController::class, 'index']);
 Route::get('/market/produk', [MarketController::class, 'produk'])->name('market.produk');
 Route::get('/market/produk/{slug}', [MarketController::class, 'produkDetail'])->name('market.produk.detail');
+Route::get('/market/layanan', [MarketController::class, 'layanan'])->name('market.layanan');
 Route::get('/market/tentang', [MarketController::class, 'tentang'])->name('market.tentang');
+Route::get('/market/live-search', [MarketController::class, 'liveSearch'])->name('market.liveSearch');
 
 //Autentikasi
 Route::get('login', [LoginController::class, 'index'])->name('login')->middleware('guest');

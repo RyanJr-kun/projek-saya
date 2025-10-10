@@ -56,8 +56,7 @@
             <div id="category-scroll-container" class="d-flex gap-3 overflow-hidden">
                 @foreach ($kategoris as $kategori)
                     <div class="category-item" style="flex: 0 0 auto; width: 120px;">
-                        {{-- Ganti '#' dengan link ke halaman kategori jika ada --}}
-                        <a href="#" class="text-decoration-none text-dark ">
+                            <a href="{{ route('market.produk', ['kategori' => $kategori->slug]) }}" class="text-decoration-none text-dark ">
                             <div class="card category-card bg-light border mx-2 mb-2 overflow-hidden">
                                 <img src="{{ $kategori->img_kategori ? asset('storage/' . $kategori->img_kategori) : asset('assets/img/produk.png') }}" class="card-img-top" alt="{{ $kategori->nama }}" >
                             </div>
@@ -83,8 +82,6 @@
     <div class="container px-4 py-5">
         <h2 class="text-center mb-4 fw-bold">Promo Terbatas</h2>
         <div class="row g-4">
-            {{-- Kolom untuk Promo Vertikal --}}
-            {{-- Sembunyikan di mobile (d-none) dan tampilkan di desktop (d-lg-block) --}}
             <div class="col-lg-4 d-none d-lg-block">
                 <div id="promoVertikalCarousel" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-inner rounded-3">
@@ -101,22 +98,59 @@
 
             {{-- Kolom untuk 4 produk promo --}}
             <div class="col-lg-8">
-                <div class="row row-cols-2 row-cols-md-4 g-3">
-                    {{-- Placeholder untuk 4 produk promo, Anda bisa menggantinya dengan loop produk promo nanti --}}
-                    @for ($i = 0; $i < 4; $i++)
-                    <div class="col product-card">
-                        <div class="card shadow-sm h-100">
-                            <a href="#" class="text-decoration-none text-dark">
-                                <img src="https://via.placeholder.com/300x200/FFC107/000000?text=Promo+{{$i+1}}" class="card-img-top" alt="Produk Promo {{$i+1}}">
-                                <div class="card-body p-2">
-                                    <h6 class="card-title small">Nama Produk Promo</h6>
-                                    <p class="text-danger fw-bold mb-0">Rp 99.000</p>
-                                    <small class="text-muted text-decoration-line-through">Rp 150.000</small>
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-3 g-3">
+                    {{-- Loop untuk produk promo --}}
+                    @forelse ($produkPromo as $produk)
+                    <div class="col">
+                        <div class="card product-card overflow-hidden">
+                            <div class="product-card-img-container">
+                                <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}">
+                                    <img src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.png') }}" loading="lazy" class="card-img-top" alt="{{ $produk->nama_produk }}">
+                                    {{-- Badge Promo --}}
+                                     @if($produk->qty < 1)
+                                            <div class="product-badge">
+                                                <span class="badge badge-danger">Stok Habis</span>
+                                            </div>
+                                        @elseif($produk->promos->isNotEmpty() && $promo = $produk->promos->first())
+                                            <div class="product-badge">
+                                                @if($promo->tipe_diskon == 'percentage')
+                                                    <span class="badge badge-danger">{{ (int)$promo->nilai_diskon }}% OFF</span>
+                                                @else
+                                                    <span class="badge badge-info">PROMO</span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                </a>
+                                <div class="product-card-actions">
+                                    @if ($produk->qty > 0)
+                                        <button type="button" class="btn btn-dark w-100">
+                                            <i class="bi bi-cart-plus me-1"></i> Belanja
+                                        </button>
+                                    @else
+                                        <button type="button" class="btn btn-dark w-100">Stok Habis</button>
+                                    @endif
                                 </div>
+                            </div>
+                        </div>
+                        <div class="card-body py-2">
+                            <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}" class="text-decoration-none text-dark text-hover-primary">
+                                <p class="card-title fw-bold text-truncate" title="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</p>
                             </a>
+                            @if($produk->harga_diskon)
+                                <div class="d-md-flex">
+                                    <p class="text-sm text-muted text-decoration-line-through mb-0">{{ $produk->harga_formatted }}</p>
+                                    <p class="text-sm text-dark mb-0 ms-md-2">{{ 'Rp ' . number_format($produk->harga_diskon, 0, ',', '.') }}</p>
+                                </div>
+                            @else
+                                <p class="text-sm text-dark mb-0">{{ $produk->harga_formatted }}</p>
+                            @endif
                         </div>
                     </div>
-                    @endfor
+                    @empty
+                        <div class="col-12">
+                            <p class="text-muted text-center">Saat ini belum ada produk promo.</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -164,6 +198,10 @@
                     <div class="product-card-img-container">
                         <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}">
                             <img src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.png') }}" loading="lazy"  class="card-img-top" alt="{{ $produk->nama_produk }}">
+                            {{-- Badge Populer --}}
+                            <div class="product-badge">
+                                <span class="badge badge-warning">Populer</span>
+                            </div>
                         </a>
                         <div class="product-card-actions">
                             @if ($produk->qty > 0)
@@ -171,7 +209,7 @@
                                     <i class="bi bi-cart-plus me-1"></i> Belanja
                                 </button>
                             @else
-                                <button type="button" class="btn btn-dark w-100">Sold Out</button>
+                                <button type="button" class="btn btn-dark w-100">Stok Habis</button>
                             @endif
                         </div>
                     </div>
@@ -210,6 +248,20 @@
                         <div class="product-card-img-container">
                             <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}">
                                 <img src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.png') }}"  loading="lazy" class="card-img-top" alt="{{ $produk->nama_produk }}">
+                                {{-- Badge Promo --}}
+                                @if($produk->qty < 1)
+                                    <div class="product-badge">
+                                        <span class="badge badge-danger">Stok Habis</span>
+                                    </div>
+                                @elseif($produk->promos->isNotEmpty() && $promo = $produk->promos->first())
+                                    <div class="product-badge">
+                                        @if($promo->tipe_diskon == 'percentage')
+                                            <span class="badge badge-danger">{{ (int)$promo->nilai_diskon }}% OFF</span>
+                                        @else
+                                            <span class="badge badge-info">PROMO</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </a>
                             <div class="product-card-actions">
                                 @if ($produk->qty > 0)
@@ -217,7 +269,7 @@
                                         <i class="bi bi-cart-plus me-1"></i> Belanja
                                     </button>
                                 @else
-                                    <button type="button" class="btn btn-dark w-100">Sold Out</button>
+                                    <button type="button" class="btn btn-dark w-100">Stok Habis</button>
                                 @endif
                             </div>
                         </div>

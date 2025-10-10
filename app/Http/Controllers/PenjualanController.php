@@ -322,9 +322,17 @@ class PenjualanController extends Controller
             if ($penjualan->status_pembayaran !== 'Dibatalkan') {
                 try {
                     DB::transaction(function () use ($penjualan) {
-                        // 1. Kembalikan stok untuk setiap item.
+                        // 1. Kembalikan stok dan status nomor seri untuk setiap item.
                         foreach ($penjualan->items as $item) {
+                            // a. Kembalikan jumlah stok produk
                             Produk::where('id', $item->produk_id)->increment('qty', $item->jumlah);
+
+                            // b. Kembalikan status nomor seri menjadi 'Tersedia'
+                            // dan hapus relasinya dengan item penjualan ini.
+                            SerialNumber::where('item_penjualan_id', $item->id)->update([
+                                'status' => 'Tersedia',
+                                'item_penjualan_id' => null
+                            ]);
                         }
                         $penjualan->update(['status_pembayaran' => 'Dibatalkan']);
                     });

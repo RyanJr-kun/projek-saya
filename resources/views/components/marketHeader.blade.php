@@ -12,13 +12,18 @@
             </a>
 
             {{-- Desktop: Search Form --}}
-            <div class="d-none d-lg-block w-50">
-                <form>
+            <div class="d-none d-lg-block w-50 position-relative">
+                <form action="{{ route('market.produk') }}" method="GET">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Cari produk, kategori, atau brand..." aria-label="Cari produk">
+                        <input type="search" id="global-search-input" name="search" class="form-control" placeholder="Cari produk, kategori, atau brand..." aria-label="Cari produk" autocomplete="off">
                     </div>
                 </form>
+                {{-- Container untuk hasil live search --}}
+                <div id="search-results-container" class="position-absolute w-100 bg-white border rounded-2 shadow-lg mt-1" style="display: none; z-index: 1050;">
+                    {{-- Hasil akan di-inject oleh JavaScript di sini --}}
+                </div>
             </div>
+
 
 
             {{-- All Devices: Action Icons --}}
@@ -129,10 +134,10 @@
                         </div>
                     </li>
                     <li class="nav-item me-4">
-                        <a class="nav-link text-sm nav-link-animated" href="#">Populer</a>
+                        <a class="nav-link text-sm nav-link-animated" href="{{ route('market.produk') }}">Explor</a>
                     </li>
                     <li class="nav-item me-4">
-                        <a class="nav-link text-sm nav-link-animated" href="#">Explor</a>
+                        <a class="nav-link text-sm nav-link-animated" href="{{ route('market.layanan') }}">Layanan</a>
                     </li>
                     <li class="nav-item me-4">
                         <a class="nav-link text-sm nav-link-animated" href="{{ route('market.tentang') }}">Tentang Kami</a>
@@ -174,12 +179,93 @@
     {{-- Mobile Offcanvas Search --}}
     <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasSearch" aria-labelledby="offcanvasSearchLabel" style="height: auto;">
         <div class="offcanvas-body">
-            <div class="container d-flex align-items-center justify-content-between">
-                <form class="w-90" action="{{-- URL untuk halaman pencarian --}}" method="GET">
-                    <input type="search" name="keyword" class="form-control" placeholder="Cari produk..." autofocus>
+            <div class="container d-flex align-items-center">
+                <form class="w-100" action="{{ route('market.produk') }}" method="GET">
+                    <input type="search" name="search" class="form-control" placeholder="Cari produk..." autofocus>
                 </form>
-                <i class="bi bi-x-lg py-4 px-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-xl-none" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+                <i class="bi bi-x-lg ms-3 cursor-pointer" data-bs-dismiss="offcanvas" aria-label="Close"></i>
             </div>
         </div>
     </div>
 </header>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('global-search-input');
+    const resultsContainer = document.getElementById('search-results-container');
+    let debounceTimer;
+
+    // Fungsi untuk format mata uang
+    const formatCurrency = (number) => {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+    };
+
+    searchInput.addEventListener('keyup', function () {
+        clearTimeout(debounceTimer);
+        const query = searchInput.value.trim();
+
+        if (query.length < 3) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetch(`{{ route('market.liveSearch') }}?query=${query}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultsContainer.innerHTML = ''; // Kosongkan hasil sebelumnya
+                if (data.produks && data.produks.length > 0) {
+                    let productsHtml = `<div class="p-3 border-bottom"><p class="mb-0 text-sm text-muted">Menampilkan ${data.total} dari hasil teratas...</p></div><div class="list-group list-group-flush">`;
+
+                    data.produks.forEach(produk => {
+                        const detailUrl = `{{ url('produk') }}/${produk.slug}`;
+                        const imageUrl = produk.img_produk ? `{{ asset('storage') }}/${produk.img_produk}` : `{{ asset('assets/img/produk.png') }}`;
+                        const harga = produk.harga_diskon ? formatCurrency(produk.harga_diskon) : formatCurrency(produk.harga_jual);
+
+                        productsHtml += `
+                            <a href="${detailUrl}" class="list-group-item list-group-item-action d-flex align-items-center">
+                                <img src="${imageUrl}" alt="${produk.nama_produk}" class="avatar avatar-md rounded me-3">
+                                <div class="flex-grow-1">
+                                    <p class="fw-bold mb-0 text-dark text-sm">${produk.nama_produk}</p>
+                                    <small class="text-muted d-block">${produk.kategori_produk.nama} / ${produk.brand ? produk.brand.nama : ''}</small>
+                                    <p class="fw-bolder text-info mb-0 text-sm">${harga}</p>
+                                </div>
+                            </a>
+                        `;
+                    });
+
+                    productsHtml += `</div>`;
+                    productsHtml += `
+                        <div class="p-2 rounded-2 text-start text-sm bg-light">
+                            <a href="{{ route('market.produk') }}?search=${encodeURIComponent(query)}" class="">Lihat semua hasil pencarian <i class="bi bi-chevron-double-right"></i></a>
+                        </div>
+                    `;
+                    resultsContainer.innerHTML = productsHtml;
+                    resultsContainer.style.display = 'block';
+                } else {
+                    resultsContainer.innerHTML = `<div class="p-3 text-center text-muted">Tidak ada produk ditemukan untuk "${query}".</div>`;
+                    resultsContainer.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching search results:', error);
+                resultsContainer.style.display = 'none';
+            });
+        }, 300); // Waktu tunda 300ms
+    });
+
+    // Sembunyikan hasil pencarian saat mengklik di luar area
+    document.addEventListener('click', function (event) {
+        if (!searchInput.contains(event.target) && !resultsContainer.contains(event.target)) {
+            resultsContainer.style.display = 'none';
+        }
+    });
+});
+</script>
+@endpush

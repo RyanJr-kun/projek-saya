@@ -76,6 +76,16 @@ class MarketController extends Controller
             ->limit(6)
             ->get();
 
+            $produkPromo = Produk::with(['unit', 'promos'])
+            ->whereHas('promos', function ($query){
+                $query->where('status', true)
+                      ->where('tanggal_mulai', '<=', now())
+                      ->where('tanggal_berakhir', '>=', now());
+            })
+            ->inRandomOrder()
+            ->limit(8)
+            ->get();
+
         return view('market.beranda',[
             'title' => 'Beranda',
             'produks' => $produks,
@@ -85,6 +95,7 @@ class MarketController extends Controller
             'produkTerlaris' => $produkTerlaris,
             'promos' => $promos,
             'kategoris' => $kategorisForMenu, // Kirim data kategori ke view
+            'produkPromo' => $produkPromo
         ]);
     }
 
@@ -93,14 +104,48 @@ class MarketController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function produk() // Mengubah nama method agar konsisten dengan route
-    {
-        // PERBAIKAN: Terapkan juga eager loading di sini.
-        $produks = Produk::with(['kategori_produk', 'unit', 'brand'])
-                        ->latest()
-                        ->paginate(12);
 
-        return view('market.produk', compact('produks'));
+    public function produk(\Illuminate\Http\Request $request)
+    {
+        $query = Produk::with(['kategori_produk', 'unit', 'brand', 'promos']);
+
+                                                                                                                                                                                                                                                                                                                                                // Filter berdasarkan Kategori (dari slug)
+        if ($request->filled('kategori')) {
+            $query->whereHas('kategori_produk', function ($q) use ($request) {
+                $q->where('slug', $request->kategori);
+            });
+        }
+
+        // Filter berdasarkan pencarian keyword
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_produk', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting
+        switch ($request->get('sort')) {
+            case 'harga_asc':
+                $query->orderBy('harga_jual', 'asc');
+                break;
+            case 'harga_desc':
+                $query->orderBy('harga_jual', 'desc');
+                break;
+            default:
+                $query->latest(); // Default: terbaru
+        }
+
+        $produks = $query->paginate(12)->withQueryString();
+        $kategorisForFilter = KategoriProduk::whereHas('produks')->orderBy('nama')->get();
+
+        // Jika ini adalah request AJAX, kembalikan hanya bagian tabelnya
+        if ($request->ajax()) {
+            return view('market._produk_list', compact('produks'))->render();
+        }
+
+        return view('market.produk', compact('produks', 'kategorisForFilter'));
     }
 
     /**
@@ -115,8 +160,22 @@ class MarketController extends Controller
         $produk = Produk::with(['kategori_produk', 'brand', 'unit', 'garansi', 'pajak', 'user'])
                          ->where('slug', $slug)
                          ->firstOrFail();
+        $produkSerupa = Produk::with('unit', 'promos')
+                        ->where('kategori_produk_id', $produk->kategori_produk_id)
+                        ->where('id','!=', $produk->id)
+                        ->inRandomOrder()
+                        ->limit(5)
+                        ->get();
 
-        return view('market.produk-detail', compact('produk'));
+
+        return view('market.produkDetail', compact('produk', 'produkSerupa'));
+    }
+     public function layanan()
+    {
+        return view('market.layanan',[
+            'title' => 'Tentang Kami',
+            'title' => 'Layanan Kami',
+        ]);
     }
 
     public function tentang()
@@ -127,5 +186,28 @@ class MarketController extends Controller
             'title' => 'Tentang Kami',
             'profils' => $profil
         ]);
+    }
+
+    /**
+     * Menangani permintaan live search dari header.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function liveSearch(\Illuminate\Http\Request $request)
+    {
+        $query = $request->input('query');
+
+        if (empty($query)) {
+            return response()->json(['produks' => [], 'total' => 0]);
+        }
+
+        $produks = Produk::with(['kategori_produk', 'brand'])
+            ->where('nama_produk', 'LIKE', "%{$query}%")
+            ->orWhere('sku', 'LIKE', "%{$query}%")
+            ->limit(5) // Batasi hasil untuk live search
+            ->get();
+
+        return response()->json(['produks' => $produks, 'total' => $produks->count()]);
     }
 }

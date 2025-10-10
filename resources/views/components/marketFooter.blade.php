@@ -12,7 +12,7 @@
                 </p>
                 <p class="small"><i class="bi bi-geo-alt-fill me-2"></i>Jl. Contoh No. 123, Kota Anda</p>
                 <p class="small"><i class="bi bi-envelope-fill me-2"></i>kontak@jocomputer.com</p>
-                <p class="small"><i class="bi bi-telephone-fill me-2"></i>(021) 123-4567</p>
+                <p class="small"><i class="bi bi-telephone-fill me-2"></i>081232105209</p>
             </div>
 
             {{-- Kolom 2: Tautan Cepat --}}
@@ -37,25 +37,18 @@
                 @endif
             </div>
 
-            {{-- Kolom 4: Media Sosial & Newsletter --}}
+            {{-- Kolom 4: Media Sosial --}}
             <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
                 <h6 class="text-uppercase mb-4 font-weight-bold text-info">Ikuti Kami</h6>
                 <div class="d-flex mb-4">
-                    <a href="#" class="social-icon me-3"><i class="bi bi-facebook bi-lg"></i></a>
-                    <a href="#" class="social-icon me-3"><i class="bi bi-instagram bi-lg"></i></a>
-                    <a href="#" class="social-icon me-3"><i class="bi bi-youtube bi-lg"></i></a>
-                    <a href="#" class="social-icon"><i class="bi bi-tiktok bi-lg"></i></a>
+                    <a href="https://www.facebook.com/jo.comp.798/" class="social-icon social-facebook me-3" title="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="https://www.instagram.com/jocompsolo?utm_source=ig_web_button_share_sheet&igsh=b3J2dXFxMmV5Zml1" class="social-icon social-instagram me-3" title="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-icon social-youtube me-3" title="YouTube"><i class="bi bi-youtube"></i></a>
+                    <a href="https://www.tiktok.com/@jocomputer.official?is_from_webapp=1&sender_device=pc" class="social-icon social-tiktok" title="TikTok"><i class="bi bi-tiktok"></i></a>
                 </div>
-                <h6 class="text-uppercase mb-3 font-weight-bold text-info">Newsletter</h6>
-                <p class="small">Dapatkan info promo dan produk terbaru dari kami.</p>
-                <form action="#">
-                    <div class="d-flex align-items-center">
-                        <div class="input-group">
-                            <input type="email" class="form-control form-control-sm" placeholder="Email Anda" aria-label="Email Anda">
-                        </div>
-                        <button class="btn btn-info btn-sm ms-2 mt-3" type="button">Daftar</button>
-                    </div>
-                </form>
+                <h6 class="text-uppercase mb-3 font-weight-bold text-info">Jam Operasional</h6>
+                <p class="small mb-1">Senin - Sabtu: <br><i class="bi bi-clock-fill me-2"></i>08.00 - 16.30 WIB</p>
+                <p class="small mb-1">Minggu: <br><i class="bi bi-clock-fill me-2"></i>09.00 - 17.00 WIB</p>
             </div>
         </div>
 

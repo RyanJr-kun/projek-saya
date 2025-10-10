@@ -304,13 +304,38 @@ $black: #0b0b0b;
         }
     }
 
+    // Gaya ikon sosial media yang lebih interaktif
     .social-icon {
-        color: rgba(255, 255, 255, 0.7);
-        transition: color 0.3s ease, transform 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.2rem; // Ukuran ikon
+        text-decoration: none;
+        transition: all 0.3s ease;
 
         &:hover {
-            color: var(--bs-info);
-            transform: translateY(-3px);
+            color: #fff;
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        // Warna brand saat hover
+        &.social-facebook:hover {
+            background-color: #1877F2;
+        }
+        &.social-instagram:hover {
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+        }
+        &.social-youtube:hover {
+            background-color: #FF0000;
+        }
+        &.social-tiktok:hover {
+            background-color: #000000;
         }
     }
 }
@@ -444,3 +469,40 @@ $black: #0b0b0b;
         color: var(--bs-primary) !important;
     }
 }
+
+/*
+*
+* Market Page - Filter Sidebar
+*
+*/
+.filter-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+/* Untuk Market/Website */
+.product-card-img-container {
+    position: relative;
+}
+
+.product-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 10;
+}
+
+/* Untuk Halaman POS (agar tidak terlalu besar) */
+.product-badge-pos {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 10;
+}
+
+.product-badge-pos .badge {
+    font-size: 0.65rem; /* Ukuran font lebih kecil */
+    padding: 0.2em 0.4em;
+}
+
