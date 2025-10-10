@@ -86,16 +86,6 @@ class KategoriProdukSeeder extends Seeder
             'USB WiFi Adapter',
             'Modem',
 
-            // == Software ==
-            'Sistem Operasi',
-            'Antivirus',
-            'Software Office',
-
-            // == Gadget & Elektronik Lain ==
-            'Smartphone',
-            'Tablet',
-            'Smartwatch',
-            'Power Bank',
         ];
 
         // Urutkan kategori berdasarkan abjad
