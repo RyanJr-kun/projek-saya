@@ -7,10 +7,8 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                "resources/js/app.js", // Untuk Admin
-                "resources/scss/app.scss", // Untuk Admin
-                "resources/js/market.js", // Untuk Market
-                "resources/scss/market.scss", // Untuk Market
+                "resources/js/app.js",
+                "resources/scss/app.scss",
             ],
             refresh: true,
         }),

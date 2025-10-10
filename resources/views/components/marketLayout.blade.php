@@ -6,10 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/logo.svg') }}">
     <title>JO Computer - Marketplace</title>
-    @vite([
-        'resources/scss/app.scss',
-        'resources/js/app.js',
-    ])
+    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     @stack('styles')
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
