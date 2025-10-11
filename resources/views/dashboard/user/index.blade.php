@@ -71,7 +71,7 @@
                                     @if ($user->role->id == 1)
                                         <span class="badge badge-info" title="Role user">{{ $user->role->nama }}</span>
                                     @else
-                                        <p title="Role user" class="badge badge-warning">{{ $user->role->nama }}</p>
+                                        <span class="badge badge-warning" title="Role user">{{ $user->role->nama }}</span>
                                     @endif
                                 </td>
 

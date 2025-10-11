@@ -4,13 +4,20 @@
         <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
         <link href="https://unpkg.com/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.css" rel="stylesheet">
     @endpush
+    @section('breadcrumb')
+        @php
+        // Definisikan item breadcrumb dalam bentuk array
+        $breadcrumbItems = [
+            ['name' => 'Page', 'url' => '/dashboard'],
+            ['name' => 'Setting', 'url' => '#'],
+            ['name' => 'Profile Toko', 'url' => route('pengaturan.profil-toko.edit')],
+        ];
+        @endphp
+        <x-breadcrumb :items="$breadcrumbItems" />
+    @endsection
 
-    <div class="container-fluid">
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-dark">{{ $title }}</h1>
-        </div>
-
-        <div class="card shadow mb-4">
+    <div class="container-fluid p-3">
+        <div class="card rounded-2">
             <div class="card-body">
                 <form action="{{ route('pengaturan.profil-toko.update') }}" method="POST">
                     @csrf
