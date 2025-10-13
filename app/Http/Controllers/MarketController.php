@@ -168,7 +168,7 @@ class MarketController extends Controller
                         ->get();
 
 
-        return view('market.produkDetail', compact('produk', 'produkSerupa'));
+        return view('market.produkdetail', compact('produk', 'produkSerupa'));
     }
      public function layanan()
     {

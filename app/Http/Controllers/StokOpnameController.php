@@ -179,7 +179,6 @@ class StokOpnameController extends Controller
         // Eager load relasi yang dibutuhkan untuk efisiensi query
         $stok_opname->load([
             'user', // Muat relasi user
-            'details.produk' => fn($query) => $query->withTrashed(), // Muat produk bahkan jika sudah di-soft-delete
             'details.produk.unit'
         ]);
 

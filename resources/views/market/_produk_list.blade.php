@@ -39,11 +39,11 @@
                     </a>
                     <div class="product-card-actions">
                         @if ($produk->qty > 0)
-                            <button type="button" class="btn btn-dark w-100">
-                                <i class="bi bi-cart-plus me-1"></i> Belanja
-                            </button>
+                            <a href="https://wa.me/6281318000699?text=Halo, saya tertarik dengan produk: {{$produk->nama_produk}}" target="_blank" class="btn btn-dark w-100">
+                                <i class="bi bi-whatsapp me-1"></i> Pesan via WA
+                            </a>
                         @else
-                            <button type="button" class="btn btn-secondary w-100" disabled>Stok Habis</button>
+                            <button type="button" class="btn btn-dark w-100">Stok Habis</button>
                         @endif
                     </div>
                 </div>

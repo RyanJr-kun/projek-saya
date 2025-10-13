@@ -10,9 +10,9 @@
                 <p class="mt-3" style="font-size: 0.9rem;">
                     Toko komponen dan aksesoris komputer terpercaya. Kami menyediakan produk berkualitas dengan harga terbaik untuk kebutuhan perakitan dan upgrade PC Anda.
                 </p>
-                <p class="small"><i class="bi bi-geo-alt-fill me-2"></i>Jl. Contoh No. 123, Kota Anda</p>
-                <p class="small"><i class="bi bi-envelope-fill me-2"></i>kontak@jocomputer.com</p>
-                <p class="small"><i class="bi bi-telephone-fill me-2"></i>081232105209</p>
+                <p class="small"><i class="bi bi-geo-alt-fill me-2"></i>Jl. Slamet Riyadi Somodinalan No.250, Somodinatan, Ngadirejo, Kec. Kartasura, Kabupaten Sukoharjo</p>
+                <p class="small"><i class="bi bi-envelope-fill me-2"></i>cs@jocomputer.com</p>
+                <p class="small"><i class="bi bi-telephone-fill me-2"></i>081318000699</p>
             </div>
 
             {{-- Kolom 2: Tautan Cepat --}}
@@ -20,9 +20,8 @@
                 <h6 class="text-uppercase mb-4 font-weight-bold text-info">Tautan Cepat</h6>
                 <p><a href="{{ url('/') }}" class="footer-link">Beranda</a></p>
                 <p><a href="{{ route('market.produk') }}" class="footer-link">Produk</a></p>
-                <p><a href="#" class="footer-link">Promo</a></p>
-                <p><a href="#" class="footer-link">Tentang Kami</a></p>
-                <p><a href="#" class="footer-link">Kontak</a></p>
+                <p><a href="{{ route('market.layanan') }}" class="footer-link">Tentang Kami</a></p>
+                <p><a href="{{ route('market.tentang') }}" class="footer-link">Kontak</a></p>
             </div>
 
             {{-- Kolom 3: Kategori --}}
@@ -43,7 +42,7 @@
                 <div class="d-flex mb-4">
                     <a href="https://www.facebook.com/jo.comp.798/" class="social-icon social-facebook me-3" title="Facebook"><i class="bi bi-facebook"></i></a>
                     <a href="https://www.instagram.com/jocompsolo?utm_source=ig_web_button_share_sheet&igsh=b3J2dXFxMmV5Zml1" class="social-icon social-instagram me-3" title="Instagram"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="social-icon social-youtube me-3" title="YouTube"><i class="bi bi-youtube"></i></a>
+                    <a href="https://tokopedia.link/KTBDV7zZmXb" class="social-icon social-tokopedia me-3" title="Tokopedia"><i class="bi bi-shop"></i></a>
                     <a href="https://www.tiktok.com/@jocomputer.official?is_from_webapp=1&sender_device=pc" class="social-icon social-tiktok" title="TikTok"><i class="bi bi-tiktok"></i></a>
                 </div>
                 <h6 class="text-uppercase mb-3 font-weight-bold text-info">Jam Operasional</h6>

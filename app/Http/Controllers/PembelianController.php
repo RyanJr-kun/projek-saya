@@ -443,7 +443,7 @@ class PembelianController extends Controller
     public function printThermal(Pembelian $pembelian)
     {
         // Eager load relasi yang dibutuhkan
-        $pembelian->load('pemasok', 'details.produk', 'details.serialNumbers');
+        $pembelian->load('pemasok', 'details.produk');
         $profilToko = ProfilToko::first();
 
         return view('dashboard.pembelian.thermal', compact('pembelian', 'profilToko'));
@@ -455,7 +455,7 @@ class PembelianController extends Controller
     public function generatePdf(Pembelian $pembelian)
     {
         // Eager load relasi untuk efisiensi
-        $pembelian->load('pemasok', 'user', 'details.produk', 'details.pajak', 'details.serialNumbers');
+        $pembelian->load('pemasok', 'user', 'details.produk', 'details.pajak');
         $profilToko = ProfilToko::first();
 
         // Data yang akan dikirim ke view

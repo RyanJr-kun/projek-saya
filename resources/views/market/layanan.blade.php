@@ -14,10 +14,10 @@
     <!-- Section: Integritas Layanan -->
     <div class="container py-5">
         <div class="row align-items-center g-5">
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
                 <img src="https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=1964" class="img-fluid rounded-3 shadow-lg" alt="Teknisi Profesional Jo Computer">
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">
                 <h2 class="fw-bolder display-5 mb-3">Integritas dan Keunggulan Layanan Kami</h2>
                 <p class="lead text-muted">Di Jo Computer, kami tidak hanya menjual produk, kami membangun kepercayaan.</p>
                 <p>Setiap layanan yang kami tawarkan didasari oleh komitmen pada kejujuran, transparansi, dan kepuasan Anda. Kami memahami bahwa perangkat Anda adalah investasi penting. Oleh karena itu, tim teknisi berpengalaman kami menangani setiap tugas, mulai dari perakitan PC impian hingga perbaikan kompleks, dengan ketelitian dan standar kualitas tertinggi. Kami menjamin penggunaan komponen original dan memberikan penjelasan mendetail di setiap langkahnya.</p>
@@ -28,33 +28,33 @@
     <!-- Section: Layanan Unggulan -->
     <div class="bg-light py-5">
         <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="fw-bolder">Solusi Teknologi Terpadu</h2>
+            <div class="text-center mb-5" data-aos="fade-up" data-aos-delay="200">
+                <h2 class="fw-bolder" >Solusi Teknologi Terpadu</h2>
                 <p class="lead text-muted">Dari perakitan hingga purna jual, kami siap membantu.</p>
             </div>
             <div class="row g-4">
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
                     <div class="card h-100 border-0 shadow-sm text-center p-4">
-                        <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-info bg-gradient fs-2 mb-3 mx-auto rounded-3" style="width: 4rem; height: 4rem;">
-                            <i class="bi bi-pc-display-horizontal"></i>
+                        <div class="feature-icon-small d-inline-flex align-items-center justify-content-center bg-info bg-gradient fs-2 mb-3 mx-auto rounded-3" style="width: 4rem; height: 4rem;">
+                            <i class="bi bi-pc-display-horizontal text-white"></i>
                         </div>
                         <h4 class="fw-bold">Perakitan PC Custom</h4>
-                        <p class="text-muted">Wujudkan PC impian Anda sesuai kebutuhan dan budget. Kami bantu pilihkan komponen terbaik dan merakitnya dengan presisi untuk performa maksimal.</p>
+                        <p class="text-muted ">Wujudkan PC impian Anda sesuai kebutuhan dan budget. Kami bantu pilihkan komponen terbaik dan merakitnya dengan presisi untuk performa maksimal.</p>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
                     <div class="card h-100 border-0 shadow-sm text-center p-4">
-                        <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-info bg-gradient fs-2 mb-3 mx-auto rounded-3" style="width: 4rem; height: 4rem;">
-                            <i class="bi bi-tools"></i>
+                        <div class="feature-icon-small d-inline-flex align-items-center justify-content-center bg-info bg-gradient fs-2 mb-3 mx-auto rounded-3" style="width: 4rem; height: 4rem;">
+                            <i class="bi bi-tools text-white"></i>
                         </div>
                         <h4 class="fw-bold">Servis & Upgrade</h4>
                         <p class="text-muted">Performa PC menurun? Kami menyediakan layanan servis hardware, software, dan upgrade komponen untuk mengembalikan performa perangkat Anda.</p>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="800">
                     <div class="card h-100 border-0 shadow-sm text-center p-4">
-                        <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-info bg-gradient fs-2 mb-3 mx-auto rounded-3" style="width: 4rem; height: 4rem;">
-                            <i class="bi bi-headset"></i>
+                        <div class="feature-icon-small d-inline-flex align-items-center justify-content-center bg-info bg-gradient fs-2 mb-3 mx-auto rounded-3" style="width: 4rem; height: 4rem;">
+                            <i class="bi bi-headset text-white"></i>
                         </div>
                         <h4 class="fw-bold">Konsultasi Profesional</h4>
                         <p class="text-muted">Bingung memilih spesifikasi? Tim ahli kami siap memberikan rekomendasi dan konsultasi gratis untuk membantu Anda mengambil keputusan terbaik.</p>
@@ -63,7 +63,7 @@
             </div>
         </div>
     </div>
-    <div class="accordion-1">
+    <div class="accordion-1" data-aos="fade-up">
         <div class="container">
             <div class="row my-5">
             <div class="col-md-6 mx-auto text-center">
@@ -152,7 +152,7 @@
     </div>
 
     <!-- Section: Call to Action -->
-    <div class="container pt-5">
+    <div class="container pt-5" data-aos="fade-up">
         <div class="p-5 text-center bg-body-tertiary rounded-3">
             <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-success bg-gradient fs-2 rounded-3" style="width: 3rem; height: 3rem;">
                 <i class="bi bi-whatsapp text-white"></i>

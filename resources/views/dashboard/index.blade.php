@@ -506,7 +506,7 @@
         </div>
     </div>
 @push('scripts')
-    @vite('resources/js/plugins/Chart.extension.js')
+    <script src="{{ asset('assets/js copy/plugins/Chart.extension.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {

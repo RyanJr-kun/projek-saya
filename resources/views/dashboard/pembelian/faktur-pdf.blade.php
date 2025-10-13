@@ -151,11 +151,6 @@
                         <td class="text-center">{{ $loop->iteration }}</td>
                         <td>
                             {{ $detail->produk->nama_produk ?? 'Produk Dihapus' }}
-                            @if($detail->serialNumbers->isNotEmpty())
-                                <div style="font-size: 9px; color: #555; margin-top: 4px;">
-                                    <strong>SN:</strong> {{ $detail->serialNumbers->pluck('nomor_seri')->join(', ') }}
-                                </div>
-                            @endif
                         </td>
                         <td class="text-center">{{ $detail->qty }}</td>
                         <td class="text-end">@money($detail->harga_beli)</td>

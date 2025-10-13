@@ -102,7 +102,14 @@
                             @foreach ($penjualan->items as $item)
                                 <tr>
                                     <td class="text-center text-sm">{{ $loop->iteration }}</td>
-                                    <td class="text-sm">{{ $item->produk->nama_produk ?? 'Produk Dihapus' }}</td>
+                                    <td class="text-sm">
+                                        {{ $item->produk->nama_produk ?? 'Produk Dihapus' }}
+                                        @if($item->serialNumbers->isNotEmpty())
+                                            <div class="text-muted text-sm">
+                                                <strong>SN:</strong> {{ $item->serialNumbers->pluck('nomor_seri')->join(', ') }}
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td class="text-center text-sm">{{ $item->jumlah }}</td>
                                     <td class="text-end text-sm">@money($item->harga_jual)</td>
                                     <td class="text-end text-sm">@money($item->diskon_item)</td>

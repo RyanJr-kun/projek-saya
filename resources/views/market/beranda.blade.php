@@ -2,7 +2,7 @@
 
     {{-- Hero Section --}}
     @if ($mainBanners->isNotEmpty())
-        <div class="container  py-4">
+        <div class="container  py-4" data-aos="fade-up" data-aos-delay="200">
             <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-indicators">
                     @foreach ($mainBanners as $key => $banner)
@@ -30,17 +30,17 @@
         </div>
     @else
         {{-- Tampilkan hero section default jika tidak ada banner --}}
-        <div class="container col-xxl-8 px-4 py-5">
-            <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+        <div class="container col-xxl-8 px-4 py-5" data-aos="fade-up" >
+            <div class="row flex-lg-row-reverse align-items-center justify-content-center g-3">
                 <div class="col-10 col-sm-8 col-lg-6">
-                    <img src="https://via.placeholder.com/700x500/CCCCCC/FFFFFF?text=Produk+Unggulan" class="d-block mx-lg-auto img-fluid rounded" alt="Bootstrap Themes" width="700" height="500" loading="lazy">
+                    <img src="https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg" class="d-block mx-lg-auto img-fluid rounded" alt="Bootstrap Themes" width="700" height="500" loading="lazy">
                 </div>
                 <div class="col-lg-6">
-                    <h1 class="display-5 fw-bold lh-1 mb-3">Selamat Datang di Jo-Pos Market</h1>
-                    <p class="lead">Temukan berbagai macam komponen dan aksesoris komputer berkualitas dengan harga terbaik. Kami menyediakan semua kebutuhan Anda, mulai dari perakitan hingga upgrade.</p>
+                    <h1 class=" fw-bold lh-1 mb-3"data-aos="fade-up" data-aos-delay="200">Selamat Datang di JO-POS Market</h1>
+                    <p class="lead" data-aos="fade-up" data-aos-delay="400">Temukan berbagai macam komponen dan aksesoris komputer berkualitas dengan harga terbaik. Kami menyediakan semua kebutuhan Anda, mulai dari perakitan hingga upgrade.</p>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                        <a href="{{ route('market.produk') }}" type="button" class="btn btn-info btn-lg px-4 me-md-2">Lihat Produk</a>
-                        <a href="#" type="button" class="btn btn-outline-secondary btn-lg px-4">Hubungi Kami</a>
+                        <a href="{{ route('market.produk') }}" type="button" class="btn btn-info btn-sm px-4 me-md-2">Lihat Produk</a>
+                        <a href="https://wa.me/6281318000699" type="button" class="btn btn-outline-secondary btn-sm px-4">Hubungi Kami</a>
                     </div>
                 </div>
             </div>
@@ -49,13 +49,13 @@
 
     {{-- Browse by Category Section --}}
     <div class="container py-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0">Jelajahi Kategori</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-up" data-aos-delay="200">
+            <h4 class="fw-bolder mb-0" >Jelajahi Kategori</h4>
         </div>
         <div class="position-relative category-scroll-wrapper">
             <div id="category-scroll-container" class="d-flex gap-3 overflow-hidden">
                 @foreach ($kategoris as $kategori)
-                    <div class="category-item" style="flex: 0 0 auto; width: 120px;">
+                    <div class="category-item" style="flex: 0 0 auto; width: 120px;" data-aos="fade-up" data-aos-delay="400">
                             <a href="{{ route('market.produk', ['kategori' => $kategori->slug]) }}" class="text-decoration-none text-dark ">
                             <div class="card category-card bg-light border mx-2 mb-2 overflow-hidden">
                                 <img src="{{ $kategori->img_kategori ? asset('storage/' . $kategori->img_kategori) : asset('assets/img/produk.png') }}" class="card-img-top" alt="{{ $kategori->nama }}" >
@@ -80,13 +80,13 @@
     {{-- Promo Section --}}
     @if ($promoVertikalBanners->isNotEmpty())
     <div class="container px-4 py-5">
-        <h2 class="text-center mb-4 fw-bold">Promo Terbatas</h2>
+        <h2 class="text-center mb-4 fw-bold" data-aos="fade-up" data-aos-delay="300">Promo Terbatas</h2>
         <div class="row g-4">
             <div class="col-lg-4 d-none d-lg-block">
                 <div id="promoVertikalCarousel" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-inner rounded-3">
                         @foreach ($promoVertikalBanners as $banner)
-                            <div class="carousel-item {{ $loop->first ? 'active' : '' }}" data-bs-interval="7000">
+                            <div class="carousel-item {{ $loop->first ? 'active' : '' }}" data-bs-interval="7000" data-aos="fade-up" data-aos-delay="400">
                                 <a href="{{ $banner->url_tujuan ?? '#' }}">
                                     <img src="{{ asset('storage/' . $banner->img_banner) }}" loading="lazy" width="120px" height="720px" class="d-block w-100" alt="{{ $banner->judul ?? 'Promo' }}">
                                 </a>
@@ -97,12 +97,12 @@
             </div>
 
             {{-- Kolom untuk 4 produk promo --}}
-            <div class="col-lg-8">
+            <div class="col-lg-8" >
                 <div class="row row-cols-2 row-cols-md-3 row-cols-lg-3 g-3">
                     {{-- Loop untuk produk promo --}}
                     @forelse ($produkPromo as $produk)
-                    <div class="col">
-                        <div class="card product-card overflow-hidden">
+                    <div class="col" data-aos="fade-up" data-aos-delay="600">
+                        <div class="card product-card overflow-hidden" >
                             <div class="product-card-img-container">
                                 <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}">
                                     <img src="{{ $produk->img_produk ? asset('storage/' . $produk->img_produk) : asset('assets/img/produk.png') }}" loading="lazy" class="card-img-top" alt="{{ $produk->nama_produk }}">
@@ -123,9 +123,9 @@
                                 </a>
                                 <div class="product-card-actions">
                                     @if ($produk->qty > 0)
-                                        <button type="button" class="btn btn-dark w-100">
-                                            <i class="bi bi-cart-plus me-1"></i> Belanja
-                                        </button>
+                                        <a href="https://wa.me/6281318000699?text=Halo, saya tertarik dengan produk: {{$produk->nama_produk}}" target="_blank" class="btn btn-dark w-100">
+                                            <i class="bi bi-whatsapp me-1"></i> Pesan via WA
+                                        </a>
                                     @else
                                         <button type="button" class="btn btn-dark w-100">Stok Habis</button>
                                     @endif
@@ -147,7 +147,7 @@
                         </div>
                     </div>
                     @empty
-                        <div class="col-12">
+                        <div class="col-12" data-aos="fade-up" data-aos-delay="300">
                             <p class="text-muted text-center">Saat ini belum ada produk promo.</p>
                         </div>
                     @endforelse
@@ -160,7 +160,7 @@
     {{-- Bestseller Section (Full Container) --}}
     @if ($bestsellerBanners->isNotEmpty())
     <div class="container px-4 py-5">
-        <h2 class="text-center mb-4 fw-bold">Produk Terlaris</h2>
+        <h2 class="text-center mb-4 fw-bold" data-aos="fade-up" data-aos-delay="200">Produk Terlaris</h2>
         <div class="row">
             <div class="col-12">
                 <div id="bestsellerCarousel" class="carousel slide" data-bs-ride="carousel">
@@ -169,7 +169,7 @@
                             <button type="button" data-bs-target="#bestsellerCarousel" data-bs-slide-to="{{ $key }}" class="{{ $loop->first ? 'active' : '' }}" aria-current="{{ $loop->first ? 'true' : 'false' }}" aria-label="Slide {{ $key + 1 }}"></button>
                         @endforeach
                     </div>
-                    <div class="carousel-inner rounded-3 shadow-sm">
+                    <div class="carousel-inner rounded-3 shadow-sm" data-aos="fade-up" data-aos-delay="400">
                         @foreach ($bestsellerBanners as $banner)
                             <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
                                 <a href="{{ $banner->url_tujuan ?? '#' }}">
@@ -193,7 +193,7 @@
         @if($produkTerlaris->isNotEmpty())
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3 mt-4">
             @foreach ($produkTerlaris as $produk)
-            <div class="col">
+            <div class="col" data-aos="fade-up" data-aos-delay="300">
                 <div class="card product-card overflow-hidden">
                     <div class="product-card-img-container">
                         <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}">
@@ -205,9 +205,9 @@
                         </a>
                         <div class="product-card-actions">
                             @if ($produk->qty > 0)
-                                <button type="button" class="btn btn-dark w-100">
-                                    <i class="bi bi-cart-plus me-1"></i> Belanja
-                                </button>
+                                <a href="https://wa.me/6281318000699?text=Halo, saya tertarik dengan produk: {{$produk->nama_produk}}" target="_blank" class="btn btn-dark w-100">
+                                    <i class="bi bi-whatsapp me-1"></i> Pesan via WA
+                                </a>
                             @else
                                 <button type="button" class="btn btn-dark w-100">Stok Habis</button>
                             @endif
@@ -237,13 +237,13 @@
     @endif
 
     {{-- Featured Products Section --}}
-    <div class="album py-5 bg-light">
+    <div class="album py-5 bg-light" data-aos="fade-up">
         <div class="container">
-            <h2 class="text-center mb-5 fw-bold">Produk Unggulan</h2>
+            <h2 class="text-center mb-5 fw-bold" data-aos="fade-up" data-aos-delay="200">Produk Unggulan</h2>
             <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
                 {{-- Loop untuk produk unggulan --}}
                 @foreach ($produks as $produk)
-                <div class="col">
+                <div class="col" data-aos="fade-up" data-aos-delay="400">
                     <div class="card product-card overflow-hidden">
                         <div class="product-card-img-container">
                             <a href="{{ route('market.produk.detail', ['slug' => $produk->slug]) }}">
@@ -265,9 +265,9 @@
                             </a>
                             <div class="product-card-actions">
                                 @if ($produk->qty > 0)
-                                    <button type="button" class="btn btn-dark w-100">
-                                        <i class="bi bi-cart-plus me-1"></i> Belanja
-                                    </button>
+                                    <a href="https://wa.me/6281318000699?text=Halo, saya tertarik dengan produk: {{$produk->nama_produk}}" target="_blank" class="btn btn-dark w-100">
+                                        <i class="bi bi-whatsapp me-1"></i> Pesan via WA
+                                    </a>
                                 @else
                                     <button type="button" class="btn btn-dark w-100">Stok Habis</button>
                                 @endif
@@ -287,7 +287,6 @@
                                 <p class="text-sm text-dark  mb-0">{{ $produk->harga_formatted }}</p>
                             @endif
                     </div>
-
                 </div>
                 @endforeach
                 {{-- Akhir loop produk --}}
@@ -300,20 +299,20 @@
 
     {{-- Features Section --}}
     <div class="container px-4 py-5">
-        <h2 class="pb-2 border-bottom text-center mb-5">Kenapa Memilih Kami?</h2>
+        <h2 class="pb-2 border-bottom text-center mb-5" data-aos="fade-up" data-aos-delay="200">Kenapa Memilih Kami?</h2>
         <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
-            <div class="feature col text-center">
-                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-info bg-gradient fs-2 mb-3 rounded-3" style="width: 3rem; height: 3rem;"><i class="bi bi-collection"></i></div>
+            <div class="feature col text-center" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-info bg-gradient fs-2 mb-3 rounded-3" style="width: 3rem; height: 3rem;"><i class="bi bi-collection text-white"></i></div>
                 <h3 class="fs-4">Produk Lengkap</h3>
                 <p>Kami menyediakan berbagai macam produk dari brand ternama untuk memenuhi semua kebutuhan Anda.</p>
             </div>
-            <div class="feature col text-center">
-                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-info bg-gradient fs-2 mb-3 rounded-3" style="width: 3rem; height: 3rem;"><i class="bi bi-patch-check"></i></div>
+            <div class="feature col text-center" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-info bg-gradient fs-2 mb-3 rounded-3" style="width: 3rem; height: 3rem;"><i class="bi bi-patch-check text-white"></i></div>
                 <h3 class="fs-4">Kualitas Terjamin</h3>
                 <p>Semua produk yang kami jual adalah original dan bergaransi resmi, menjamin kualitas terbaik.</p>
             </div>
-            <div class="feature col text-center">
-                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-info bg-gradient fs-2 mb-3 rounded-3" style="width: 3rem; height: 3rem;"><i class="bi bi-truck"></i></div>
+            <div class="feature col text-center" data-aos="fade-up" data-aos-delay="500">
+                <div class="feature-icon-small d-inline-flex align-items-center justify-content-center text-bg-info bg-gradient fs-2 mb-3 rounded-3" style="width: 3rem; height: 3rem;"><i class="bi bi-truck text-white"></i></div>
                 <h3 class="fs-4">Pengiriman Cepat</h3>
                 <p>Nikmati layanan pengiriman yang cepat dan aman ke seluruh penjuru Indonesia.</p>
             </div>

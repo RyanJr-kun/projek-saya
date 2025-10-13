@@ -121,9 +121,6 @@
                 <tr class="item-row">
                     <td colspan="2">
                         {{ $detail->produk->nama_produk ?? 'Produk Dihapus' }}
-                        @if($detail->serialNumbers->isNotEmpty())
-                            <br>SN: {{ $detail->serialNumbers->pluck('nomor_seri')->join(', ') }}
-                        @endif
                     </td>
                 </tr>
                 <tr class="detail-row">
