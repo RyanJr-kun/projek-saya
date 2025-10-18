@@ -134,7 +134,7 @@
                         </div>
                     </li>
                     <li class="nav-item me-4">
-                        <a class="nav-link text-sm nav-link-animated" href="{{ route('market.produk') }}">Explor</a>
+                        <a class="nav-link text-sm nav-link-animated" href="{{ route('market.produk') }}">Explore</a>
                     </li>
                     <li class="nav-item me-4">
                         <a class="nav-link text-sm nav-link-animated" href="{{ route('market.layanan') }}">Layanan</a>
@@ -155,9 +155,9 @@
         </div>
         <div class="offcanvas-body">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link fs-5" href="#">Beranda</a></li>
+                <li class="nav-item"><a class="nav-link fs-5" href="{{ url('/') }}">Beranda</a></li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle fs-5" href="#" id="offcanvasKategoriDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Kategori</a>
+                    <a class="nav-link dropdown-toggle fs-5" href="#" id="offcanvasKategoriDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Produk</a>
                      <ul class="dropdown-menu border-0" aria-labelledby="offcanvasKategoriDropdown">
                         @forelse ($kategoris as $kategori)
                         <li>
@@ -169,9 +169,9 @@
                         @endforelse
                      </ul>
                 </li>
-                <li class="nav-item"><a class="nav-link fs-5" href="#">Promo</a></li>
-                <li class="nav-item"><a class="nav-link fs-5" href="#">Tentang Kami</a></li>
-                <li class="nav-item"><a class="nav-link fs-5" href="#">Kontak</a></li>
+                <li class="nav-item"><a class="nav-link fs-5" href="{{ route('market.produk') }}">Explore</a></li>
+                <li class="nav-item"><a class="nav-link fs-5" href="{{ route('market.layanan') }}">Layanan</a></li>
+                <li class="nav-item"><a class="nav-link fs-5" href="{{ route('market.tentang') }}">Tentang Kami</a></li>
             </ul>
         </div>
     </div>
@@ -180,9 +180,15 @@
     <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasSearch" aria-labelledby="offcanvasSearchLabel" style="height: auto;">
         <div class="offcanvas-body">
             <div class="container d-flex align-items-center">
-                <form class="w-100" action="{{ route('market.produk') }}" method="GET">
-                    <input type="search" name="search" class="form-control" placeholder="Cari produk..." autofocus>
+                <form action="{{ route('market.produk') }}" method="GET">
+                    <div class="input-group">
+                        <input type="search" id="global-search-input" name="search" class="form-control" placeholder="Cari produk, kategori, atau brand..." aria-label="Cari produk" autocomplete="off">
+                    </div>
                 </form>
+                {{-- Container untuk hasil live search --}}
+                <div id="search-results-container" class="position-absolute w-100 bg-white border rounded-2 shadow-lg mt-1" style="display: none; z-index: 1050;">
+                    {{-- Hasil akan di-inject oleh JavaScript di sini --}}
+                </div>
                 <i class="bi bi-x-lg ms-3 cursor-pointer" data-bs-dismiss="offcanvas" aria-label="Close"></i>
             </div>
         </div>

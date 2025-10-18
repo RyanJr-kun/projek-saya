@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\pengeluaran;
+use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\KategoriTransaksi;
