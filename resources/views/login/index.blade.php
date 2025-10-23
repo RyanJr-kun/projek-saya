@@ -1,22 +1,21 @@
 <!DOCTYPE html>
-    <html lang="id">
-        <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-            <meta name="csrf-token" content="{{ csrf_token() }}">
-            <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32x32.png') }}">
-            <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('assets/img/favicon-48x48.png') }}">
-            <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/apple-touch-icon.png') }}">
-                <title>
-                    Jo Computer - Login
-                </title>
-             @vite(['resources/scss/app.scss', 'resources/js/app.js'])
-            <!--     Fonts and icons     -->
-            <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-            <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
-            <script async defer src="https://buttons.github.io/buttons.js"></script>
-        </head>
+<html lang="id">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/apple-touch-icon.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-16x16.png') }}">
+        <link rel="manifest" href="{{ asset('assets/img/site.webmanifest') }}">
+        <title>Login | JO Computer</title>
+            @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+        <!--     Fonts and icons     -->
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+        <script src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+    </head>
     <body>
         <main class="main-content mt-0">
             <section>

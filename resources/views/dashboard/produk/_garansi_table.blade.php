@@ -16,10 +16,10 @@
                     <p title="garansi" class="ms-3 text-xs text-dark fw-bold mb-0">{{ $garansi->nama }}</p>
                 </td>
                 <td>
-                    <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ Str::limit(strip_tags($garansi->deskripsi), 60) }}</p>
+                    <p title="Deskripsi" class=" text-xs text-dark fw-bold mb-0">{{ Str::limit(strip_tags($garansi->deskripsi), 60) ?: '-' }}</p>
                 </td>
                 <td class="align-middle ">
-                    <span class="text-dark text-xs fw-bold">{{ $garansi->formatted_duration}}</span>
+                    <span class="text-dark text-xs fw-bold">{{ $garansi->formatted_duration }}</span>
                 </td>
                 <td class="align-middle text-center text-sm">
                     @if ($garansi->status)

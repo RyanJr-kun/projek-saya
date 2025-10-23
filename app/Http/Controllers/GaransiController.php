@@ -59,15 +59,26 @@ class GaransiController extends Controller
             'nama' => 'required|string|max:100|unique:garansis',
             'slug' => 'required|string|max:100|unique:garansis',
             'durasi' => 'required|integer|min:1',
-            'period' => 'required|string|in:Month,Year',
+            'period' => 'required|string|in:Day,Week,Month,Year',
             'deskripsi' => 'nullable|string',
             'status' => 'nullable|boolean',
         ]);
 
-        // Kalkulasi total bulan
-        $totalMonths = $validated['durasi'];
-        if ($validated['period'] === 'Year') {
-            $totalMonths = $validated['durasi'] * 12;
+        // Kalkulasi total bulan. Unit dasar penyimpanan adalah bulan.
+        $totalDays = 0;
+        switch ($validated['period']) {
+            case 'Year':
+                $totalDays = $validated['durasi'] * 360;
+                break;
+            case 'Month':
+                $totalDays = $validated['durasi'] * 30;
+                break;
+            case 'Week':
+                $totalDays = $validated['durasi'] * 7;
+                break;
+            case 'Day':
+                $totalDays = $validated['durasi'];
+                break;
         }
 
         // Siapkan data untuk disimpan, termasuk slug
@@ -76,12 +87,10 @@ class GaransiController extends Controller
             'slug' => $validated['slug'],
             'deskripsi' => $validated['deskripsi'] ?? null,
             'status' => $request->has('status'),
-            'durasi' => $totalMonths,
+            'durasi' => $totalDays,
         ];
 
         $garansi = Garansi::create($dataToStore);
-
-        // Cek apakah request mengharapkan response JSON (dikirim via AJAX)
         if ($request->wantsJson()) {
             // Muat ulang model untuk mendapatkan atribut tambahan seperti 'formatted_duration'
             $garansi->refresh();
@@ -131,15 +140,26 @@ class GaransiController extends Controller
             'nama' => ['required', 'max:255', Rule::unique('garansis')->ignore($garansi->id)],
             'slug' => ['required', 'max:255', Rule::unique('garansis')->ignore($garansi->id)],
             'durasi' => 'required|integer|min:1',
-            'period' => 'required|string|in:Month,Year',
+            'period' => 'required|string|in:Day,Week,Month,Year',
             'deskripsi' => 'nullable|string',
             'status' => 'nullable|boolean',
         ]);
 
-        // Kalkulasi ulang total bulan
-        $totalMonths = $validated['durasi'];
-        if ($validated['period'] === 'Year') {
-            $totalMonths = $validated['durasi'] * 12;
+        // Kalkulasi ulang total bulan. Unit dasar penyimpanan adalah bulan.
+        $totalDays = 0;
+        switch ($validated['period']) {
+            case 'Year':
+                $totalDays = $validated['durasi'] * 360; // 12 bulan * 30 hari
+                break;
+            case 'Month':
+                $totalDays = $validated['durasi'] * 30;
+                break;
+            case 'Week':
+                $totalDays = $validated['durasi'] * 7;
+                break;
+            case 'Day':
+                $totalDays = $validated['durasi'];
+                break;
         }
 
         // Siapkan data untuk diupdate
@@ -148,10 +168,11 @@ class GaransiController extends Controller
             'slug' => $validated['slug'],
             'deskripsi' => $validated['deskripsi'] ?? null,
             'status' => $request->has('status'),
-            'durasi' => $totalMonths,
+            'durasi' => $totalDays, // Simpan total HARI
         ];
 
         $garansi->update($dataToUpdate);
+
         if ($request->wantsJson()) {
             $garansi->refresh();
             $garansi->append('formatted_duration');

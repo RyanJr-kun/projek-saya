@@ -10,7 +10,16 @@
                 <p class="mt-3" style="font-size: 0.9rem;">
                     Toko komponen dan aksesoris komputer terpercaya. Kami menyediakan produk berkualitas dengan harga terbaik untuk kebutuhan perakitan dan upgrade PC Anda.
                 </p>
-                <p class="small"><i class="bi bi-geo-alt-fill me-2"></i>Jl. Slamet Riyadi Somodinalan No.250, Somodinatan, Ngadirejo, Kec. Kartasura, Kabupaten Sukoharjo</p>
+                {{-- Alamat Pusat Solo --}}
+                <p class="small d-flex align-items-start mb-2">
+                    <i class="bi bi-geo-alt-fill me-2 flex-shrink-0"></i>
+                    <span><strong>JO Computer Solo</strong> (Pusat)<br>Jl. Slamet Riyadi Somodinalan No.250, Somodinatan, Ngadirejo, Kec. Kartasura, Kabupaten Sukoharjo</span>
+                </p>
+                {{-- Alamat Cabang Baturetno --}}
+                <p class="small d-flex align-items-start">
+                    <i class="bi bi-geo-alt-fill me-2 flex-shrink-0"></i>
+                    <span><strong>JO Computer Baturetno</strong> (Cabang)<br>Jl. Raya Baturetno-Batuwarno, Batu Lor, Baturetno, Kec. Baturetno, Kabupaten Wonogiri</span>
+                </p>
                 <p class="small"><i class="bi bi-envelope-fill me-2"></i>cs@jocomputer.com</p>
                 <p class="small"><i class="bi bi-telephone-fill me-2"></i>081318000699</p>
             </div>

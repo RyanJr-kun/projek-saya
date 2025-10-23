@@ -87,6 +87,8 @@
                                     <div class="form-group">
                                         <label for="period" class="form-label"> Periode </label>
                                         <select class="form-select" id="period" name="period" required>
+                                            <option value="Day">Hari</option>
+                                            <option value="Week">Minggu</option>
                                             <option value="Month">Bulan</option>
                                             <option value="Year">Tahun</option>
                                         </select>
@@ -144,6 +146,8 @@
                                     <div class="mb-3">
                                         <label for="edit_period" class="form-label">Periode</label>
                                         <select class="form-select" id="edit_period" name="period" required>
+                                            <option value="Day">Hari</option>
+                                            <option value="Week">Minggu</option>
                                             <option value="Month">Bulan</option>
                                             <option value="Year">Tahun</option>
                                         </select>
@@ -365,13 +369,27 @@
                                     inputSlug.value = data.slug;
                                     inputStatus.checked = data.status == 1;
 
-                                    const totalMonths = data.durasi;
-                                    if (totalMonths && totalMonths >= 12 && totalMonths % 12 === 0) {
-                                        selectPeriod.value = 'Year';
-                                        inputDurasi.value = totalMonths / 12;
+                                    const totalDays = data.durasi; // Ini adalah total hari (misal: 400)
+
+                                    if (totalDays && totalDays > 0) {
+                                        if (totalDays % 360 === 0) {
+                                            selectPeriod.value = 'Year';
+                                            inputDurasi.value = totalDays / 360;
+                                        } else if (totalDays % 30 === 0) {
+                                            selectPeriod.value = 'Month';
+                                            inputDurasi.value = totalDays / 30;
+                                        } else if (totalDays % 7 === 0) {
+                                            selectPeriod.value = 'Week';
+                                            inputDurasi.value = totalDays / 7;
+                                        } else {
+                                            // Jika tidak habis dibagi, tampilkan sebagai hari
+                                            selectPeriod.value = 'Day';
+                                            inputDurasi.value = totalDays;
+                                        }
                                     } else {
-                                        selectPeriod.value = 'Month';
-                                        inputDurasi.value = totalMonths || '';
+                                        // Fallback jika durasi 0 atau null
+                                        inputDurasi.value = '';
+                                        selectPeriod.value = 'Day'; // Default
                                     }
 
                                     quillEdit.root.innerHTML = data.deskripsi || '';

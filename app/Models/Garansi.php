@@ -17,32 +17,45 @@ class Garansi extends Model
       return $this->hasMany(Produk::class);
     }
 
-    public function getFormattedDurationAttribute(): string
+   public function getFormattedDurationAttribute(): string
     {
-        $totalMonths = $this->durasi;
+        $totalDays = $this->durasi; // Ini sekarang adalah TOTAL HARI (integer)
 
-        if (!$totalMonths || $totalMonths <= 0) {
+        if (!$totalDays || $totalDays <= 0) {
             return 'N/A';
         }
 
-        // Hitung jumlah tahun dengan pembulatan ke bawah
-        $years = floor($totalMonths / 12);
-
-        // Hitung sisa bulan menggunakan operator modulo
-        $months = $totalMonths % 12;
-
         $parts = [];
-        // Jika ada tahun, tambahkan ke array
+        $daysRemaining = $totalDays;
+
+        // 1. Hitung Tahun
+        $years = floor($daysRemaining / 360);
         if ($years > 0) {
             $parts[] = $years . ' Tahun';
+            $daysRemaining %= 360;
         }
-        // Jika ada sisa bulan, tambahkan ke array
+
+        // 2. Hitung Bulan
+        $months = floor($daysRemaining / 30);
         if ($months > 0) {
             $parts[] = $months . ' Bulan';
+            $daysRemaining %= 30;
+        }
+
+        // 3. Hitung Minggu
+        $weeks = floor($daysRemaining / 7);
+        if ($weeks > 0) {
+            $parts[] = $weeks . ' Minggu';
+            $daysRemaining %= 7;
+        }
+
+        // 4. Sisa Hari
+        if ($daysRemaining > 0) {
+            $parts[] = $daysRemaining . ' Hari';
         }
 
         // Gabungkan bagian-bagian tersebut dengan spasi
-        return implode(' ', $parts);
+        return !empty($parts) ? implode(' ', $parts) : 'Kurang dari 1 hari';
     }
 
     public function getRouteKeyName(): string

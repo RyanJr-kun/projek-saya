@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-    <html lang="id">
-        <head>
+<html lang="id">
+    <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('assets/img/favicon-48x48.png') }}">
         <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/apple-touch-icon.png') }}">
-        <title>Point Of Sales - JO Computer</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-16x16.png') }}">
+        <link rel="manifest" href="{{ asset('assets/img/site.webmanifest') }}">
         @vite(['resources/scss/app.scss', 'resources/js/app.js'])
         <!--     Fonts and icons     -->
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
         <script defer src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
-
-        </head>
+    </head>
     <body class="bg-gray-100">
         <nav class="navbar navbar-main navbar-expand-lg border-bottom sticky-top" style="height: 70px; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);">
             <div class="container-fluid">

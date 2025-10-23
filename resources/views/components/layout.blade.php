@@ -4,10 +4,11 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32x32.png') }}">
-        <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('assets/img/favicon-48x48.png') }}">
         <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/apple-touch-icon.png') }}">
-        <title>Point Of Sales - JO Computer</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-16x16.png') }}">
+        <link rel="manifest" href="{{ asset('assets/img/site.webmanifest') }}">
+        <title>Dashboard | JO Computer</title>
         @vite(['resources/scss/app.scss', 'resources/js/app.js'])
         @stack('styles')
 
@@ -15,8 +16,6 @@
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" media="print" onload="this.media='all'">
         <script defer src="https://kit.fontawesome.com/939a218158.js" crossorigin="anonymous"></script>
-
-
     </head>
 
     <body class="g-sidenav-show bg-gray-100">
