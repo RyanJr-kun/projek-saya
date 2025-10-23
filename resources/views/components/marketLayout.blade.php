@@ -8,6 +8,7 @@
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32x32.png') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-16x16.png') }}">
         <link rel="manifest" href="{{ asset('assets/img/site.webmanifest') }}">
+        <link rel="canonical" href="https://www.jocomputer.com/" />
 
         <title>Marketplace | JO Computer</title>
         @vite(['resources/scss/app.scss', 'resources/js/app.js'])

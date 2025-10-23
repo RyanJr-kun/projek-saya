@@ -8,8 +8,11 @@
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon-32x32.png') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon-16x16.png') }}">
         <link rel="manifest" href="{{ asset('assets/img/site.webmanifest') }}">
+        <link rel="canonical" href="https://www.jocomputer.com/" />
+
         <title>Login | JO Computer</title>
-            @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+
+        @vite(['resources/scss/app.scss', 'resources/js/app.js'])
         <!--     Fonts and icons     -->
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
